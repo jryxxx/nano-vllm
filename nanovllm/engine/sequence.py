@@ -9,6 +9,8 @@ class SequenceStatus(Enum):
     WAITING = auto()
     RUNNING = auto()
     FINISHED = auto()
+    PAUSED = auto()
+    CANCELLED = auto()
 
 
 class Sequence:

@@ -5,6 +5,7 @@ import triton.language as tl
 
 from flash_attn import flash_attn_varlen_func, flash_attn_with_kvcache
 from nanovllm.utils.context import get_context
+from nanovllm.layers.shared_prefix import shared_prefix_decode
 
 
 @triton.jit
@@ -68,6 +69,10 @@ class Attention(nn.Module):
                                        max_seqlen_q=context.max_seqlen_q, cu_seqlens_q=context.cu_seqlens_q,
                                        max_seqlen_k=context.max_seqlen_k, cu_seqlens_k=context.cu_seqlens_k,
                                        softmax_scale=self.scale, causal=True, block_table=context.block_tables)
+        elif context.shared_enabled:
+            o = shared_prefix_decode(q, k_cache, v_cache, context.block_tables,
+                                     context.context_lens, context.shared_prefix_length,
+                                     context.suffix_tables, context.suffix_lengths, self.scale)
         else:    # decode
             o = flash_attn_with_kvcache(q.unsqueeze(1), k_cache, v_cache,
                                         cache_seqlens=context.context_lens, block_table=context.block_tables, 

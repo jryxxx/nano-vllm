@@ -1,4 +1,6 @@
 import pickle
+from collections import Counter
+from time import perf_counter
 import torch
 import torch.distributed as dist
 from multiprocessing.synchronize import Event
@@ -6,6 +8,7 @@ from multiprocessing.shared_memory import SharedMemory
 
 from nanovllm.config import Config
 from nanovllm.engine.sequence import Sequence
+from nanovllm.engine.shared_plan import select_shared_plan
 from nanovllm.models.qwen3 import Qwen3ForCausalLM
 from nanovllm.layers.sampler import Sampler
 from nanovllm.utils.context import set_context, get_context, reset_context
@@ -15,6 +18,8 @@ from nanovllm.utils.loader import load_model
 class ModelRunner:
 
     def __init__(self, config: Config, rank: int, event: Event | list[Event]):
+        self._previous_fp16_reduction = torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction
+        torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
         self.config = config
         hf_config = config.hf_config
         self.block_size = config.kvcache_block_size
@@ -22,9 +27,18 @@ class ModelRunner:
         self.world_size = config.tensor_parallel_size
         self.rank = rank
         self.event = event
+        self.attention_route_counts = Counter()
+        self.shared_planning_seconds = 0.0
+        head_dim = getattr(hf_config, "head_dim", hf_config.hidden_size // hf_config.num_attention_heads)
+        self.shared_supported = (self.world_size == 1 and head_dim in (64, 128)
+                                 and hf_config.dtype == torch.float16)
 
         dist.init_process_group("nccl", "tcp://localhost:2333", world_size=self.world_size, rank=rank)
         torch.cuda.set_device(rank)
+        self.shared_auto_calibrated = (
+            self.shared_supported and hf_config.num_attention_heads == 16
+            and hf_config.num_key_value_heads == 8 and head_dim == 128
+            and torch.cuda.get_device_name(rank) == "NVIDIA GeForce RTX 4090")
         default_dtype = torch.get_default_dtype()
         torch.set_default_dtype(hf_config.dtype)
         torch.set_default_device("cuda")
@@ -54,9 +68,10 @@ class ModelRunner:
             if self.rank == 0:
                 self.shm.unlink()
         if not self.enforce_eager:
-            del self.graphs, self.graph_pool
+            del self.graphs, self.shared_graphs, self.graph_pool
         torch.cuda.synchronize()
         dist.destroy_process_group()
+        torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = self._previous_fp16_reduction
 
     def loop(self):
         while True:
@@ -111,6 +126,8 @@ class ModelRunner:
         head_dim = getattr(hf_config, "head_dim", hf_config.hidden_size // hf_config.num_attention_heads)
         block_bytes = 2 * hf_config.num_hidden_layers * self.block_size * num_kv_heads * head_dim * hf_config.dtype.itemsize
         config.num_kvcache_blocks = int(total * config.gpu_memory_utilization - used - peak + current) // block_bytes
+        if config.max_kvcache_blocks:
+            config.num_kvcache_blocks = min(config.num_kvcache_blocks, config.max_kvcache_blocks)
         assert config.num_kvcache_blocks > 0
         self.kv_cache = torch.empty(2, hf_config.num_hidden_layers, config.num_kvcache_blocks, self.block_size, num_kv_heads, head_dim)
         layer_id = 0
@@ -185,6 +202,27 @@ class ModelRunner:
         context_lens = torch.tensor(context_lens, dtype=torch.int32, pin_memory=True).cuda(non_blocking=True)
         block_tables = self.prepare_block_tables(seqs)
         set_context(False, slot_mapping=slot_mapping, context_lens=context_lens, block_tables=block_tables)
+        t = perf_counter()
+        plan = select_shared_plan(seqs, self.block_size, self.config.shared_attention_backend,
+                                  self.config.shared_min_batch, self.config.shared_min_prefix,
+                                  self.shared_supported and (
+                                      self.config.shared_attention_backend != "auto" or self.shared_auto_calibrated),
+                                  graph_mode=not self.enforce_eager and len(seqs) <= 512)
+        self.attention_route_counts[plan.reason] += 1
+        if plan.enabled:
+            context = get_context()
+            context.shared_enabled = True
+            n = plan.prefix_blocks
+            prefix = n * self.block_size
+            suffix = [s.block_table[n:] for s in seqs]
+            width = max(map(len, suffix))
+            context.suffix_tables = torch.tensor([r + [-1] * (width-len(r)) for r in suffix],
+                                                dtype=torch.int32, pin_memory=True).cuda(non_blocking=True)
+            context.suffix_lengths = torch.tensor([len(s)-prefix for s in seqs], dtype=torch.int32,
+                                                 pin_memory=True).cuda(non_blocking=True)
+            context.shared_prefix_length = torch.tensor([prefix], dtype=torch.int32,
+                                                       pin_memory=True).cuda(non_blocking=True)
+        self.shared_planning_seconds += perf_counter() - t
         return input_ids, positions
 
     def prepare_sample(self, seqs: list[Sequence]):
@@ -199,7 +237,8 @@ class ModelRunner:
         else:
             bs = input_ids.size(0)
             context = get_context()
-            graph = self.graphs[next(x for x in self.graph_bs if x >= bs)]
+            bucket = next(x for x in self.graph_bs if x >= bs)
+            graph = (self.shared_graphs if context.shared_enabled else self.graphs)[bucket]
             graph_vars = self.graph_vars
             graph_vars["input_ids"][:bs] = input_ids
             graph_vars["positions"][:bs] = positions
@@ -208,6 +247,11 @@ class ModelRunner:
             graph_vars["context_lens"].zero_()
             graph_vars["context_lens"][:bs] = context.context_lens
             graph_vars["block_tables"][:bs, :context.block_tables.size(1)] = context.block_tables
+            if context.shared_enabled:
+                graph_vars["shared_prefix_length"].copy_(context.shared_prefix_length)
+                graph_vars["suffix_lengths"].zero_()
+                graph_vars["suffix_lengths"][:bs] = context.suffix_lengths
+                graph_vars["suffix_tables"][:bs, :context.suffix_tables.size(1)] = context.suffix_tables
             graph.replay()
             return self.model.compute_logits(graph_vars["outputs"][:bs])
 
@@ -219,8 +263,21 @@ class ModelRunner:
         reset_context()
         return token_ids
 
+    def copy_kv_blocks(self, jobs):
+        from nanovllm.engine.kv_copy import copy_kv_pages
+        copy_kv_pages(self.kv_cache, jobs)
+
     @torch.inference_mode()
     def capture_cudagraph(self):
+        from nanovllm.layers.layernorm import RMSNorm
+        norms=[m for m in self.model.modules() if isinstance(m,RMSNorm)]
+        for module in norms:module.graph_optimized=True
+        try:
+            return self._capture_cudagraph()
+        finally:
+            for module in norms:module.graph_optimized=False
+
+    def _capture_cudagraph(self):
         config = self.config
         hf_config = config.hf_config
         max_bs = min(self.config.max_num_seqs, 512)
@@ -233,6 +290,10 @@ class ModelRunner:
         outputs = torch.zeros(max_bs, hf_config.hidden_size)
         self.graph_bs = [1, 2, 4, 8] + list(range(16, max_bs + 1, 16))
         self.graphs = {}
+        self.shared_graphs = {}
+        shared_prefix_length = torch.full((1,), self.block_size, dtype=torch.int32)
+        suffix_lengths = torch.ones(max_bs, dtype=torch.int32)
+        suffix_tables = torch.zeros_like(block_tables)
         self.graph_pool = None
 
         for bs in reversed(self.graph_bs):
@@ -247,6 +308,27 @@ class ModelRunner:
             torch.cuda.synchronize()
             reset_context()
 
+        if (self.config.shared_attention_backend != "off" and self.shared_supported
+                and (self.config.shared_attention_backend != "auto" or self.shared_auto_calibrated)):
+            context_lens.fill_(self.block_size + 1)
+            for bs in reversed(self.graph_bs):
+                if self.config.shared_attention_backend == "auto" and bs < self.config.shared_min_batch:
+                    continue
+                set_context(False, slot_mapping=slot_mapping[:bs], context_lens=context_lens[:bs],
+                            block_tables=block_tables[:bs])
+                context = get_context()
+                context.shared_enabled = True
+                context.shared_prefix_length = shared_prefix_length
+                context.suffix_tables = suffix_tables[:bs]
+                context.suffix_lengths = suffix_lengths[:bs]
+                outputs[:bs] = self.model(input_ids[:bs], positions[:bs])
+                graph = torch.cuda.CUDAGraph()
+                with torch.cuda.graph(graph, self.graph_pool):
+                    outputs[:bs] = self.model(input_ids[:bs], positions[:bs])
+                self.shared_graphs[bs] = graph
+                torch.cuda.synchronize()
+                reset_context()
+
         self.graph_vars = dict(
             input_ids=input_ids,
             positions=positions,
@@ -254,4 +336,7 @@ class ModelRunner:
             context_lens=context_lens,
             block_tables=block_tables,
             outputs=outputs,
+            shared_prefix_length=shared_prefix_length,
+            suffix_lengths=suffix_lengths,
+            suffix_tables=suffix_tables,
         )

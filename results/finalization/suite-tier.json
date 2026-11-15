@@ -1,0 +1,62 @@
+[
+  {
+    "name": "tier-off",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_tier.py",
+      "--mode",
+      "off",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/tier-off.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "tier-off.log",
+    "exit_code": 0,
+    "elapsed_s": 47.577492179349065
+  },
+  {
+    "name": "tier-auto",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_tier.py",
+      "--mode",
+      "auto",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/tier-auto.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "tier-auto.log",
+    "exit_code": 0,
+    "elapsed_s": 52.1064553046599
+  },
+  {
+    "name": "tier-always",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_tier.py",
+      "--mode",
+      "always",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/tier-always.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "tier-always.log",
+    "exit_code": 0,
+    "elapsed_s": 52.656942556612194
+  },
+  {
+    "name": "transfer-profile",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/profile_transfers.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "transfer-profile.log",
+    "exit_code": 0,
+    "elapsed_s": 12.127440950833261
+  }
+]

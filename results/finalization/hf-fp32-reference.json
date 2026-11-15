@@ -1,0 +1,101 @@
+{
+  "reference": "Hugging Face eager attention, FP32 weights/activations, TF32 disabled",
+  "cases": [
+    {
+      "prompt": 0,
+      "tokens": 22,
+      "mode": "fp16_residual",
+      "relative_l2": 0.0018116987776011229,
+      "kl": 1.558507210575044e-05,
+      "argmax_match": true
+    },
+    {
+      "prompt": 0,
+      "tokens": 22,
+      "mode": "fp32_residual",
+      "relative_l2": 0.0013505674432963133,
+      "kl": 9.034603863256052e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 1,
+      "tokens": 122,
+      "mode": "fp16_residual",
+      "relative_l2": 0.0014953757636249065,
+      "kl": 6.349386239890009e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 1,
+      "tokens": 122,
+      "mode": "fp32_residual",
+      "relative_l2": 0.0011628654319792986,
+      "kl": 1.5309531590901315e-05,
+      "argmax_match": true
+    },
+    {
+      "prompt": 2,
+      "tokens": 322,
+      "mode": "fp16_residual",
+      "relative_l2": 0.0018001161515712738,
+      "kl": 3.4453754778951406e-05,
+      "argmax_match": true
+    },
+    {
+      "prompt": 2,
+      "tokens": 322,
+      "mode": "fp32_residual",
+      "relative_l2": 0.0012376927770674229,
+      "kl": 9.893861715681851e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 3,
+      "tokens": 128,
+      "mode": "fp16_residual",
+      "relative_l2": 0.0015716623747721314,
+      "kl": 8.869847079040483e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 3,
+      "tokens": 128,
+      "mode": "fp32_residual",
+      "relative_l2": 0.001404146896675229,
+      "kl": 3.9602364267921075e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 4,
+      "tokens": 513,
+      "mode": "fp16_residual",
+      "relative_l2": 0.0013598463265225291,
+      "kl": 4.158435331191868e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 4,
+      "tokens": 513,
+      "mode": "fp32_residual",
+      "relative_l2": 0.0010459808399900794,
+      "kl": 1.979235548787983e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 5,
+      "tokens": 1023,
+      "mode": "fp16_residual",
+      "relative_l2": 0.002119607524946332,
+      "kl": 5.190913725527935e-06,
+      "argmax_match": true
+    },
+    {
+      "prompt": 5,
+      "tokens": 1023,
+      "mode": "fp32_residual",
+      "relative_l2": 0.0013635040959343314,
+      "kl": 6.284404662437737e-06,
+      "argmax_match": true
+    }
+  ]
+}

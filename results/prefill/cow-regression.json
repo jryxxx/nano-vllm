@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "backend": "auto",
+  "eager": false,
+  "cases": [
+    {
+      "cached": 255,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0016003466444090009
+    },
+    {
+      "cached": 256,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0025688931345939636
+    },
+    {
+      "cached": 257,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0018032453954219818
+    },
+    {
+      "cached": 1024,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.002106925705447793
+    },
+    {
+      "cached": 1151,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0015985011123120785
+    },
+    {
+      "cached": 255,
+      "extension": 3,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0021047103218734264
+    },
+    {
+      "cached": 1151,
+      "extension": 300,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0014278372982516885
+    },
+    {
+      "shared_cow_batch": 32,
+      "relative_l2": 0.0017501463880762458
+    }
+  ],
+  "lifecycle": true,
+  "copy_bitwise": true,
+  "failure_rollback": true,
+  "pressure_recovery": true,
+  "final_stats": {
+    "cow_pages": 45,
+    "copy_pages": 43,
+    "copied_tokens": 15446,
+    "peak_live_pages": 37,
+    "live_pages": 0,
+    "free_pages": 404,
+    "references": 0,
+    "owners": 0,
+    "shared_pages": 0
+  }
+}

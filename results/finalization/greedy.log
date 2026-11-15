@@ -1,0 +1,1 @@
+{"prompts": 33, "tokens_per_prompt": 16, "exact_sequence_matches": 33, "token_matches": 528, "total_tokens": 528, "routes": {"off": {"off": 15}, "auto": {"shared": 15}}, "note": "Free-running greedy regression with test-only argmax sampler. Numeric acceptance is separately gated on identical teacher-forced trajectories."}

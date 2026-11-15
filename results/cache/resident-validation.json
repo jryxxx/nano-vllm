@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "policy": "fifo",
+      "bitwise_page_checks": 2215,
+      "stats": {
+        "cow_pages": 0,
+        "copy_pages": 0,
+        "copied_tokens": 0,
+        "peak_live_pages": 15,
+        "evictions": 152,
+        "reused_tokens": 12288,
+        "admitted_tokens": 55831,
+        "policy_seconds": 0.0,
+        "live_pages": 0,
+        "free_pages": 20,
+        "references": 0,
+        "owners": 0,
+        "shared_pages": 0,
+        "cached_free_pages": 17,
+        "logical_nodes": 21,
+        "policy": "fifo"
+      }
+    },
+    {
+      "policy": "lru",
+      "bitwise_page_checks": 2360,
+      "stats": {
+        "cow_pages": 0,
+        "copy_pages": 0,
+        "copied_tokens": 0,
+        "peak_live_pages": 15,
+        "evictions": 131,
+        "reused_tokens": 17408,
+        "admitted_tokens": 55831,
+        "policy_seconds": 0.0011479780077934265,
+        "live_pages": 0,
+        "free_pages": 20,
+        "references": 0,
+        "owners": 0,
+        "shared_pages": 0,
+        "cached_free_pages": 18,
+        "logical_nodes": 18,
+        "policy": "lru"
+      }
+    },
+    {
+      "policy": "leaf_lru",
+      "bitwise_page_checks": 2360,
+      "stats": {
+        "cow_pages": 0,
+        "copy_pages": 0,
+        "copied_tokens": 0,
+        "peak_live_pages": 15,
+        "evictions": 131,
+        "reused_tokens": 17408,
+        "admitted_tokens": 55831,
+        "policy_seconds": 0.0014249812811613083,
+        "live_pages": 0,
+        "free_pages": 20,
+        "references": 0,
+        "owners": 0,
+        "shared_pages": 0,
+        "cached_free_pages": 18,
+        "logical_nodes": 18,
+        "policy": "leaf_lru"
+      }
+    },
+    {
+      "policy": "cost",
+      "bitwise_page_checks": 2332,
+      "stats": {
+        "cow_pages": 0,
+        "copy_pages": 0,
+        "copied_tokens": 0,
+        "peak_live_pages": 15,
+        "evictions": 159,
+        "reused_tokens": 10240,
+        "admitted_tokens": 55831,
+        "policy_seconds": 0.001912010833621025,
+        "live_pages": 0,
+        "free_pages": 20,
+        "references": 0,
+        "owners": 0,
+        "shared_pages": 0,
+        "cached_free_pages": 18,
+        "logical_nodes": 18,
+        "policy": "cost"
+      }
+    }
+  ]
+}

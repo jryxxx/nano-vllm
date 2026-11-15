@@ -1,0 +1,8 @@
+WARMUP Full shared -1 1169.1 64
+TRIAL Full shared 0 3006.83 96
+TRIAL Full shared 1 3039.81 96
+TRIAL Full shared 2 3036.17 96
+WARMUP Full no_shared -1 1511.85 96
+TRIAL Full no_shared 0 1511.46 96
+TRIAL Full no_shared 1 1495.62 96
+TRIAL Full no_shared 2 1497.99 96

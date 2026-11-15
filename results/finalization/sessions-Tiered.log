@@ -1,0 +1,8 @@
+WARMUP Tiered shared -1 1235.63 64
+TRIAL Tiered shared 0 2985.88 96
+TRIAL Tiered shared 1 3010.57 96
+TRIAL Tiered shared 2 3029.08 96
+WARMUP Tiered no_shared -1 1508.59 96
+TRIAL Tiered no_shared 0 1513.63 96
+TRIAL Tiered no_shared 1 1494.41 96
+TRIAL Tiered no_shared 2 1494.94 96

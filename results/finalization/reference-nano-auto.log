@@ -1,0 +1,8 @@
+WARMUP nano-auto shared -1 3017.19
+TRIAL nano-auto shared 0 6471.46
+TRIAL nano-auto shared 1 6484.48
+TRIAL nano-auto shared 2 6448.28
+WARMUP nano-auto no_shared -1 2296.58
+TRIAL nano-auto no_shared 0 2302.7
+TRIAL nano-auto no_shared 1 2304.7
+TRIAL nano-auto no_shared 2 2304.93

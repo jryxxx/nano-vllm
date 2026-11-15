@@ -1,0 +1,5 @@
+# Keep original experiment bytes, including CSV CRLF and patch context spaces.
+results/** -whitespace
+# Large profiler traces and archived patches are data artifacts, not code reviews.
+results/**/transfer-trace.json -diff
+results/**/*.patch -diff

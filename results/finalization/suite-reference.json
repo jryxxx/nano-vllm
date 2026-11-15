@@ -1,0 +1,14 @@
+[
+  {
+    "name": "flashinfer",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_flashinfer.py"
+    ],
+    "code_sha256": "86276e3e0a2f3e9962d334f5e1e426562e9d2e21664c0ebff3a3de47280f5071",
+    "status": "passed",
+    "log": "flashinfer.log",
+    "exit_code": 0,
+    "elapsed_s": 17.569454721175134
+  }
+]

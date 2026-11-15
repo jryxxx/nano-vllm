@@ -1,0 +1,795 @@
+--- /dev/null
++++ b/docs/PREFILL_MODEL.md
+@@ -0,0 +1,81 @@
++# Measured Prefill costs and joint stage planning
++
++This phase keeps the previous scheduler available through its original fixed-chunk settings. The frozen comparison checkout is `/root/autodl-tmp/shared-context/src/nano-vllm-pre-prefill-cost`; original upstream remains untouched. The default policy is still `baseline`.
++
++## Cost model
++
++Calibration times the complete runner Prefill path: input/block metadata preparation, model execution and sampling synchronization. Cached prefixes are materialized by the actual model before measurement. Each shape has two discarded warmups and five recorded timings. These measurements are separate from online workload results.
++
++The non-negative affine backbone uses five features:
++
++- an intercept for fixed execution costs;
++- whether any query reads an existing cached prefix;
++- total query tokens / 1024;
++- the sum of `q * cached + q * (q + 1) / 2`, scaled by 2^20;
++- batch size minus one.
++
++This backbone alone is insufficient for all kernel-shape transitions. Exact calibrated shapes use their measured median. Other supported shapes use the affine prediction plus a distance-weighted residual from the three nearest training shapes in query-token, batch-size and query-weighted cached-context space. Holdout and fresh-audit rows are never added to this lookup.
++
++The measured domain is batch <= 8, total query tokens <= 8192 and cached context <= 3072. Predictions outside that domain, or too far from any training neighbor, return unknown rather than extrapolating. The caller falls back to the previous bounded chunk policy. The model/dtype/GPU profile is specific to the recorded environment; it must be recalibrated elsewhere. A bounded scalar EWMA corrects runner-to-engine and recent timing differences; the factor stays between 0.8 and 1.5.
++
++The calibrated backbone may set some coefficients to zero; this is an empirical fit, not a claim that batch structure or the cached path has no performance effect. The exact-shape table and residual lookup still distinguish their measurements.
++
++## Planning
++
++The planner previews the existing waiting order without allocating or changing KV ownership. It considers token budgets 256, 512, 1024, 2048, 3072, 4096, 6144 and 8192, bounded by the engine token budget, then deduplicates identical resulting batch shapes. Capacity and prefix-hit results are read through the existing block manager. Actual allocation remains transactional through the existing prefill/COW path; a shortened batch under memory pressure is predicted again before recording.
++
++For each candidate, it estimates the Prefill time and reserves time for oldest-first decode rounds after it. A candidate is feasible when every current decode round's service age plus estimated completion time fits the configurable soft service budget. Unknown decode shapes use a conservative larger ordinary-attention calibration shape; if no bound exists, the planner falls back.
++
++Among feasible candidates, the planner chooses the largest amount of query work, favoring prompt completion and amortizing fixed execution overhead. If no decode requests are runnable, it can batch more waiting prefill work without paying for unnecessary small chunks.
++
++Joint phase mode also defers prefill when the time budget is not available. When only the unserved tail of the previous decode batch is old, it refreshes that tail rather than executing a whole batch of recently served requests again. This reduces the time needed to make room for prefill and preserves original request IDs through the existing runner/postprocess mapping.
++
++A prefill step still gives way to a decode opportunity. A maximum consecutive decode count still guarantees waiting work an execution opportunity. If progress must be forced when no predicted candidate fits, this is counted explicitly. Non-preemptible kernels, CPU overhead and prediction error mean the service budget is not a hard latency guarantee.
++
++## Switches and ablations
++
++```python
++llm = LLM(
++    model_path,
++    shared_attention_backend="auto",
++    schedule_policy="cost",
++    schedule_cost_profile="results/prefill/cost-profile.json",
++    schedule_prefill_mode="model",
++    schedule_phase_mode="predictive",
++    schedule_service_budget_ms=70,
++    schedule_prediction_margin=1.10,
++    schedule_planning_margin_ms=2,
++    schedule_queue_limit=96,
++)
++```
++
++Both new switches default to the old behavior (`fixed`, `guarded`). `schedule_prefill_chunk` is the configured fallback/old-policy chunk, not the maximum predicted candidate size. `max_num_batched_tokens` remains the hard token budget. The 25 ms decode interval remains the urgency/group-deferral check; joint prefill admission uses its separate 70 ms soft completion budget. The benchmark acceptance standards remain TTFT <= 500 ms and request maximum ITL <= 75 ms.
++
++Five matched variants are compared:
++
++1. `baseline`: original prefill priority.
++2. `fixed_v1`: previous cost scheduler with fixed 1024-token chunks.
++3. `fixed_large`: same scheduler with fixed 4096-token chunks, showing what simple chunk enlargement achieves and costs.
++4. `model_only`: measured candidate budget, previous guarded phase rule.
++5. `joint`: measured candidate budget, predictive phase choice and targeted decode-tail refresh.
++
++The comparison reuses the prior natural-language formatted synthetic documents, preset arrivals, output lengths, 96-entry admission cap, attention backend and SLO thresholds. Faster completion can reopen admission slots during overload, so accepted/rejected counts are reported per variant rather than assumed identical. All offered requests are accounted for, and accepted work is drained and checked for reference leaks.
++
++## Validation and reproduction
++
++- `tests/validate_prefill_model.py`: held-out shape error, batching, overdue-decode priority and unsupported-domain fallback.
++- `tests/audit_prefill.py`: six separately measured shapes that never update the profile.
++- `tests/validate_prefill_gpu.py`: identical per-request teacher-forced histories across differing chunk/batch/stage orders, supported and unsupported cached-context paths, and COW parent-tail immutability.
++- Existing scheduler, COW and paged attention tests remain regression checks.
++
++```bash
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python experiments/calibrate_prefill.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --decode-profile results/scheduler/cost-profile.json \
++  --output results/prefill/cost-profile.json
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python experiments/replay_prefill.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --profile results/prefill/cost-profile.json --output results/prefill/replay.json
++```
++
++The old `pilot` results are diagnostics, not final performance evidence. Final conclusions use the frozen five-variant, five-scenario, five-repeat run and retain latency violations and rejection counts. This is finite-cohort online replay, not a production capacity or P99 guarantee.
+--- /dev/null
++++ b/docs/PREFILL_REPORT.md
+@@ -0,0 +1,76 @@
++# Prefill 成本模型与联合调度：对照实验报告
++
++本阶段在上一版成本调度上加入可校准的 Prefill 成本模型、批次/分块选择，以及为 Prefill 腾出时间的 Decode 尾批补充服务。新模式显式启用，默认 baseline 不变。
++
++## 实现与成本模型验证
++
++- 模型先拟合固定开销、query 数、query × cached-context/因果注意力工作量、缓存路径和 batch 特征的非负仿射骨架；精确标定形状使用测量中位数，未见形状使用邻近训练形状的残差校正。
++- 共 51 个训练形状，每形状预热 2 次、测量 5 次；覆盖总 query ≤ 8192、batch ≤ 8、已有缓存 ≤ 3072 token。超出范围或缺少可信 Decode 成本时回退，不外推性能承诺。
++- 仿射骨架单独在 8 个留出形状上的 MAPE 为 16.09%；加入训练表局部校正后为 2.77%。另测 6 个未加入模型的新形状，MAPE 3.21%，最大相对误差 8.48%。
++- 旧版按每 token 平均耗时缩 chunk 的做法已不用。新的候选计划使用完整 Prefill 路径预测，并为后续 oldest-first Decode 轮次预留时间。预测乘 1.10 安全系数，另留 2 ms 计划开销；70 ms 为软服务预算，不是硬截止时间。
++- 联合阶段策略在预算不足时先补充 Decode；若只有上一批未覆盖的尾部请求较旧，则只刷新这部分请求，避免反复执行已经得到服务的整批。等待工作仍受最大连续 Decode 次数保护，强制推进和预测失败均计数。
++
++## 对照协议
++
++RTX 4090、Qwen3-0.6B FP16、CUDA Graph、同一预分配 KV 池、attention=auto。沿用上一阶段的自然语言格式合成文档、预定开环到达、输出长度、队列上限 96 和 SLO：TTFT ≤ 500 ms、请求内最大 ITL ≤ 75 ms。
++
++五种策略 × 五种负载 × 五次正式重复，共 125 次；每组另做一次预热不计入，策略顺序轮转。TTFT 从预定到达时刻计。父会话准备在计时外，客户端 fork/冷请求仅在到达时注入。goodput 为符合两项 SLO 的完成请求数除以有限请求队列处理完成时间。不是稳态容量或生产 P99 认证。
++
++策略：baseline=原始 Prefill 优先；fixed_v1=上一版固定 1024 chunk；fixed_large=仅改成固定 4096 chunk；model_only=模型预算＋旧阶段规则；joint=模型预算＋预测阶段选择＋Decode 尾批刷新。所有公平策略使用相同 Decode 成本模型和其他参数。
++
++## 相对上一版 fixed_v1 的主要改善
++
++| 场景 | 输出吞吐 tok/s：旧 → 新 | 变化 | 冷 TTFT p95 ms：旧 → 新 | 降低 | goodput req/s：旧 → 新 |
++|---|---:|---:|---:|---:|---:|
++| mixed | 1156.4 → 1682.4 | +45.48% | 3221.8 → 1589.4 | 50.67% | 17.80 → 27.08 |
++| overload | 732.1 → 1157.2 | +58.06% | 5528.2 → 3342.8 | 39.53% | 10.78 → 17.95 |
++| cold_only | 686.6 → 1788.8 | +160.52% | 971.8 → 85.5 | 91.20% | 10.73 → 55.90 |
++
++表中数值均为 5 次运行的中位数，分位数为每次运行内计算后取中位数；范围和逐请求数据保留在 JSON。改善参照上一版公平成本调度，不等同于对原始吞吐优先基线的全面改善。
++
++## 完整消融与代价
++
++| 场景 | 策略 | 吞吐 tok/s | 冷 TTFT p95 ms | 热请求 max-ITL 的 p95 ms | goodput req/s | 接纳 / 拒绝 |
++|---|---|---:|---:|---:|---:|---:|
++| mixed | baseline | 2174.5 | 438.5 | 18.01 | 0.00 | 80 / 0 |
++| mixed | fixed_v1 | 1156.4 | 3221.8 | 73.09 | 17.80 | 80 / 0 |
++| mixed | fixed_large | 2240.9 | 938.6 | 80.24 | 3.18 | 80 / 0 |
++| mixed | model_only | 1512.2 | 2438.6 | 75.57 | 18.84 | 80 / 0 |
++| mixed | joint | 1682.4 | 1589.4 | 61.91 | 27.08 | 80 / 0 |
++| overload | baseline | 1657.2 | 1181.4 | 18.03 | 0.00 | 94 / 66 |
++| overload | fixed_v1 | 732.1 | 5528.2 | 72.99 | 10.78 | 94 / 66 |
++| overload | fixed_large | 1623.9 | 2164.0 | 81.61 | 1.87 | 96 / 64 |
++| overload | model_only | 1216.1 | 3271.6 | 75.46 | 14.80 | 95 / 65 |
++| overload | joint | 1157.2 | 3342.8 | 64.55 | 17.95 | 94 / 66 |
++| cold_only | baseline | 1726.4 | 74.8 | — | 8.43 | 32 / 0 |
++| cold_only | fixed_v1 | 686.6 | 971.8 | — | 10.73 | 32 / 0 |
++| cold_only | fixed_large | 1731.8 | 88.5 | — | 54.12 | 32 / 0 |
++| cold_only | model_only | 1800.7 | 85.0 | — | 56.27 | 32 / 0 |
++| cold_only | joint | 1788.8 | 85.5 | — | 55.90 | 32 / 0 |
++
++- fixed_large 在混合负载中吞吐更高、冷请求首 token 更快，但热点输出间隔超过固定 75 ms 标准；因此不能只靠扩大 chunk 宣称问题解决。
++- model_only 能减少 Prefill 步数，但旧阶段规则仍会在没有余量时插入 Prefill。joint 通过阶段选择和尾批刷新改善这项取舍。
++- joint 在过载下仍有较长冷 TTFT 和不达标请求；它改善的是上一版取舍，并未实现所有请求同时满足 SLO。
++- 更早完成可能在到达流量尚未结束时重新开放队列槽，所以过载下各变体接纳数量可能不同。表内同时报告接纳与拒绝；没有隐藏被拒绝或未完成的请求。所有已接纳请求均完成，最终引用归零。
++
++## 无 Prefill 场景回归
++
++| 场景 | fixed_v1 tok/s | joint tok/s | 变化 |
++|---|---:|---:|---:|
++| two_hot_groups | 3759.4 | 3770.3 | +0.29% |
++| short_hot_groups | 7694.3 | 7703.4 | +0.12% |
++
++## 正确性
++
++- 五种策略共 2680 个逐请求/token 数值对齐点，覆盖不同 Prefill 分块、变长 batch、已缓存前缀、COW 分支和超出模型范围的回退。最大相对 L2 0.003457，最大 KL 0.000031，通过原有 0.005 / 0.001 门槛。
++- COW 父会话有效尾部保持逐位不变；所有验证结束后 KV 引用归零。CPU 覆盖模型未知/越界回退、过期 Decode 优先、尾批刷新和多请求 Prefill 组批。
++- 原调度回归、原 COW GPU 验证、37 个分页用例及 8 次动态 Graph replay 通过。
++
++## 范围与复现
++
++- 成本表只在本次 GPU、模型和 dtype 上标定；不同设备和模型需重新校准。FP16 小模型实验不能替代更大模型或真实生产轨迹验证。
++- 不使用 GPU Performance Counters，因此不把吞吐变化解释成已实测的 DRAM/L2 变化。
++- 缓存淘汰、CPU 分层、跨模型调度与 BF16 共享引擎路径不在本阶段。
++- `pilot.json`、`pilot-refresh.json` 为开发诊断，最终结论仅来自 `replay.json`。
++
++实现与运行命令见 [PREFILL_MODEL.md](PREFILL_MODEL.md)。原始数据位于 `results/prefill/`：`cost-profile.json`、`model-validation.json`、`fresh-audit.json`、`gpu-validation.json`、`replay.json`、`summary.json`。
+--- /dev/null
++++ b/experiments/archive_prefill.py
+@@ -0,0 +1,17 @@
++import difflib,hashlib,json,subprocess
++from pathlib import Path
++root=Path(__file__).resolve().parents[1];before=root.parent/'nano-vllm-pre-prefill-cost';out=root/'results/prefill'
++paths=[]
++for folder in ('nanovllm','tests','experiments','docs'):
++    paths.extend(p for p in (root/folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix in ('.py','.md','.sh'))
++patch=[];changed=[]
++for p in sorted(paths):
++    rel=p.relative_to(root);old=before/rel;a=old.read_text() if old.exists() else '';b=p.read_text()
++    if a!=b:
++        changed.append(str(rel));patch.extend(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile='a/'+str(rel) if old.exists() else '/dev/null',tofile='b/'+str(rel)))
++(out/'phase-prefill.patch').write_text(''.join(patch))
++files=paths+[p for p in out.iterdir() if p.is_file() and p.name!='manifest.json']+[root/'results/scheduler/cost-profile.json']
++manifest=dict(branch=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip(),
++              upstream=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),changed_since_previous_phase=changed,
++              sha256={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)})
++(out/'manifest.json').write_text(json.dumps(manifest,indent=2));print(json.dumps(dict(changed=len(changed),hashed=len(files))))
+--- /dev/null
++++ b/experiments/calibrate_prefill.py
+@@ -0,0 +1,63 @@
++"""Measure full runner Prefill (metadata, model, sampling) across query/context/batch shapes."""
++import argparse,json,time,random,statistics
++from pathlib import Path
++import numpy as np
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.sequence import Sequence
++from nanovllm.engine.block_manager import BlockManager
++
++
++def features(qs,cs):
++    return [1.,float(any(cs)),sum(qs)/1024.,sum(q*c+q*(q+1)/2 for q,c in zip(qs,cs))/1048576.,len(qs)-1.]
++
++
++def nnls(a,b):
++    scale=np.maximum(np.linalg.norm(a,axis=0),1e-12);x=a/scale;w=np.zeros(a.shape[1]);res=b.copy()
++    for _ in range(3000):
++        old=w.copy()
++        for j in range(len(w)):
++            res+=x[:,j]*w[j];w[j]=max(0.,float(x[:,j]@res)/(float(x[:,j]@x[:,j])+1e-12));res-=x[:,j]*w[j]
++        if np.max(np.abs(w-old))<1e-8:break
++    return (w/scale).tolist()
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--decode-profile',required=True)
++    ap.add_argument('--output',required=True);args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=16384,
++            gpu_memory_utilization=.84,shared_attention_backend='auto')
++    runner=llm.model_runner;rng=random.Random(193);rows=[]
++    shapes=[([q]*b,[c]*b,'train') for b in (1,2,4,8) for q in (256,512,1024,2048,4096)
++            for c in (0,1024,3072) if q*b<=8192]
++    shapes += [([q]*b,[c]*b,'holdout') for b,q,c in ((1,768,0),(1,1536,2048),(2,1536,512),(3,1024,2048),(4,768,0),(2,3072,1024))]
++    shapes += [([256,1024,2048],[0,1024,3072],'holdout'),([512,512,1024,2048],[2048,0,1024,0],'holdout')]
++    random.Random(193).shuffle(shapes)
++    for qs,cs,split in shapes:
++        bm=BlockManager(len(llm.scheduler.block_manager.blocks),256);bm.copy_blocks=runner.copy_kv_blocks
++        seqs=[]
++        for q,c in zip(qs,cs):
++            seq=Sequence([rng.randrange(100,10000) for _ in range(q+c)],SamplingParams(max_tokens=1,ignore_eos=True))
++            bm.allocate(seq,0)
++            if c:
++                seq.num_scheduled_tokens=c;runner.call('run',[seq],True)
++            seq.num_cached_tokens=c;seq.num_scheduled_tokens=q;seqs.append(seq)
++        samples=[]
++        for repeat in range(7):
++            torch.cuda.synchronize();t=time.perf_counter();runner.call('run',seqs,True)
++            duration=(time.perf_counter()-t)*1000
++            if repeat>=2:samples.append(duration)
++        row=dict(q=qs,cached=cs,split=split,ms=statistics.median(samples),samples_ms=samples,features=features(qs,cs));rows.append(row)
++        for seq in seqs:bm.deallocate(seq)
++        bm.assert_invariants()
++        print(qs,cs,split,row['ms'],flush=True)
++    train=[r for r in rows if r['split']=='train'];a=np.array([r['features'] for r in train]);b=np.array([r['ms'] for r in train]);coeff=nnls(a,b)
++    for r in rows:
++        r['predicted_ms']=float(np.dot(r['features'],coeff));r['relative_error']=abs(r['predicted_ms']/r['ms']-1)
++    profile=json.loads(Path(args.decode_profile).read_text());profile['prefill']=dict(coefficients=coeff,features=['intercept','cached_path','query_k','attention_m','batch_minus_one'],
++        max_total_q=8192,max_cached=3072,max_batch=8,rows=rows,version=1,
++        train_mape=statistics.mean(r['relative_error'] for r in train),
++        holdout_mape=statistics.mean(r['relative_error'] for r in rows if r['split']=='holdout'))
++    Path(args.output).write_text(json.dumps(profile,indent=2));print(json.dumps({k:v for k,v in profile['prefill'].items() if k!='rows'}),flush=True);llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/experiments/replay_prefill.py
+@@ -0,0 +1,40 @@
++"""Matched comparison preserving previous arrivals, queue cap, and SLO criteria."""
++import argparse,json
++from pathlib import Path
++from nanovllm import LLM
++from replay_scheduler import trial
++
++VARIANTS={
++ 'baseline':dict(policy='baseline',chunk=1024,prefill='fixed',phase='guarded'),
++ 'fixed_v1':dict(policy='cost',chunk=1024,prefill='fixed',phase='guarded'),
++ 'fixed_large':dict(policy='cost',chunk=4096,prefill='fixed',phase='guarded'),
++ 'model_only':dict(policy='cost',chunk=1024,prefill='model',phase='guarded'),
++ 'joint':dict(policy='cost',chunk=1024,prefill='model',phase='predictive'),
++}
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True)
++    ap.add_argument('--output',required=True);ap.add_argument('--repeats',type=int,default=5)
++    ap.add_argument('--scenarios',nargs='+',default=['mixed','overload','cold_only','two_hot_groups','short_hot_groups'])
++    ap.add_argument('--variants',nargs='+',choices=VARIANTS,default=list(VARIANTS));args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=8192,gpu_memory_utilization=.84,
++            shared_attention_backend='auto',schedule_queue_limit=96,schedule_cost_profile=args.profile,
++            schedule_decode_interval_ms=25,schedule_wait_ms=100,schedule_prefill_chunk=1024,
++            schedule_service_budget_ms=70,schedule_prediction_margin=1.10,schedule_planning_margin_ms=2.)
++    report=dict(config=dict(model=args.model,profile=args.profile,variants=VARIANTS,repeats=args.repeats,
++             ttft_slo_ms=500,request_max_itl_slo_ms=75,queue_limit=96,service_budget_ms=70,
++             prediction_margin=1.1,planning_margin_ms=2),trials=[])
++    for scenario in args.scenarios:
++        for repeat in range(-1,args.repeats):
++            n=len(args.variants);order=args.variants[repeat%n:]+args.variants[:repeat%n]
++            for variant in order:
++                settings=VARIANTS[variant]
++                llm.config.schedule_prefill_chunk=settings['chunk'];llm.config.schedule_prefill_mode=settings['prefill']
++                llm.config.schedule_phase_mode=settings['phase']
++                row=trial(llm,args,scenario,settings['policy'],repeat);row['variant']=variant
++                if repeat>=0:report['trials'].append(row);Path(args.output).write_text(json.dumps(report,indent=2))
++                print(json.dumps({k:v for k,v in row.items() if k not in ('records','steps')}),flush=True)
++    llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/experiments/summarize_prefill.py
+@@ -0,0 +1,111 @@
++import json,statistics as st
++from collections import Counter
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'results/prefill'
++raw=json.loads((OUT/'replay.json').read_text());rows=raw['trials'];variants=list(raw['config']['variants'])
++scenarios=['mixed','overload','cold_only','two_hot_groups','short_hot_groups'];summary={}
++for scenario in scenarios:
++    summary[scenario]={}
++    for variant in variants:
++        group=[r for r in rows if r['scenario']==scenario and r['variant']==variant];assert len(group)==5
++        assert all(r['unfinished']==0 for r in group)
++        metrics=['elapsed_s','output_tokens_per_s','goodput','good','offered','accepted','rejected','peak_live_pages']
++        med={k:st.median(r[k] for r in group) for k in metrics};ranges={k:[min(r[k] for r in group),max(r[k] for r in group)] for k in metrics}
++        cohorts={}
++        for kind in ('hot','cold'):
++            if kind not in group[0]['cohorts']:continue
++            cohorts[kind]={key:{p:st.median(r['cohorts'][kind][key][p] for r in group) for p in ('50','95','99','100')}
++                           for key in ('ttft_ms','request_max_itl_ms')}
++            cohorts[kind].update({key:st.median(r['cohorts'][kind][key] for r in group) for key in ('good','offered','rejected')})
++        decisions=Counter();routes=Counter()
++        for r in group:decisions.update(r['scheduler_metrics']);routes.update(r['routes'])
++        prefill_counts=[sum(s['work']>0 for s in r['steps']) for r in group]
++        summary[scenario][variant]=dict(median=med,ranges=ranges,cohorts=cohorts,metrics=dict(decisions),routes=dict(routes),
++            median_prefill_steps=st.median(prefill_counts),
++            engine_prefill_prediction_mae_ms=decisions.get('prefill_prediction_abs_error_us',0)/1000/max(1,decisions.get('prefill_prediction_count',0)))
++model=json.loads((OUT/'model-validation.json').read_text());audit=json.loads((OUT/'fresh-audit.json').read_text())
++gpu=json.loads((OUT/'gpu-validation.json').read_text());assert gpu['passed']
++checks=[r for c in gpu['cases'] for r in c['checks']]
++quality=dict(request_token_comparisons=len(checks),max_relative_l2=max(r['relative_l2'] for r in checks),max_kl=max(r['max_kl'] for r in checks))
++changes={}
++for scenario in scenarios:
++    old=summary[scenario]['fixed_v1'];new=summary[scenario]['joint']
++    change=dict(throughput_pct=100*(new['median']['output_tokens_per_s']/old['median']['output_tokens_per_s']-1),
++                goodput_pct=100*(new['median']['goodput']/old['median']['goodput']-1))
++    if 'cold' in old['cohorts']:
++        change['cold_ttft_p95_reduction_pct']=100*(1-new['cohorts']['cold']['ttft_ms']['95']/old['cohorts']['cold']['ttft_ms']['95'])
++    changes[scenario]=change
++result=dict(config=raw['config'],scenarios=summary,changes_vs_fixed_v1=changes,quality=quality,
++            holdout_mape=model['mape'],fresh_audit_mape=audit['mape'],fresh_audit_max_error=audit['max_relative_error'])
++(OUT/'summary.json').write_text(json.dumps(result,indent=2))
++lines=['# Prefill 成本模型与联合调度：对照实验报告','',
++'本阶段在上一版成本调度上加入可校准的 Prefill 成本模型、批次/分块选择，以及为 Prefill 腾出时间的 Decode 尾批补充服务。新模式显式启用，默认 baseline 不变。',
++'', '## 实现与成本模型验证','',
++'- 模型先拟合固定开销、query 数、query × cached-context/因果注意力工作量、缓存路径和 batch 特征的非负仿射骨架；精确标定形状使用测量中位数，未见形状使用邻近训练形状的残差校正。',
++'- 共 51 个训练形状，每形状预热 2 次、测量 5 次；覆盖总 query ≤ 8192、batch ≤ 8、已有缓存 ≤ 3072 token。超出范围或缺少可信 Decode 成本时回退，不外推性能承诺。',
++f'- 仿射骨架单独在 8 个留出形状上的 MAPE 为 16.09%；加入训练表局部校正后为 {100*model["mape"]:.2f}%。另测 6 个未加入模型的新形状，MAPE {100*audit["mape"]:.2f}%，最大相对误差 {100*audit["max_relative_error"]:.2f}%。',
++'- 旧版按每 token 平均耗时缩 chunk 的做法已不用。新的候选计划使用完整 Prefill 路径预测，并为后续 oldest-first Decode 轮次预留时间。预测乘 1.10 安全系数，另留 2 ms 计划开销；70 ms 为软服务预算，不是硬截止时间。',
++'- 联合阶段策略在预算不足时先补充 Decode；若只有上一批未覆盖的尾部请求较旧，则只刷新这部分请求，避免反复执行已经得到服务的整批。等待工作仍受最大连续 Decode 次数保护，强制推进和预测失败均计数。',
++'', '## 对照协议','',
++'RTX 4090、Qwen3-0.6B FP16、CUDA Graph、同一预分配 KV 池、attention=auto。沿用上一阶段的自然语言格式合成文档、预定开环到达、输出长度、队列上限 96 和 SLO：TTFT ≤ 500 ms、请求内最大 ITL ≤ 75 ms。',
++'',
++'五种策略 × 五种负载 × 五次正式重复，共 125 次；每组另做一次预热不计入，策略顺序轮转。TTFT 从预定到达时刻计。父会话准备在计时外，客户端 fork/冷请求仅在到达时注入。goodput 为符合两项 SLO 的完成请求数除以有限请求队列处理完成时间。不是稳态容量或生产 P99 认证。',
++'',
++'策略：baseline=原始 Prefill 优先；fixed_v1=上一版固定 1024 chunk；fixed_large=仅改成固定 4096 chunk；model_only=模型预算＋旧阶段规则；joint=模型预算＋预测阶段选择＋Decode 尾批刷新。所有公平策略使用相同 Decode 成本模型和其他参数。',
++'', '## 相对上一版 fixed_v1 的主要改善','',
++'| 场景 | 输出吞吐 tok/s：旧 → 新 | 变化 | 冷 TTFT p95 ms：旧 → 新 | 降低 | goodput req/s：旧 → 新 |',
++'|---|---:|---:|---:|---:|---:|']
++for scenario in ('mixed','overload','cold_only'):
++    a,b=summary[scenario]['fixed_v1'],summary[scenario]['joint'];c=changes[scenario]
++    lines.append(f'| {scenario} | {a["median"]["output_tokens_per_s"]:.1f} → {b["median"]["output_tokens_per_s"]:.1f} | {c["throughput_pct"]:+.2f}% | {a["cohorts"]["cold"]["ttft_ms"]["95"]:.1f} → {b["cohorts"]["cold"]["ttft_ms"]["95"]:.1f} | {c["cold_ttft_p95_reduction_pct"]:.2f}% | {a["median"]["goodput"]:.2f} → {b["median"]["goodput"]:.2f} |')
++lines += ['', '表中数值均为 5 次运行的中位数，分位数为每次运行内计算后取中位数；范围和逐请求数据保留在 JSON。改善参照上一版公平成本调度，不等同于对原始吞吐优先基线的全面改善。',
++'', '## 完整消融与代价','',
++'| 场景 | 策略 | 吞吐 tok/s | 冷 TTFT p95 ms | 热请求 max-ITL 的 p95 ms | goodput req/s | 接纳 / 拒绝 |',
++'|---|---|---:|---:|---:|---:|---:|']
++for scenario in ('mixed','overload','cold_only'):
++    for variant in variants:
++        d=summary[scenario][variant];m=d['median'];hot=d['cohorts'].get('hot')
++        hot_text=f'{hot["request_max_itl_ms"]["95"]:.2f}' if hot else '—'
++        lines.append(f'| {scenario} | {variant} | {m["output_tokens_per_s"]:.1f} | {d["cohorts"]["cold"]["ttft_ms"]["95"]:.1f} | {hot_text} | {m["goodput"]:.2f} | {m["accepted"]:g} / {m["rejected"]:g} |')
++lines += ['',
++'- fixed_large 在混合负载中吞吐更高、冷请求首 token 更快，但热点输出间隔超过固定 75 ms 标准；因此不能只靠扩大 chunk 宣称问题解决。',
++'- model_only 能减少 Prefill 步数，但旧阶段规则仍会在没有余量时插入 Prefill。joint 通过阶段选择和尾批刷新改善这项取舍。',
++'- joint 在过载下仍有较长冷 TTFT 和不达标请求；它改善的是上一版取舍，并未实现所有请求同时满足 SLO。',
++'- 更早完成可能在到达流量尚未结束时重新开放队列槽，所以过载下各变体接纳数量可能不同。表内同时报告接纳与拒绝；没有隐藏被拒绝或未完成的请求。所有已接纳请求均完成，最终引用归零。',
++'', '## 无 Prefill 场景回归','',
++'| 场景 | fixed_v1 tok/s | joint tok/s | 变化 |',
++'|---|---:|---:|---:|']
++for scenario in ('two_hot_groups','short_hot_groups'):
++    a=summary[scenario]['fixed_v1']['median']['output_tokens_per_s'];b=summary[scenario]['joint']['median']['output_tokens_per_s']
++    lines.append(f'| {scenario} | {a:.1f} | {b:.1f} | {(b/a-1)*100:+.2f}% |')
++lines += ['', '## 正确性','',
++f'- 五种策略共 {quality["request_token_comparisons"]} 个逐请求/token 数值对齐点，覆盖不同 Prefill 分块、变长 batch、已缓存前缀、COW 分支和超出模型范围的回退。最大相对 L2 {quality["max_relative_l2"]:.6f}，最大 KL {quality["max_kl"]:.6f}，通过原有 0.005 / 0.001 门槛。',
++'- COW 父会话有效尾部保持逐位不变；所有验证结束后 KV 引用归零。CPU 覆盖模型未知/越界回退、过期 Decode 优先、尾批刷新和多请求 Prefill 组批。',
++'- 原调度回归、原 COW GPU 验证、37 个分页用例及 8 次动态 Graph replay 通过。',
++'', '## 范围与复现','',
++'- 成本表只在本次 GPU、模型和 dtype 上标定；不同设备和模型需重新校准。FP16 小模型实验不能替代更大模型或真实生产轨迹验证。',
++'- 不使用 GPU Performance Counters，因此不把吞吐变化解释成已实测的 DRAM/L2 变化。',
++'- 缓存淘汰、CPU 分层、跨模型调度与 BF16 共享引擎路径不在本阶段。',
++'- `pilot.json`、`pilot-refresh.json` 为开发诊断，最终结论仅来自 `replay.json`。',
++'', '实现与运行命令见 [PREFILL_MODEL.md](PREFILL_MODEL.md)。原始数据位于 `results/prefill/`：`cost-profile.json`、`model-validation.json`、`fresh-audit.json`、`gpu-validation.json`、`replay.json`、`summary.json`。','']
++(ROOT/'docs/PREFILL_REPORT.md').write_text('\n'.join(lines))
++print(json.dumps(dict(changes=changes,quality=quality,holdout_mape=model['mape'],fresh_audit_mape=audit['mape']),indent=2))
++
++import matplotlib
++matplotlib.use('Agg')
++import matplotlib.pyplot as plt
++import numpy as np
++fig,axes=plt.subplots(2,2,figsize=(12,8),layout='constrained');names=['mixed','overload','cold_only'];show=['fixed_v1','fixed_large','model_only','joint'];colors=['#7c8796','#ef9645','#4d8cc7','#249c83'];x=np.arange(3);width=.19
++for j,(variant,color) in enumerate(zip(show,colors)):
++    ds=[summary[n][variant] for n in names];offset=(j-1.5)*width
++    values=[[d['median']['output_tokens_per_s'] for d in ds],
++            [d['cohorts']['cold']['ttft_ms']['95'] for d in ds],
++            [d['median']['goodput'] for d in ds],
++            [d['cohorts'].get('hot',d['cohorts']['cold'])['request_max_itl_ms']['95'] for d in ds]]
++    for ax,v in zip(axes.flat,values):ax.bar(x+offset,v,width,label=variant,color=color)
++for ax,title,ylabel in zip(axes.flat,['Output throughput','Cold-request TTFT p95','SLO goodput','Request maximum ITL p95*'],['output tokens/s','ms (lower is better)','requests/s','ms (lower is better)']):
++    ax.set_xticks(x,names);ax.set_title(title);ax.set_ylabel(ylabel);ax.grid(axis='y',alpha=.2);ax.set_axisbelow(True)
++axes[1,1].axhline(75,color='#a73535',linestyle='--',label='75 ms SLO')
++axes[0,0].legend(fontsize=9);axes[1,1].legend(fontsize=9)
++fig.suptitle('Prefill cost model and joint scheduling — median of 5 repeats\n*Hot requests when present; cold requests for cold_only',fontsize=13)
++fig.savefig(OUT/'prefill-tradeoffs.png',dpi=170);plt.close(fig)
+--- a/nanovllm/config.py
++++ b/nanovllm/config.py
+@@ -17,6 +17,11 @@
+     shared_min_prefix: int = 1024
+     schedule_policy: str = "baseline"
+     schedule_prefill_chunk: int = 1024
++    schedule_prefill_mode: str = "fixed"
++    schedule_phase_mode: str = "guarded"
++    schedule_service_budget_ms: float = 70.0
++    schedule_prediction_margin: float = 1.10
++    schedule_planning_margin_ms: float = 2.0
+     schedule_decode_interval_ms: float = 25.0
+     schedule_wait_ms: float = 100.0
+     schedule_max_decode_steps: int = 4
+@@ -32,6 +37,10 @@
+     def __post_init__(self):
+         assert self.schedule_policy in ('baseline','fcfs','lpm','cost')
+         assert self.schedule_prefill_chunk > 0
++        assert self.schedule_prefill_mode in ('fixed','model')
++        assert self.schedule_phase_mode in ('guarded','predictive')
++        assert self.schedule_service_budget_ms > 0 and self.schedule_prediction_margin >= 1
++        assert self.schedule_planning_margin_ms >= 0
+         assert self.schedule_decode_interval_ms > 0 and self.schedule_wait_ms > 0
+         assert self.schedule_max_decode_steps > 0 and self.schedule_candidate_limit > 0
+         assert self.schedule_max_groups > 0 and self.schedule_queue_limit >= 0
+--- a/nanovllm/engine/schedule_cost.py
++++ b/nanovllm/engine/schedule_cost.py
+@@ -9,11 +9,18 @@
+     def __init__(self, config):
+         self.rows = []
+         self.prefill_unit = None
++        self.prefill = None
++        self.prefill_correction = 1.0
++        self.prefill_exact = {}
+         if config.schedule_cost_profile:
+             profile = json.loads(Path(config.schedule_cost_profile).read_text())
+             if profile['model'] != config.model or profile['eager'] != config.enforce_eager:
+                 raise ValueError('scheduler cost profile model/execution mode mismatch')
+             self.rows = profile['decode']
++            self.prefill = profile.get('prefill')
++            if self.prefill:
++                self.prefill_train = [r for r in self.prefill['rows'] if r['split']=='train']
++                self.prefill_exact = {tuple(sorted(zip(r['q'],r['cached']))):r['ms'] for r in self.prefill_train}
+ 
+     @staticmethod
+     def features(seqs, config, capable):
+@@ -55,3 +62,44 @@
+         # metadata. No assertion of a hard time bound for a non-preemptible kernel.
+         unit=ms/max(tokens,1)
+         self.prefill_unit=unit if self.prefill_unit is None else .8*self.prefill_unit+.2*unit
++
++    @staticmethod
++    def prefill_features(qs, cs):
++        return [1.,float(any(cs)),sum(qs)/1024.,
++                sum(q*c+q*(q+1)/2 for q,c in zip(qs,cs))/1048576.,len(qs)-1.]
++
++    def predict_prefill(self, qs, cs):
++        if not self.prefill or not qs or any(q<=0 for q in qs): return None
++        if (sum(qs)>self.prefill['max_total_q'] or len(qs)>self.prefill['max_batch']
++                or max(cs)>self.prefill['max_cached']): return None
++        key=tuple(sorted(zip(qs,cs)))
++        exact=self.prefill_exact.get(key)
++        if exact is not None: return exact*self.prefill_correction
++        features=self.prefill_features(qs,cs)
++        base=sum(a*b for a,b in zip(features,self.prefill['coefficients']))
++        mean_c=sum(q*c for q,c in zip(qs,cs))/sum(qs)
++        def distance(row):
++            rq,rc=row['q'],row['cached'];mean=sum(q*c for q,c in zip(rq,rc))/sum(rq)
++            return (abs(math.log2(sum(rq)/sum(qs)))+.5*abs(math.log2(len(rq)/len(qs)))
++                    +abs(math.log2((1024+mean)/(1024+mean_c))))
++        nearest=sorted((r for r in self.prefill_train if bool(any(r['cached']))==bool(any(cs))),key=distance)[:3]
++        if not nearest or distance(nearest[0])>1.5:return None
++        weights=[1/(.1+distance(r))**2 for r in nearest]
++        residual=sum(w*(r['ms']-sum(a*b for a,b in zip(r['features'],self.prefill['coefficients'])))
++                     for w,r in zip(weights,nearest))/sum(weights)
++        return max(1.,base+residual)*self.prefill_correction
++
++    def decode_reserve(self, seqs, config, capable):
++        if not seqs:return 0.
++        features=self.features(seqs,config,capable)
++        estimate=self.estimate(features)
++        if estimate is not None:return estimate
++        # Conservative ordinary-path upper shape for an uncalibrated small batch.
++        candidates=[r for r in self.rows if not r['shared'] and r['batch']>=len(seqs)
++                    and r['common']==features['common'] and r['context']>=features['context']*.95]
++        return min((r['ms'] for r in candidates),default=None)
++
++    def observe_prefill_prediction(self, prediction, elapsed_ms):
++        if prediction and prediction>0:
++            ratio=max(.8,min(1.5,elapsed_ms/prediction))
++            self.prefill_correction=max(.8,min(1.5,self.prefill_correction*(.95+.05*ratio)))
+--- a/nanovllm/engine/scheduler.py
++++ b/nanovllm/engine/scheduler.py
+@@ -22,6 +22,7 @@
+         self.metrics = Counter()
+         self.last_phase = None
+         self.decode_streak = 0
++        self.prefill_prediction = None
+         self.max_num_seqs = config.max_num_seqs
+         self.max_num_batched_tokens = config.max_num_batched_tokens
+         self.eos = config.eos
+@@ -132,6 +133,14 @@
+     def _order_decode(self, now):
+         queue=list(self.running)
+         fair=sorted(queue,key=lambda s:getattr(s,'scheduler_service',now))
++        if getattr(self,'_refresh_count',0):
++            chosen=fair[:self._refresh_count]
++            selected={s.seq_id for s in chosen}
++            self._decode_limit=len(chosen)
++            self.running=deque(chosen+[s for s in fair if s.seq_id not in selected])
++            self.metrics['decode_tail_refresh_steps']+=1
++            self.metrics['decode_tail_refresh_requests']+=len(chosen)
++            return
+         base=fair[:self.max_num_seqs]; chosen=base
+         policy=self.config.schedule_policy
+         if policy in ('lpm','cost') and self._age(fair[0],now) < self.config.schedule_decode_interval_ms:
+@@ -165,18 +174,88 @@
+         self._decode_limit=len(chosen)
+         self.running=deque(chosen+[s for s in fair if s.seq_id not in selected])
+ 
++    def _preview_prefill(self, budget, cache):
++        qs=[];cs=[]
++        for seq in list(self.waiting)[:min(self.max_num_seqs,8)]:
++            if budget<=0:break
++            if seq.block_table:
++                cached=seq.num_cached_tokens
++            else:
++                if seq.seq_id not in cache:cache[seq.seq_id]=self.block_manager.can_allocate(seq)
++                blocks=cache[seq.seq_id]
++                if blocks<0:break
++                cached=blocks*self.block_size
++            remaining=len(seq)-cached
++            if qs and remaining>budget:break
++            count=min(remaining,budget)
++            if not self.block_manager.can_write(seq,count) and seq.block_table:break
++            qs.append(count);cs.append(cached);budget-=count
++        return qs,cs
++
++    def _prefill_options(self, now):
++        options=[];seen=set();cache={}
++        running=sorted(self.running,key=lambda s:getattr(s,'scheduler_service',now))
++        # Forecast the completion of oldest-first decode rounds after prefill.
++        elapsed=0.;slack=self.config.schedule_service_budget_ms
++        for i in range(0,len(running),self.max_num_seqs):
++            group=running[i:i+self.max_num_seqs]
++            ms=self.cost.decode_reserve(group,self.config,self.shared_capable)
++            if ms is None:
++                self.metrics['prefill_unknown_decode_cost']+=1
++                return []
++            elapsed+=ms*self.config.schedule_prediction_margin
++            slack=min(slack,self.config.schedule_service_budget_ms-max(self._age(s,now) for s in group)-elapsed)
++        for budget in (256,512,1024,2048,3072,4096,6144,8192):
++            budget=min(budget,self.max_num_batched_tokens)
++            qs,cs=self._preview_prefill(budget,cache)
++            key=(tuple(qs),tuple(cs))
++            if not qs or key in seen:continue
++            seen.add(key);prediction=self.cost.predict_prefill(qs,cs)
++            if prediction is None:continue
++            safe=(not running or prediction*self.config.schedule_prediction_margin+
++                  self.config.schedule_planning_margin_ms<=slack)
++            options.append(dict(tokens=sum(qs),prediction=prediction,safe=safe))
++        return options
++
+     def schedule(self) -> tuple[list[Sequence], bool]:
+         fair=self.config.schedule_policy!='baseline'
+-        now=self.clock()
++        now=self.clock();self.prefill_prediction=None;self._refresh_count=0
++        if fair:self._order_waiting(now)
+         phase=self._phase(now) if fair else 'prefill'
+-        if fair:
+-            self._order_waiting(now)
+-        self._step_budget=min(self.max_num_batched_tokens,self.cost.prefill_budget(self.config)) if fair else self.max_num_batched_tokens
++        self._step_budget=min(self.max_num_batched_tokens,self.config.schedule_prefill_chunk) if fair else self.max_num_batched_tokens
++        if fair and getattr(self.config,'schedule_prefill_mode','fixed')=='model' and self.waiting:
++            options=self._prefill_options(now)
++            safe=[o for o in options if o['safe']]
++            chosen=max(safe,key=lambda o:o['tokens']) if safe else None
++            predictive=self.config.schedule_phase_mode=='predictive'
++            if chosen:
++                self._step_budget=chosen['tokens'];self.prefill_prediction=chosen['prediction']
++                if predictive and self.last_phase!='prefill':phase='prefill'
++            elif options:
++                self.metrics['prefill_no_slack']+=1
++                if predictive and self.running and self.decode_streak<self.config.schedule_max_decode_steps:
++                    phase='decode'
++                    latest=max(getattr(s,'scheduler_service',now) for s in self.running)
++                    older=sum(getattr(s,'scheduler_service',now)<latest-1e-9 for s in self.running)
++                    if 0<older<self.max_num_seqs:self._refresh_count=older
++                else:
++                    chosen=min(options,key=lambda o:o['prediction'])
++                    self._step_budget=chosen['tokens'];self.prefill_prediction=chosen['prediction']
++                    self.metrics['prefill_forced_progress']+=1
++            else:
++                self.metrics['prefill_model_fallback']+=1
+         if phase=='prefill':
+             result=self._prefill()
+-            if result: return result, True
++            if result:
++                if self.prefill_prediction is not None:
++                    # Actual allocation may shorten a preview under memory pressure.
++                    self.prefill_prediction=self.cost.predict_prefill(
++                        [s.num_scheduled_tokens for s in result],[s.num_cached_tokens for s in result])
++                    self.metrics['prefill_model_steps']+=1
++                return result,True
++        self.prefill_prediction=None
+         if self.running:
+-            if fair: self._order_decode(self.clock())
++            if fair:self._order_decode(self.clock())
+             return self._decode(fair),False
+         raise CacheCapacityError('no runnable request fits; release retained cache or increase capacity')
+ 
+@@ -259,6 +338,10 @@
+         self.metrics[self.last_phase+'_steps'] += 1
+         if is_prefill:
+             self.cost.observe_prefill(sum(s.num_scheduled_tokens for s in seqs),max(len(s) for s in seqs),elapsed_ms)
++            if self.prefill_prediction is not None:
++                self.cost.observe_prefill_prediction(self.prefill_prediction,elapsed_ms)
++                self.metrics['prefill_prediction_abs_error_us']+=int(abs(elapsed_ms-self.prefill_prediction)*1000)
++                self.metrics['prefill_prediction_count']+=1
+         else:
+             features=self.cost.features(seqs,self.config,self.shared_capable)
+             self.cost.observe(features,elapsed_ms)
+--- /dev/null
++++ b/tests/audit_prefill.py
+@@ -0,0 +1,37 @@
++"""Fresh shape audit: measurements are never added to the fitted profile."""
++import argparse,json,time,statistics,random
++from pathlib import Path
++from types import SimpleNamespace
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.sequence import Sequence
++from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.schedule_cost import ScheduleCost
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True);ap.add_argument('--output',required=True);args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=16384,gpu_memory_utilization=.84,shared_attention_backend='auto')
++    cost=ScheduleCost(SimpleNamespace(model=args.model,enforce_eager=False,schedule_cost_profile=args.profile))
++    shapes=[([384],[0]),([1280]*2,[1536]*2),([384,896,1792],[256,1280,2048]),
++            ([768]*6,[512]*6),([3072],[2560]),([256]*4,[2816]*4)]
++    rows=[];rng=random.Random(719)
++    for qs,cs in shapes:
++        bm=BlockManager(len(llm.scheduler.block_manager.blocks),256);seqs=[]
++        for q,c in zip(qs,cs):
++            s=Sequence([rng.randrange(100,10000) for _ in range(q+c)],SamplingParams(max_tokens=1));bm.allocate(s,0)
++            if c:s.num_scheduled_tokens=c;llm.model_runner.call('run',[s],True)
++            s.num_cached_tokens=c;s.num_scheduled_tokens=q;seqs.append(s)
++        samples=[]
++        for i in range(7):
++            t=time.perf_counter();llm.model_runner.call('run',seqs,True);ms=(time.perf_counter()-t)*1000
++            if i>=2:samples.append(ms)
++        predicted=cost.predict_prefill(qs,cs);actual=statistics.median(samples)
++        assert predicted is not None
++        rows.append(dict(q=qs,cached=cs,actual_ms=actual,predicted_ms=predicted,relative_error=abs(predicted/actual-1),samples_ms=samples))
++        for s in seqs:bm.deallocate(s)
++        bm.assert_invariants()
++    report=dict(rows=rows,mape=statistics.mean(r['relative_error'] for r in rows),max_relative_error=max(r['relative_error'] for r in rows),profile_updated=False)
++    Path(args.output).write_text(json.dumps(report,indent=2));print(json.dumps(report));llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tests/validate_prefill_gpu.py
+@@ -0,0 +1,60 @@
++import argparse,json,time,random
++from pathlib import Path
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.scheduler import Scheduler
++from nanovllm.utils.context import reset_context
++
++SETTINGS=[('baseline','baseline','fixed','guarded',1024),('fixed_v1','cost','fixed','guarded',1024),
++          ('fixed_large','cost','fixed','guarded',4096),('model_only','cost','model','guarded',1024),
++          ('joint','cost','model','predictive',1024)]
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True);ap.add_argument('--output',required=True);args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=8192,gpu_memory_utilization=.65,
++            shared_attention_backend='auto',schedule_cost_profile=args.profile)
++    reference={};report=[];runner=llm.model_runner
++    for name,policy,prefill_mode,phase,chunk in SETTINGS:
++        llm.config.schedule_policy='baseline';llm.config.schedule_prefill_mode=prefill_mode;llm.config.schedule_phase_mode=phase;llm.config.schedule_prefill_chunk=chunk
++        sc=Scheduler(llm.config);sc.shared_capable=True;sc.block_manager.copy_blocks=runner.copy_kv_blocks;llm.scheduler=sc
++        parents=[]
++        for g in range(3):
++            rng=random.Random(170+g);parents.append(llm.add_request([rng.randrange(100,10000) for _ in range(1151 if g==2 else 4223)],SamplingParams(max_tokens=128,ignore_eos=True)))
++        while any(sc.requests[r].num_cached_tokens!=len(sc.requests[r])-1 for r in parents):llm.step()
++        for rid in parents:llm.pause_request(rid)
++        llm.save_session(parents[2],'prefix')
++        tail=sc.requests[parents[2]].block_table[-1]
++        frozen_tail=runner.kv_cache[:,:,tail,:127].clone()
++        llm.config.schedule_policy=policy;clock=[0.];sc.clock=lambda:clock[0];requests=[]
++        for i in range(64):requests.append(llm.fork_request(parents[i%2],SamplingParams(max_tokens=8,ignore_eos=True),next_token_id=700+i))
++        for i,n in enumerate((1024,1536,4096,768)):
++            rng=random.Random(300+i);requests.append(llm.add_request([rng.randrange(100,10000) for _ in range(n)],SamplingParams(max_tokens=4,ignore_eos=True)))
++        requests.append(llm.fork_request(parents[0],SamplingParams(max_tokens=4,ignore_eos=True),next_token_id=899,append_token_ids=[123]*17))
++        requests.append(llm.fork_request(parents[2],SamplingParams(max_tokens=4,ignore_eos=True),next_token_id=898,append_token_ids=[124]*257))
++        indexes={rid:i for i,rid in enumerate(requests)};checks=[];steps=[]
++        while not llm.is_finished():
++            t=time.perf_counter();seqs,prefill=sc.schedule()
++            ids,pos=runner.prepare_prefill(seqs) if prefill else runner.prepare_decode(seqs)
++            logits=runner.run_model(ids,pos,prefill).float();torch.cuda.synchronize();elapsed=(time.perf_counter()-t)*1000
++            for j,seq in enumerate(seqs):
++                if prefill and seq.num_cached_tokens+seq.num_scheduled_tokens<len(seq):continue
++                key=(indexes[seq.seq_id],seq.num_completion_tokens);got=logits[j]
++                if name=='baseline':reference[key]=got.cpu()
++                ref=reference[key].to(got.device);rel=((got-ref).norm()/ref.norm()).item()
++                kl=(ref.softmax(-1)*(ref.log_softmax(-1)-got.log_softmax(-1))).sum().clamp_min(0).item()
++                assert rel<.005 and kl<.001,(name,key,rel,kl)
++                checks.append(dict(request=key[0],token=key[1],relative_l2=rel,max_kl=kl))
++            steps.append(dict(prefill=prefill,batch=len(seqs),tokens=sum(s.num_scheduled_tokens for s in seqs),prediction=sc.prefill_prediction,elapsed_ms=elapsed))
++            clock[0]+=elapsed/1000;sc.record_execution(seqs,prefill,elapsed)
++            sc.postprocess(seqs,[1000+indexes[s.seq_id]+s.num_completion_tokens for s in seqs],prefill);reset_context();sc.block_manager.assert_invariants()
++        assert len(checks)==536 and len({(r['request'],r['token']) for r in checks})==536
++        assert torch.equal(frozen_tail,runner.kv_cache[:,:,tail,:127])
++        for rid in parents:llm.cancel_request(rid)
++        llm.close_session('prefix')
++        assert sc.block_manager.stats()['live_pages']==0
++        report.append(dict(variant=name,checks=checks,steps=steps,metrics=dict(sc.metrics),final_live_pages=0))
++        print(name,'PASS',len(steps),dict(sc.metrics),flush=True)
++    Path(args.output).write_text(json.dumps(dict(passed=True,cases=report),indent=2));llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tests/validate_prefill_model.py
+@@ -0,0 +1,61 @@
++import argparse,json
++from pathlib import Path
++from types import SimpleNamespace
++from nanovllm.engine.schedule_cost import ScheduleCost
++from nanovllm.engine.scheduler import Scheduler
++from nanovllm.engine.sequence import Sequence,SequenceStatus
++from nanovllm.sampling_params import SamplingParams
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True);ap.add_argument('--output',required=True);args=ap.parse_args()
++    cfg=SimpleNamespace(model=args.model,enforce_eager=False,schedule_cost_profile=args.profile,
++        schedule_policy='cost',max_num_seqs=64,max_num_batched_tokens=8192,eos=-1,kvcache_block_size=256,num_kvcache_blocks=639,
++        schedule_prefill_chunk=1024,schedule_prefill_mode='model',schedule_phase_mode='predictive',schedule_service_budget_ms=70,
++        schedule_prediction_margin=1.1,schedule_planning_margin_ms=2.,schedule_decode_interval_ms=25,schedule_wait_ms=100,
++        schedule_max_decode_steps=4,schedule_candidate_limit=512,schedule_max_groups=4,schedule_queue_limit=96,
++        shared_min_prefix=1024,shared_min_batch=32,shared_attention_backend='auto')
++    cost=ScheduleCost(cfg);profile=json.loads(Path(args.profile).read_text());checks=[]
++    for r in profile['prefill']['rows']:
++        if r['split']!='holdout':continue
++        pred=cost.predict_prefill(r['q'],r['cached']);assert pred is not None and pred>0
++        checks.append(dict(q=r['q'],cached=r['cached'],actual_ms=r['ms'],prediction_ms=pred,relative_error=abs(pred/r['ms']-1)))
++    assert cost.predict_prefill([8193],[0]) is None
++    assert cost.predict_prefill([512],[4096]) is None
++    assert cost.predict_prefill([0],[0]) is None
++    # No decode work: finish multiple cold prompts in a single bounded step.
++    Sequence.block_size=256;sc=Scheduler(cfg);sc.clock=lambda:0.;sc.shared_capable=True
++    for i in range(4):sc.add(Sequence([100+i]*1024,SamplingParams(max_tokens=2,ignore_eos=True)))
++    seqs,prefill=sc.schedule();assert prefill and len(seqs)==4 and sum(s.num_scheduled_tokens for s in seqs)==4096
++    sc.record_execution(seqs,True,40);sc.postprocess(seqs,[200]*4,True);sc.block_manager.assert_invariants()
++    for rid in list(sc.requests):sc.cancel(rid)
++    # Overdue decode must run before any new predicted prefill.
++    sc=Scheduler(cfg);sc.clock=lambda:0.;sc.shared_capable=True
++    hot=Sequence([100]*4224,SamplingParams(max_tokens=2));sc.register(hot);sc.block_manager.allocate(hot,0)
++    hot.num_cached_tokens=4223;hot.status=SequenceStatus.RUNNING;sc.running.append(hot)
++    cold=Sequence([101]*4096,SamplingParams(max_tokens=2));sc.add(cold)
++    sc.clock=lambda:.1
++    seqs,prefill=sc.schedule();assert not prefill and hot in seqs
++    sc.block_manager.assert_invariants()
++    for rid in list(sc.requests):sc.cancel(rid)
++    # Refresh only the stale tail instead of repeating a whole decode batch.
++    sc=Scheduler(cfg);sc.clock=lambda:0.;sc.shared_capable=True;hot_rows=[]
++    for i in range(3):
++        s=Sequence([100+i]*4224,SamplingParams(max_tokens=2));sc.register(s);sc.block_manager.allocate(s,0)
++        s.num_cached_tokens=4223;s.status=SequenceStatus.RUNNING;sc.running.append(s);hot_rows.append(s)
++    hot_rows[0].scheduler_service=.04;hot_rows[1].scheduler_service=.04
++    sc.add(Sequence([109]*4096));sc.clock=lambda:.05
++    seqs,prefill=sc.schedule();assert not prefill and seqs==[hot_rows[2]]
++    sc.block_manager.assert_invariants()
++    for rid in list(sc.requests):sc.cancel(rid)
++    # No prefill profile: old bounded behavior remains available.
++    empty_cfg=SimpleNamespace(**vars(cfg));empty_cfg.schedule_cost_profile=''
++    sc=Scheduler(empty_cfg);sc.add(Sequence([110]*4096))
++    seqs,prefill=sc.schedule();assert prefill and seqs[0].num_scheduled_tokens==1024
++    assert sc.metrics['prefill_model_fallback']==1
++    for rid in list(sc.requests):sc.cancel(rid)
++    result=dict(passed=True,holdout=checks,mape=sum(r['relative_error'] for r in checks)/len(checks),
++                batching=True,overdue_decode=True,domain_fallback=True,tail_refresh=True,missing_profile_fallback=True)
++    Path(args.output).write_text(json.dumps(result,indent=2));print(json.dumps(result),flush=True)
++
++if __name__=='__main__':main()

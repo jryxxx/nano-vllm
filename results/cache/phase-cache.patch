@@ -1,0 +1,733 @@
+--- /dev/null
++++ b/docs/CACHE_POLICY.md
+@@ -0,0 +1,33 @@
++# Prefix cache eviction policies
++
++This stage extends the remote nano-vLLM development branch. The frozen predecessor is `../nano-vllm-pre-cache-policy`; it includes the shared-prefix attention, session COW, and predictive Prefill scheduler stages.
++
++## Configuration
++
++`cache_policy='fifo'` remains the default. Alternatives are `lru`, `leaf_lru`, and `cost`. `cache_half_life=32` is measured in actual sequence allocations, including re-admission after preemption, not seconds. `schedule_cost_profile` supplies the existing Prefill calibration; without it, cost policy uses a token/attention-work proxy. No new policy is automatically enabled.
++
++## Ownership and identity
++
++Only zero-reference pages in the free list are candidates. Active requests and saved sessions protect their pages through the existing reference ledger. An immutable, interned `(parent identity, exact block token tuple)` chain controls prefix lookup; the legacy 64-bit hash remains diagnostic metadata and cannot cause a false hit under collision. Prefix identities carry physical locations and weak child links. Parent references preserve lineage while descendants remain resident; weak interning releases unused identities. Slot generations increase on reuse and support invariant/debug checks; lookup uses live node locations rather than a stale slot descriptor.
++
++Complete-page clones publish identities only after the synchronous GPU copy succeeds. Failed transfers release destinations without publishing reusable cache contents. Partial pages are never prefix hits. The pool size is fixed; policies never evict live owners or offload to CPU.
++
++## Victim selection
++
++FIFO preserves the predecessor's free-list order. Other policies first reuse unpublished/partial pages, then redundant physical copies of the same logical prefix. LRU then evicts the least recently executed/reused prefix; ties prefer deeper pages. `leaf_lru` additionally prefers identities with no surviving descendants, protecting useful prefix chains. If no free leaf exists, it falls back to free pages so metadata constraints cannot cause a false out-of-memory condition.
++
++`cost` uses the same leaf candidates, with score
++
++`(1 + decayed reuse count) × marginal Prefill work × access-age decay`.
++
++Both decays use the configured half-life. Marginal work uses the calibrated linear token and attention terms for one block at its prefix depth. Fixed launch costs and empirical model residuals are excluded; the score is a retention heuristic, not a measured latency saving. Actual allocations increment reuse counts. Execution touches recency; speculative `can_allocate` calls do neither. No future requests are used.
++
++Victim selection currently scans free pages. `policy_seconds` records selector time only, excluding lookup, exact identity bookkeeping and GPU execution. This implementation targets the single-GPU prototype and does not establish large-pool scaling.
++
++## Experiment interpretation
++
++`experiments/bench_cache.py` replays formatted synthetic document requests in identical order for every policy: hot-prefix pollution by one-off long requests, a midpoint hotspot switch, a no-reuse stream, and mixed prefix lengths. Each request generates four tokens. The experiment is sequential and closed-loop, so reported throughput is not concurrent serving goodput or an arrival-rate capacity measurement.
++
++The logical block manager is limited to 20/32/64 pages while the physical GPU KV tensor remains unchanged. Capacity comparisons therefore quantify cache competition, not reductions in reserved GPU memory. Shared attention stays off, scheduling stays baseline, and the same calibrated cost profile is supplied to all policies.
++
++Correctness checks separately cover CPU ownership/identity, bitwise resident KV preservation, COW regression, and logits against full recomputation. Full recomputation changes Prefill segmentation and can introduce FP16 numerical differences. A failed historical gate remains a failed gate even when the predecessor also fails it; it must not be relabeled as a fully validated quality result.
+--- /dev/null
++++ b/docs/CACHE_REPORT.md
+@@ -0,0 +1,65 @@
++# 缓存淘汰阶段实验报告
++
++已实现并接入 FIFO、LRU、依赖感知 LRU 与衰减成本策略；默认仍为 FIFO。缓存复用量有改善，但本轮未证实稳定吞吐收益，成本策略存在热点切换回退。完整重算的严格数值门槛尚未全部通过。
++
++## 实验设置
++
++RTX 4090，Qwen3-0.6B FP16。四种合成文档轨迹、三种逻辑容量（20/32/64 页，每页 256 token）、四种策略、三次重复，共 144 次试验、6912 个请求。单请求串行闭环，每请求固定输出 4 token；底层 GPU KV 分配保持不变。关闭共享注意力，使用 baseline 调度，统一使用上一阶段 Prefill 成本系数。固定衰减半衰期为 32 次分配，未按结果调参。
++
++进程启动时对完整 Prefill 长度预热；缓存命中形成的全部形状未逐一预热，首轮存在编译/执行路径冷启动。下面报告三次中位数，summary.json 同时保留范围及排除首轮的敏感性结果。三次重复不足以把约 1% 波动解释为确定收益。
++
++## 缓存竞争结果
++
++每个单元格为输出 token/s（括号内为累计复用的输入 token）。这不是线上并发 goodput。
++
++| 负载 | 页数 | FIFO | LRU | 依赖感知 LRU | 成本策略 |
++|---|---:|---:|---:|---:|---:|
++| pollution | 20 | 79.74（24576） | 79.48（44288） | 79.68（44288） | 78.68（41472） |
++| pollution | 32 | 83.59（69632） | 83.76（69632） | 83.77（69632） | 83.61（69632） |
++| pollution | 64 | 83.03（69632） | 82.83（69632） | 82.58（69632） | 82.61（69632） |
++| switch | 20 | 80.38（24576） | 80.55（42496） | 80.96（42496） | 79.91（26112） |
++| switch | 32 | 83.74（65536） | 84.04（65536） | 83.86（65536） | 82.20（47360） |
++| switch | 64 | 83.75（65536） | 83.42（65536） | 83.86（65536） | 83.10（57088） |
++| stream | 20 | 79.94（0） | 79.22（0） | 79.71（0） | 79.78（0） |
++| stream | 32 | 79.08（0） | 80.41（0） | 79.99（0） | 78.95（0） |
++| stream | 64 | 79.23（0） | 79.12（0） | 78.94（0） | 78.51（0） |
++| mixed_cost | 20 | 79.50（0） | 79.52（23040） | 79.52（23040） | 79.19（36096） |
++| mixed_cost | 32 | 82.82（55296） | 82.98（71424） | 83.19（71424） | 82.94（71424） |
++| mixed_cost | 64 | 84.20（73728） | 83.64（73728） | 83.86（73728） | 83.47（73728） |
++
++20 页污染负载中，LRU 的复用量从 24576 提升到 44288 token，但吞吐没有提升。20 页混合长度中成本策略复用了 36096 token，FIFO 为零，吞吐仍无优势。32 页热点切换中成本策略只复用 47360 token，LRU 为 65536，说明历史频次保留了过时热点。依赖感知 LRU 与 LRU 在这些轨迹中命中数相同，不能宣称其独立收益。
++
++选择器开销是整条 48 请求轨迹的累计 CPU 时间，最大约 18.44 ms；它不包含精确前缀索引等全部管理成本。当前实现逐次扫描空闲页，尚未验证大页池扩展性。单请求 TTFT 中位数约 42 ms；命中增加为何未转化为延迟收益仍需进一步分解执行开销，不能据此推断显存带宽或 GPU 利用率。
++
++## 无压力回归
++
++旧版本使用冻结快照 nano-vllm-pre-cache-policy，当前版本使用默认 FIFO；各负载包含一次完整预热和三次重复。两版进程顺序运行，非交错配对，细小差异仍可能含运行漂移。
++
++| 负载 | 旧版 token/s | 当前 token/s | 变化 |
++|---|---:|---:|---:|
++| no_shared | 2587.91 | 2573.89 | -0.54% |
++| shared_short | 5693.32 | 5642.42 | -0.89% |
++
++## 正确性验收
++
++- CPU：四种策略共 6000 次随机压力请求，强制旧哈希碰撞、复制失败回滚、反复释放、引用计数和索引一致性通过；调度与 Prefill 模型回归通过。
++- GPU：9267 次驻留页面逐位检查通过；20 页压力下保留会话内容不变，最终所有活跃引用归零。
++- 既有 COW GPU 回归通过：复制结果逐位一致、快照不变、失败回滚与压力恢复通过，包含共享注意力组合验证。
++- logits：每种路径 32 请求 × 3 token，与全量重新计算比较。相对 L2 < 0.005、KL < 0.001 门槛保持不变。
++
++| 路径 | 最大相对 L2 | 最大 KL | 未过门槛 token 数 / 96 |
++|---|---:|---:|---:|
++| oracle | 0.000000 | 0.000000 | 0 |
++| previous_fifo | 0.007964 | 0.000253 | 8 |
++| fifo | 0.007964 | 0.000253 | 9 |
++| lru | 0.007964 | 0.000253 | 9 |
++| leaf_lru | 0.007964 | 0.000253 | 9 |
++| cost | 0.007964 | 0.000253 | 8 |
++
++当前 FIFO 对上一阶段 FIFO 的最大相对 L2 为 0.004899，通过既定相对误差门槛，但非逐位一致。上一阶段 FIFO 自身对全量重算也有 8 个 token 超过 L2 门槛，表明问题不只出现在本次策略中；这并不能证明所有差异均由旧实现导致。缓存分段与全段执行的 FP16 数值敏感性仍需独立定位。不得把驻留内容检查通过等同于模型质量验收全部通过。
++
++## 当前结论与后续
++
++本阶段交付了可选策略、生命周期保护、可重复脚本和正负对照结果。保留默认 FIFO；LRU 可用于后续压力场景实验；成本策略仍为实验选项。下一步优先处理整段重算数值门槛，并分解缓存命中后的端到端开销；再考虑基于观测收益的策略切换与更快的候选数据结构。CPU offload、多卡、其他模型及 BF16 不属于本阶段完成范围。
++
++源码与方法见 docs/CACHE_POLICY.md；逐请求记录、验证结果、增量补丁和校验清单位于 results/cache。GPU 性能计数器未开启，本报告不包含 DRAM/L2 硬件测量。
+--- /dev/null
++++ b/experiments/archive_cache.py
+@@ -0,0 +1,17 @@
++import difflib,hashlib,json,subprocess
++from pathlib import Path
++root=Path(__file__).resolve().parents[1];before=root.parent/'nano-vllm-pre-cache-policy';out=root/'results/cache'
++paths=[]
++for folder in ('nanovllm','tests','experiments','docs'):
++    paths.extend(p for p in (root/folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix in ('.py','.md','.sh'))
++patch=[];changed=[]
++for p in sorted(paths):
++    rel=p.relative_to(root);old=before/rel;a=old.read_text() if old.exists() else '';b=p.read_text()
++    if a!=b:
++        changed.append(str(rel));patch.extend(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile='a/'+str(rel) if old.exists() else '/dev/null',tofile='b/'+str(rel)))
++(out/'phase-cache.patch').write_text(''.join(patch))
++files=paths+[p for p in out.iterdir() if p.is_file() and p.name!='manifest.json']+[root/'results/prefill/cost-profile.json']
++manifest=dict(branch=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip(),
++              upstream=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),changed_since_previous_phase=changed,
++              sha256={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)})
++(out/'manifest.json').write_text(json.dumps(manifest,indent=2));print(json.dumps(dict(changed=len(changed),hashed=len(files))))
+--- /dev/null
++++ b/experiments/bench_cache.py
+@@ -0,0 +1,111 @@
++"""Closed-loop cache-pressure replay; identical ordered requests for every policy."""
++import argparse,json,time,random,importlib.util
++from pathlib import Path
++import numpy as np
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.sequence import Sequence
++from nanovllm.utils.context import reset_context
++
++POLICIES=['fifo','lru','leaf_lru','cost']
++
++def trace(tokenizer,scenario,n=48):
++    def document(family,length):
++        text=f'Document identity: {family}.\nTechnical review: memory management, scheduling and reproducible experiments.\n'
++        ids=tokenizer.encode(text+('Each evaluation records its inputs, outputs, resource usage and elapsed time. '*1000))
++        return (ids*((length//len(ids))+1))[:length]
++    requests=[]
++    for i in range(n):
++        if scenario=='pollution':
++            family,length=(i%2,2048) if i%4!=3 else (100+i,3072)
++        elif scenario=='switch':
++            family,length=((i%2)+(0 if i<n//2 else 10),2048) if i%4!=3 else (100+i,3072)
++        elif scenario=='stream':family,length=100+i,(1024,2048,3072)[i%3]
++        elif scenario=='mixed_cost':
++            family,length=((i%3),(1024,2048,3072)[i%3]) if i%5!=4 else (100+i,2048)
++        else:raise ValueError(scenario)
++        requests.append(document(family,length)+[100+i])
++    return requests
++
++def manager(llm,policy,pages):
++    assert llm.is_finished()
++    co=llm.scheduler.cost.prefill['coefficients']
++    if policy=='previous_fifo':
++        spec=importlib.util.spec_from_file_location('old_block_manager','/root/autodl-tmp/shared-context/src/nano-vllm-pre-cache-policy/nanovllm/engine/block_manager.py')
++        old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
++        bm=old.BlockManager(pages,256)
++    else:
++        bm=BlockManager(pages,256,policy,32.,(co[2],co[3]))
++    bm.copy_blocks=llm.model_runner.copy_kv_blocks
++    llm.scheduler.block_manager=bm
++    return bm
++
++def validate(llm):
++    runner=llm.model_runner;refs={};previous={};rows=[]
++    requests=trace(llm.tokenizer,'switch',32)
++    for policy in ['oracle','previous_fifo']+POLICIES:
++        bm=manager(llm,'fifo' if policy=='oracle' else policy,32)
++        checks=[]
++        for i,prompt in enumerate(requests):
++            if policy=='oracle':bm=manager(llm,'fifo',32)
++            llm.add_request(prompt,SamplingParams(max_tokens=3,ignore_eos=True))
++            while not llm.is_finished():
++                seqs,prefill=llm.scheduler.schedule()
++                ids,pos=runner.prepare_prefill(seqs) if prefill else runner.prepare_decode(seqs)
++                logits=runner.run_model(ids,pos,prefill).float()
++                for j,seq in enumerate(seqs):
++                    key=(i,seq.num_completion_tokens);got=logits[j]
++                    if policy=='oracle':refs[key]=got.cpu()
++                    ref=refs[key].to(got.device)
++                    rel=((got-ref).norm()/ref.norm()).item()
++                    kl=(ref.softmax(-1)*(ref.log_softmax(-1)-got.log_softmax(-1))).sum().clamp_min(0).item()
++                    if policy=='previous_fifo':previous[key]=got.cpu()
++                    previous_error=(got.cpu()-previous[key]).abs().max().item() if policy=='fifo' else None
++                    previous_rel=((got.cpu()-previous[key]).norm()/previous[key].norm()).item() if policy=='fifo' else None
++                    if policy=='fifo':assert previous_rel<.005,(key,previous_rel)
++                    checks.append(dict(request=i,token=key[1],relative_l2=rel,kl=kl,previous_fifo_max_abs=previous_error,previous_fifo_relative_l2=previous_rel))
++                llm.scheduler.postprocess(seqs,[500+i+s.num_completion_tokens for s in seqs],prefill)
++                reset_context();bm.assert_invariants()
++        rows.append(dict(policy=policy,checks=checks,stats=bm.stats()))
++        print('VALIDATED',policy,flush=True)
++    return dict(fifo_relative_l2_regression_passed=True,full_recompute_gate_passed=all(c['relative_l2']<.005 and c['kl']<.001 for r in rows for c in r['checks']),cases=rows)
++
++def bench(llm,repeats,capacities):
++    rows=[]
++    for scenario in ('pollution','switch','stream','mixed_cost'):
++        requests=trace(llm.tokenizer,scenario)
++        for pages in capacities:
++            for repeat in range(repeats):
++                order=POLICIES[repeat%4:]+POLICIES[:repeat%4]
++                for policy in order:
++                    bm=manager(llm,policy,pages);raw=[]
++                    torch.cuda.synchronize();start=time.perf_counter()
++                    for i,prompt in enumerate(requests):
++                        before=bm.counters['reused_tokens'];t=time.perf_counter()
++                        llm.add_request(prompt,SamplingParams(max_tokens=4,ignore_eos=True,temperature=.6))
++                        first=None
++                        while not llm.is_finished():
++                            llm.step()
++                            if first is None:first=time.perf_counter()
++                        raw.append(dict(request=i,input_tokens=len(prompt),cached_tokens=bm.counters['reused_tokens']-before,
++                                        ttft_ms=(first-t)*1000,latency_ms=(time.perf_counter()-t)*1000))
++                    torch.cuda.synchronize();elapsed=time.perf_counter()-start
++                    bm.assert_invariants();assert not bm.used_block_ids
++                    row=dict(scenario=scenario,pages=pages,repeat=repeat,policy=policy,elapsed_s=elapsed,
++                        output_tokens_per_s=4*len(requests)/elapsed,ttft_p50_ms=float(np.percentile([r['ttft_ms'] for r in raw],50)),
++                        ttft_p95_ms=float(np.percentile([r['ttft_ms'] for r in raw],95)),
++                        stats=bm.stats(),requests=raw)
++                    rows.append(row)
++                    print('TRIAL',scenario,pages,repeat,policy,round(row['output_tokens_per_s'],2),bm.counters['reused_tokens'],flush=True)
++    return dict(trials=rows,note='Sequential closed-loop, fixed 4 output tokens, same traces; logical pool cap within unchanged physical GPU allocation. Not concurrent SLO throughput.')
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--mode',choices=['validate','bench'],required=True);ap.add_argument('--output',required=True);ap.add_argument('--repeats',type=int,default=3);ap.add_argument('--pages',type=int,nargs='+',default=[32,64]);args=ap.parse_args()
++    torch.manual_seed(20261114)
++    llm=LLM('/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16',max_num_seqs=8,max_model_len=4096,max_num_batched_tokens=4096,
++            gpu_memory_utilization=.45,schedule_cost_profile='results/prefill/cost-profile.json')
++    for length in (1025,2049,3073):llm.generate([[100]*length],SamplingParams(max_tokens=4,ignore_eos=True),use_tqdm=False)
++    result=validate(llm) if args.mode=='validate' else bench(llm,args.repeats,args.pages)
++    Path(args.output).write_text(json.dumps(result,indent=2));llm.exit()
++if __name__=='__main__':main()
+--- /dev/null
++++ b/experiments/summarize_cache.py
+@@ -0,0 +1,65 @@
++import json,statistics
++from pathlib import Path
++root=Path(__file__).resolve().parents[1];out=root/'results/cache';median=statistics.median
++rows=sum((json.loads((out/name).read_text())['trials'] for name in ('replay.json','replay-pressure.json')),[])
++summary=[]
++for scenario in ('pollution','switch','stream','mixed_cost'):
++ for pages in (20,32,64):
++  for policy in ('fifo','lru','leaf_lru','cost'):
++   rr=[r for r in rows if (r['scenario'],r['pages'],r['policy'])==(scenario,pages,policy)]
++   assert len(rr)==3
++   assert len({r['stats']['reused_tokens'] for r in rr})==1
++   summary.append(dict(scenario=scenario,pages=pages,policy=policy,
++    tok_s=median(r['output_tokens_per_s'] for r in rr),tok_s_min=min(r['output_tokens_per_s'] for r in rr),tok_s_max=max(r['output_tokens_per_s'] for r in rr),
++    tok_s_excluding_first=median(r['output_tokens_per_s'] for r in rr if r['repeat']>0),
++    reused_tokens=rr[0]['stats']['reused_tokens'],ttft_p95_ms=median(r['ttft_p95_ms'] for r in rr),
++    selector_ms=median(r['stats']['policy_seconds']*1000 for r in rr)))
++control=[]
++for scenario in ('no_shared','shared_short'):
++ vals={}
++ for name in ('previous','current'):
++  rs=json.loads((out/f'no-pressure-{name}.json').read_text())['trials']
++  vals[name]=median(r['output_tokens_per_s'] for r in rs if r['scenario']==scenario)
++ control.append(dict(scenario=scenario,**vals,change_percent=100*(vals['current']/vals['previous']-1)))
++gpu=json.loads((out/'gpu-validation.json').read_text());checks=[]
++for row in gpu['cases']:
++ c=row['checks'];checks.append(dict(policy=row['policy'],checks=len(c),max_relative_l2=max(x['relative_l2'] for x in c),max_kl=max(x['kl'] for x in c),
++ failed_gate=sum(x['relative_l2']>=.005 or x['kl']>=.001 for x in c),max_previous_fifo_relative_l2=max((x['previous_fifo_relative_l2'] or 0) for x in c)))
++resident=json.loads((out/'resident-validation.json').read_text())
++result=dict(trials=len(rows),requests=sum(len(r['requests']) for r in rows),summary=summary,no_pressure=control,gpu=checks,
++            resident_bitwise_checks=sum(r['bitwise_page_checks'] for r in resident['cases']),
++            full_recompute_gate_passed=gpu['full_recompute_gate_passed'])
++(out/'summary.json').write_text(json.dumps(result,indent=2))
++lines=['# 缓存淘汰阶段实验报告','',
++'已实现并接入 FIFO、LRU、依赖感知 LRU 与衰减成本策略；默认仍为 FIFO。缓存复用量有改善，但本轮未证实稳定吞吐收益，成本策略存在热点切换回退。完整重算的严格数值门槛尚未全部通过。','',
++'## 实验设置','',
++'RTX 4090，Qwen3-0.6B FP16。四种合成文档轨迹、三种逻辑容量（20/32/64 页，每页 256 token）、四种策略、三次重复，共 144 次试验、6912 个请求。单请求串行闭环，每请求固定输出 4 token；底层 GPU KV 分配保持不变。关闭共享注意力，使用 baseline 调度，统一使用上一阶段 Prefill 成本系数。固定衰减半衰期为 32 次分配，未按结果调参。','',
++'进程启动时对完整 Prefill 长度预热；缓存命中形成的全部形状未逐一预热，首轮存在编译/执行路径冷启动。下面报告三次中位数，summary.json 同时保留范围及排除首轮的敏感性结果。三次重复不足以把约 1% 波动解释为确定收益。','',
++'## 缓存竞争结果','',
++'每个单元格为输出 token/s（括号内为累计复用的输入 token）。这不是线上并发 goodput。','',
++'| 负载 | 页数 | FIFO | LRU | 依赖感知 LRU | 成本策略 |','|---|---:|---:|---:|---:|---:|']
++for sc in ('pollution','switch','stream','mixed_cost'):
++ for pages in (20,32,64):
++  rs=[r for r in summary if r['scenario']==sc and r['pages']==pages]
++  lines.append('| '+sc+' | '+str(pages)+' | '+' | '.join(f"{r['tok_s']:.2f}（{r['reused_tokens']}）" for r in rs)+' |')
++lines += ['',
++'20 页污染负载中，LRU 的复用量从 24576 提升到 44288 token，但吞吐没有提升。20 页混合长度中成本策略复用了 36096 token，FIFO 为零，吞吐仍无优势。32 页热点切换中成本策略只复用 47360 token，LRU 为 65536，说明历史频次保留了过时热点。依赖感知 LRU 与 LRU 在这些轨迹中命中数相同，不能宣称其独立收益。','',
++'选择器开销是整条 48 请求轨迹的累计 CPU 时间，最大约 18.44 ms；它不包含精确前缀索引等全部管理成本。当前实现逐次扫描空闲页，尚未验证大页池扩展性。单请求 TTFT 中位数约 42 ms；命中增加为何未转化为延迟收益仍需进一步分解执行开销，不能据此推断显存带宽或 GPU 利用率。','',
++'## 无压力回归','',
++'旧版本使用冻结快照 nano-vllm-pre-cache-policy，当前版本使用默认 FIFO；各负载包含一次完整预热和三次重复。两版进程顺序运行，非交错配对，细小差异仍可能含运行漂移。','',
++'| 负载 | 旧版 token/s | 当前 token/s | 变化 |','|---|---:|---:|---:|']
++for r in control:lines.append(f"| {r['scenario']} | {r['previous']:.2f} | {r['current']:.2f} | {r['change_percent']:+.2f}% |")
++lines += ['', '## 正确性验收','',
++'- CPU：四种策略共 6000 次随机压力请求，强制旧哈希碰撞、复制失败回滚、反复释放、引用计数和索引一致性通过；调度与 Prefill 模型回归通过。',
++f"- GPU：{result['resident_bitwise_checks']} 次驻留页面逐位检查通过；20 页压力下保留会话内容不变，最终所有活跃引用归零。",
++'- 既有 COW GPU 回归通过：复制结果逐位一致、快照不变、失败回滚与压力恢复通过，包含共享注意力组合验证。',
++'- logits：每种路径 32 请求 × 3 token，与全量重新计算比较。相对 L2 < 0.005、KL < 0.001 门槛保持不变。', '',
++'| 路径 | 最大相对 L2 | 最大 KL | 未过门槛 token 数 / 96 |','|---|---:|---:|---:|']
++for r in checks:lines.append(f"| {r['policy']} | {r['max_relative_l2']:.6f} | {r['max_kl']:.6f} | {r['failed_gate']} |")
++lines += ['',
++'当前 FIFO 对上一阶段 FIFO 的最大相对 L2 为 0.004899，通过既定相对误差门槛，但非逐位一致。上一阶段 FIFO 自身对全量重算也有 8 个 token 超过 L2 门槛，表明问题不只出现在本次策略中；这并不能证明所有差异均由旧实现导致。缓存分段与全段执行的 FP16 数值敏感性仍需独立定位。不得把驻留内容检查通过等同于模型质量验收全部通过。','',
++'## 当前结论与后续','',
++'本阶段交付了可选策略、生命周期保护、可重复脚本和正负对照结果。保留默认 FIFO；LRU 可用于后续压力场景实验；成本策略仍为实验选项。下一步优先处理整段重算数值门槛，并分解缓存命中后的端到端开销；再考虑基于观测收益的策略切换与更快的候选数据结构。CPU offload、多卡、其他模型及 BF16 不属于本阶段完成范围。','',
++'源码与方法见 docs/CACHE_POLICY.md；逐请求记录、验证结果、增量补丁和校验清单位于 results/cache。GPU 性能计数器未开启，本报告不包含 DRAM/L2 硬件测量。']
++(root/'docs/CACHE_REPORT.md').write_text('\n'.join(lines)+'\n')
++print(json.dumps(dict(trials=len(rows),resident_checks=result['resident_bitwise_checks'],no_pressure=control),indent=2))
+--- a/nanovllm/config.py
++++ b/nanovllm/config.py
+@@ -29,12 +29,16 @@
+     schedule_max_groups: int = 4
+     schedule_queue_limit: int = 0
+     schedule_cost_profile: str = ""
++    cache_policy: str = "fifo"
++    cache_half_life: float = 32.0
+     hf_config: AutoConfig | None = None
+     eos: int = -1
+     kvcache_block_size: int = 256
+     num_kvcache_blocks: int = -1
+ 
+     def __post_init__(self):
++        assert self.cache_policy in ('fifo','lru','leaf_lru','cost')
++        assert self.cache_half_life > 0
+         assert self.schedule_policy in ('baseline','fcfs','lpm','cost')
+         assert self.schedule_prefill_chunk > 0
+         assert self.schedule_prefill_mode in ('fixed','model')
+--- a/nanovllm/engine/block_manager.py
++++ b/nanovllm/engine/block_manager.py
+@@ -1,6 +1,9 @@
+ from collections import deque
+ from collections import Counter
+ from dataclasses import dataclass
++import weakref
++from time import perf_counter
++import math
+ import xxhash
+ import numpy as np
+ 
+@@ -18,9 +21,25 @@
+     block_table: tuple
+ 
+ 
++class PrefixNode:
++    """Exact, interned prefix identity; weak children do not retain dead caches."""
++    def __init__(self, uid, parent, tokens, epoch):
++        self.uid, self.parent, self.tokens = uid, parent, tokens
++        self.depth = 1 if parent is None else parent.depth + 1
++        self.locations = set()
++        self.children = weakref.WeakSet()
++        self.last_access = epoch
++        self.frequency = 0.0
++        self.frequency_epoch = epoch
++        if parent is not None:
++            parent.children.add(self)
++
++
+ class Block:
+ 
+     def __init__(self, block_id):
++        self.node = None
++        self.generation = 0
+         self.block_id = block_id
+         self.ref_count = 0
+         self.hash = -1
+@@ -31,6 +50,8 @@
+         self.token_ids = token_ids
+ 
+     def reset(self):
++        assert self.node is None
++        self.generation += 1
+         self.ref_count = 1
+         self.hash = -1
+         self.token_ids = []
+@@ -38,7 +59,20 @@
+ 
+ class BlockManager:
+ 
+-    def __init__(self, num_blocks: int, block_size: int):
++    def __init__(self, num_blocks: int, block_size: int, policy="fifo", half_life=32., cost_coefficients=None):
++        if policy not in ('fifo', 'lru', 'leaf_lru', 'cost'):
++            raise ValueError('unknown cache eviction policy')
++        if not math.isfinite(half_life) or half_life <= 0:
++            raise ValueError('cache half life must be finite and positive')
++        self.policy, self.half_life = policy, half_life
++        # Only token-work and attention-work terms: fixed launch costs are not
++        # charged once per page. Without a calibration this is a work proxy.
++        self.cost_coefficients = cost_coefficients or (1., 1.)
++        if len(self.cost_coefficients) != 2 or any(not math.isfinite(c) or c < 0 for c in self.cost_coefficients):
++            raise ValueError('invalid cache cost coefficients')
++        self.epoch = 0
++        self.next_uid = 0
++        self.nodes = weakref.WeakValueDictionary()
+         self.block_size = block_size
+         self.blocks: list[Block] = [Block(i) for i in range(num_blocks)]
+         self.hash_to_block_id: dict[int, int] = dict()
+@@ -46,7 +80,72 @@
+         self.used_block_ids: set[int] = set()
+         self.owners = {}
+         self.copy_blocks = None
+-        self.counters = dict(cow_pages=0, copy_pages=0, copied_tokens=0, peak_live_pages=0)
++        self.counters = dict(cow_pages=0, copy_pages=0, copied_tokens=0, peak_live_pages=0, evictions=0, reused_tokens=0, admitted_tokens=0, policy_seconds=0.)
++
++    def _node(self, parent, tokens, create=False):
++        key = (0 if parent is None else parent.uid, tuple(tokens))
++        node = self.nodes.get(key)
++        if node is None and create:
++            self.next_uid += 1
++            node = PrefixNode(self.next_uid, parent, key[1], self.epoch)
++            self.nodes[key] = node
++        return node
++
++    def _lookup(self, node):
++        if node is None or not node.locations:
++            return -1
++        # Prefer a live copy: it does not consume an additional free page.
++        return min(node.locations, key=lambda i: (self.blocks[i].ref_count == 0, i))
++
++    def _attach(self, block, node):
++        assert block.node is None or block.node is node
++        block.node = node
++        node.locations.add(block.block_id)
++
++    def _detach(self, block):
++        if block.node is not None:
++            block.node.locations.remove(block.block_id)
++            block.node = None
++
++    def _touch(self, node, reuse=False):
++        if node is None:
++            return
++        node.last_access = self.epoch
++        if reuse:
++            node.frequency *= 2. ** (-(self.epoch-node.frequency_epoch)/self.half_life)
++            node.frequency += 1.
++            node.frequency_epoch = self.epoch
++
++    def _score(self, node):
++        b = self.block_size
++        a, c = self.cost_coefficients
++        work = a*b/1024. + c*(b*b*(node.depth-1)+b*(b+1)/2)/1048576.
++        reuse = node.frequency * 2. ** (-(self.epoch-node.frequency_epoch)/self.half_life)
++        age = 2. ** (-(self.epoch-node.last_access)/self.half_life)
++        return (1.+reuse)*work*age
++
++    def _victim(self):
++        if self.policy == 'fifo':
++            return self.free_block_ids[0]
++        start = perf_counter()
++        free = [self.blocks[i] for i in self.free_block_ids]
++        # Partial/unpublished pages carry no reusable prefix. Duplicate pages
++        # can be reclaimed without losing the logical cached prefix.
++        empty = [b for b in free if b.node is None]
++        duplicates = [b for b in free if b.node is not None and len(b.node.locations)>1]
++        candidates = empty or duplicates
++        if not candidates:
++            candidates = free
++            if self.policy in ('leaf_lru', 'cost'):
++                leaves = [b for b in free if not b.node.children]
++                candidates = leaves or free
++        def key(b):
++            if b.node is None: return (0., 0, b.block_id)
++            value = self._score(b.node) if self.policy == 'cost' else b.node.last_access
++            return (value, -b.node.depth, b.block_id)
++        result = min(candidates, key=key).block_id
++        self.counters['policy_seconds'] += perf_counter()-start
++        return result
+ 
+     def _track(self, owner):
+         self.owners[id(owner)] = owner
+@@ -109,14 +208,18 @@
+                         allocated.append(dst)
+                         valid = min(self.block_size, source.num_cached_tokens - j * self.block_size)
+                         jobs.append((src, dst, valid))
+-                        if valid == self.block_size:
+-                            self.blocks[dst].update(self.blocks[src].hash, list(self.blocks[src].token_ids))
+                     table.append(dst)
+                 tables.append(table)
+             self._copy(jobs)
+         except BaseException:
+             self._release_ids(allocated)
+             raise
++        for src, dst, valid in jobs:
++            if valid == self.block_size:
++                source_block = self.blocks[src]
++                self.blocks[dst].update(source_block.hash, list(source_block.token_ids))
++                if source_block.node is not None:
++                    self._attach(self.blocks[dst], source_block.node)
+         for target, table in zip(targets, tables):
+             if mode == 'cow':
+                 for i in table:
+@@ -169,7 +272,9 @@
+     def stats(self):
+         return dict(self.counters, live_pages=len(self.used_block_ids), free_pages=len(self.free_block_ids),
+                     references=sum(b.ref_count for b in self.blocks), owners=len(self.owners),
+-                    shared_pages=sum(b.ref_count > 1 for b in self.blocks))
++                    shared_pages=sum(b.ref_count > 1 for b in self.blocks),
++                    cached_free_pages=sum(b.ref_count == 0 and b.node is not None for b in self.blocks),
++                    logical_nodes=len(self.nodes), policy=self.policy)
+ 
+     def assert_invariants(self):
+         expected = Counter(i for owner in self.owners.values() for i in owner.block_table)
+@@ -179,6 +284,13 @@
+         for block in self.blocks:
+             assert block.ref_count == expected[block.block_id]
+             assert (block.ref_count > 0) == (block.block_id in self.used_block_ids)
++            if block.node is not None:
++                assert block.block_id in block.node.locations
++                assert tuple(block.token_ids) == block.node.tokens
++        for node in list(self.nodes.values()):
++            for i in node.locations:
++                assert self.blocks[i].node is node
++            assert node.parent is None or node in node.parent.children
+         for h, i in self.hash_to_block_id.items():
+             assert self.blocks[i].hash == h
+         return True
+@@ -192,8 +304,12 @@
+         return h.intdigest()
+ 
+     def _allocate_block(self) -> int:
+-        block_id = self.free_block_ids.popleft()
++        block_id = self._victim()
++        self.free_block_ids.remove(block_id)
+         block = self.blocks[block_id]
++        if block.node is not None:
++            self.counters['evictions'] += 1
++        self._detach(block)
+         assert block.ref_count == 0
+         if block.hash != -1 and self.hash_to_block_id.get(block.hash) == block_id:
+             del self.hash_to_block_id[block.hash]
+@@ -208,14 +324,14 @@
+         self.free_block_ids.append(block_id)
+ 
+     def can_allocate(self, seq: Sequence) -> int:
+-        h = -1
++        parent = None
+         num_cached_blocks = 0
+         num_new_blocks = seq.num_blocks
+         for i in range(seq.num_blocks - 1):
+             token_ids = seq.block(i)
+-            h = self.compute_hash(token_ids, h)
+-            block_id = self.hash_to_block_id.get(h, -1)
+-            if block_id == -1 or self.blocks[block_id].token_ids != token_ids:
++            parent = self._node(parent, token_ids)
++            block_id = self._lookup(parent)
++            if block_id == -1:
+                 break
+             num_cached_blocks += 1
+             if block_id in self.used_block_ids:
+@@ -226,12 +342,17 @@
+ 
+     def allocate(self, seq: Sequence, num_cached_blocks: int):
+         assert not seq.block_table
+-        h = -1
++        self.epoch += 1
++        self.counters['admitted_tokens'] += len(seq)
++        self.counters['reused_tokens'] += num_cached_blocks*self.block_size
++        parent = None
+         for i in range(num_cached_blocks):
+             token_ids = seq.block(i)
+-            h = self.compute_hash(token_ids, h)
+-            block_id = self.hash_to_block_id[h]
++            parent = self._node(parent, token_ids)
++            block_id = self._lookup(parent)
++            assert block_id != -1
+             block = self.blocks[block_id]
++            self._touch(parent, reuse=True)
+             if block_id in self.used_block_ids:
+                 block.ref_count += 1
+             else:
+@@ -262,14 +383,21 @@
+         self.ensure_writable(seq, 1)
+ 
+     def hash_blocks(self, seq: Sequence):
++        # Called after successful model execution, never by scheduling probes.
++        for block_id in seq.block_table:
++            self._touch(self.blocks[block_id].node)
+         start = seq.num_cached_tokens // self.block_size
+         end = (seq.num_cached_tokens + seq.num_scheduled_tokens) // self.block_size
+         if start == end: return
+         h = self.blocks[seq.block_table[start - 1]].hash if start > 0 else -1
++        parent = self.blocks[seq.block_table[start - 1]].node if start > 0 else None
+         for i in range(start, end):
+             block = self.blocks[seq.block_table[i]]
+             assert block.ref_count == 1, "writing a shared page without COW"
+             token_ids = seq.block(i)
+             h = self.compute_hash(token_ids, h)
+             block.update(h, token_ids)
++            parent = self._node(parent, token_ids, create=True)
++            self._attach(block, parent)
++            self._touch(parent)
+             self.hash_to_block_id[h] = block.block_id
+--- a/nanovllm/engine/scheduler.py
++++ b/nanovllm/engine/scheduler.py
+@@ -27,7 +27,10 @@
+         self.max_num_batched_tokens = config.max_num_batched_tokens
+         self.eos = config.eos
+         self.block_size = config.kvcache_block_size
+-        self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size)
++        coefficients = self.cost.prefill['coefficients'] if self.cost.prefill else None
++        self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size,
++                                         getattr(config, 'cache_policy', 'fifo'), getattr(config, 'cache_half_life', 32.),
++                                         (coefficients[2], coefficients[3]) if coefficients else None)
+         self.waiting: deque[Sequence] = deque()
+         self.running: deque[Sequence] = deque()
+         self.requests = {}
+--- /dev/null
++++ b/tests/validate_cache.py
+@@ -0,0 +1,51 @@
++"""CPU cache pressure, exact identity, transactional publication and ownership."""
++import json,random
++from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.sequence import Sequence
++
++
++def run(policy):
++    Sequence.block_size=4
++    bm=BlockManager(24,4,policy=policy,half_life=8)
++    # Force collisions in the legacy hash to prove exact prefix identities govern hits.
++    bm.compute_hash=lambda *args: 7
++    def execute(tokens):
++        seq=Sequence(tokens);hit=bm.can_allocate(seq);assert hit>=0
++        bm.allocate(seq,hit);seq.num_scheduled_tokens=len(seq)-seq.num_cached_tokens
++        bm.hash_blocks(seq);seq.num_cached_tokens=len(seq);seq.num_scheduled_tokens=0
++        seq.append_token(99)
++        bm.assert_invariants();return seq,hit
++    first,_=execute([1]*4+[2]*4+[3]);snap=bm.snapshot(first)
++    bm.deallocate(first)
++    same,hit=execute([1]*4+[2]*4+[4]);assert hit==2;bm.deallocate(same)
++    other,hit=execute([8]*4+[2]*4+[4]);assert hit==0;bm.deallocate(other)
++    state=[(n.uid,n.last_access,n.frequency) for n in bm.nodes.values()]
++    for _ in range(100):bm.can_allocate(Sequence([1]*4+[2]*4+[4]))
++    assert state==[(n.uid,n.last_access,n.frequency) for n in bm.nodes.values()]
++    # Partial copy failure must leave no published identity at allocated destinations.
++    target=Sequence(list(snap.token_ids))
++    def fail(jobs):raise RuntimeError('injected failure')
++    bm.copy_blocks=fail
++    try:bm.clone_many(snap,[target],mode='copy');assert False
++    except RuntimeError:pass
++    assert not target.block_table
++    bm.copy_blocks=lambda jobs:None
++    copied=Sequence(list(snap.token_ids));bm.clone_many(snap,[copied],mode='copy')
++    bm.assert_invariants();bm.deallocate(copied)
++    protected=list(snap.block_table);generation=[bm.blocks[i].generation for i in protected]
++    rng=random.Random(20261114)
++    for i in range(1500):
++        family=rng.randrange(16);depth=rng.randrange(1,5)
++        seq,hit=execute([family+100]*4*depth+[i+1000])
++        if i%19==0:
++            ss=bm.snapshot(seq);child=Sequence(list(ss.token_ids));bm.clone_many(ss,[child])
++            bm.ensure_writable(child,1);bm.deallocate(child);bm.release(ss)
++        bm.deallocate(seq);bm.assert_invariants()
++        assert [bm.blocks[j].generation for j in protected]==generation
++    bm.release(snap);bm.assert_invariants();assert not bm.used_block_ids
++    assert bm.stats()['evictions']>0
++    return bm.stats()
++
++if __name__=='__main__':
++    result={p:run(p) for p in ('fifo','lru','leaf_lru','cost')}
++    print(json.dumps(dict(passed=True,randomized_requests=6000,policies=result),indent=2))
+--- /dev/null
++++ b/tests/validate_cache_policy.py
+@@ -0,0 +1,29 @@
++"""Victim semantics: leaf protection, decay and duplicate physical pages."""
++import json
++from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.sequence import Sequence
++Sequence.block_size=4
++bm=BlockManager(2,4,'lru',half_life=8)
++seq=Sequence([1]*4+[2]*4)
++bm.allocate(seq,0);seq.num_scheduled_tokens=8;bm.hash_blocks(seq)
++a,b=seq.block_table;parent=bm.blocks[a].node;child=bm.blocks[b].node
++bm.deallocate(seq);parent.last_access=0;child.last_access=1
++assert bm._victim()==a
++bm.policy='leaf_lru';assert bm._victim()==b
++bm.policy='cost';assert bm._victim()==b
++bm.epoch=1;before=bm._score(child);bm.epoch+=8
++assert abs(bm._score(child)/before-.5)<1e-12
++bm._touch(child,reuse=True);assert bm._score(child)>before
++bm.assert_invariants()
++# Reusing one physical copy must preserve lookup through the other copy.
++bm=BlockManager(4,4,'lru');seq=Sequence([7]*4+[8]);bm.allocate(seq,0)
++seq.num_scheduled_tokens=5;bm.hash_blocks(seq);seq.num_scheduled_tokens=0;seq.num_cached_tokens=5;seq.append_token(9)
++bm.copy_blocks=lambda jobs:None
++other=Sequence(list(seq.token_ids));bm.clone_many(seq,[other],mode='copy')
++identity=bm.blocks[seq.block_table[0]].node;assert len(identity.locations)==2
++bm.deallocate(seq);bm.deallocate(other)
++# Partial pages are reclaimed first, then one redundant full page.
++allocated=[bm._allocate_block() for _ in range(3)]
++assert len(identity.locations)==1 and bm._lookup(identity)>=0
++bm._release_ids(allocated);bm.assert_invariants()
++print(json.dumps(dict(passed=True,leaf_protection=True,decay=True,duplicate_reclamation=True)))
+--- /dev/null
++++ b/tests/validate_cache_resident.py
+@@ -0,0 +1,40 @@
++"""Bitwise resident KV protection under eviction pressure and retained sessions."""
++import json
++from pathlib import Path
++import torch
++from nanovllm import LLM,SamplingParams
++from experiments.bench_cache import manager,trace,POLICIES
++
++llm=LLM('/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16',max_num_seqs=8,max_model_len=4096,
++        max_num_batched_tokens=4096,gpu_memory_utilization=.45,schedule_cost_profile='results/prefill/cost-profile.json')
++rows=[]
++for policy in POLICIES:
++    bm=manager(llm,policy,20);runner=llm.model_runner
++    rid=llm.add_request([321]*511,SamplingParams(max_tokens=4,ignore_eos=True))
++    llm.step();llm.pause_request(rid);llm.save_session(rid,'held');llm.cancel_request(rid)
++    snap=llm.scheduler.sessions['held']
++    frozen=[(p,min(256,511-i*256),runner.kv_cache[:,:,p,:min(256,511-i*256)].clone()) for i,p in enumerate(snap.block_table)]
++    shadow={};checks=0
++    def audit():
++        global checks
++        resident={b.block_id:b for b in bm.blocks if b.node is not None}
++        for key in list(shadow):
++            i,g=key
++            if i not in resident or resident[i].generation!=g:del shadow[key]
++        for i,b in resident.items():
++            key=(i,b.generation);data=runner.kv_cache[:,:,i]
++            if key in shadow:
++                assert torch.equal(data,shadow[key]),(policy,i,b.generation)
++                checks+=1
++            else:shadow[key]=data.clone()
++        for page,valid,old in frozen:assert torch.equal(old,runner.kv_cache[:,:,page,:valid])
++        bm.assert_invariants()
++    for prompt in trace(llm.tokenizer,'switch',24):
++        llm.add_request(prompt,SamplingParams(max_tokens=3,ignore_eos=True))
++        while not llm.is_finished():audit();llm.step();audit()
++    llm.close_session('held');bm.assert_invariants();assert bm.stats()['live_pages']==0
++    assert bm.stats()['evictions']>0
++    rows.append(dict(policy=policy,bitwise_page_checks=checks,stats=bm.stats()))
++    print(policy,'PASS',checks,flush=True)
++Path('results/cache/resident-validation.json').write_text(json.dumps(dict(passed=True,cases=rows),indent=2))
++llm.exit()

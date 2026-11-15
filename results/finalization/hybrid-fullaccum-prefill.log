@@ -1,0 +1,5 @@
+baseline PASS 12 {}
+fixed_v1 PASS 25 {'prefill_steps': 10, 'phase_decode_guard': 8, 'decode_age_guard': 12, 'decode_steps': 15, 'phase_decode_due': 4, 'phase_wait_guard': 7, 'cost_fcfs_selected': 3}
+fixed_large PASS 12 {'prefill_steps': 3, 'phase_decode_guard': 2, 'decode_age_guard': 6, 'decode_steps': 9, 'phase_decode_due': 2, 'phase_wait_guard': 2, 'cost_fcfs_selected': 3}
+model_only PASS 18 {'prefill_model_fallback': 1, 'prefill_steps': 6, 'phase_decode_guard': 5, 'prefill_no_slack': 10, 'prefill_forced_progress': 10, 'decode_age_guard': 9, 'decode_steps': 12, 'phase_decode_due': 4, 'prefill_model_steps': 5, 'prefill_prediction_abs_error_us': 3443783, 'prefill_prediction_count': 5, 'phase_wait_guard': 3, 'cost_fcfs_selected': 3}
+joint PASS 20 {'prefill_model_fallback': 1, 'prefill_steps': 6, 'phase_decode_guard': 5, 'prefill_no_slack': 10, 'decode_age_guard': 7, 'decode_steps': 14, 'phase_decode_due': 5, 'decode_tail_refresh_steps': 5, 'decode_tail_refresh_requests': 13, 'phase_wait_guard': 5, 'prefill_model_steps': 5, 'prefill_prediction_abs_error_us': 129881, 'prefill_prediction_count': 5, 'cost_fcfs_selected': 2}

@@ -1,0 +1,8 @@
+WARMUP nano-force shared -1 1619.56
+TRIAL nano-force shared 0 2099.93
+TRIAL nano-force shared 1 2099.26
+TRIAL nano-force shared 2 2097.31
+WARMUP nano-force no_shared -1 603.76
+TRIAL nano-force no_shared 0 604.51
+TRIAL nano-force no_shared 1 604.24
+TRIAL nano-force no_shared 2 603.76

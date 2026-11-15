@@ -1,0 +1,47 @@
+INFO 11-15 14:44:36 [__init__.py:239] Automatically detected platform cuda.
+INFO 11-15 14:44:44 [config.py:717] This model supports multiple tasks: {'generate', 'score', 'classify', 'embed', 'reward'}. Defaulting to 'generate'.
+INFO 11-15 14:44:44 [llm_engine.py:240] Initializing a V0 LLM engine (v0.8.5) with config: model='/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16', speculative_config=None, tokenizer='/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=20261115, served_model_name=/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=False, use_async_output_proc=False, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":[],"compile_sizes":[],"cudagraph_capture_sizes":[64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":64}, use_cached_outputs=False, 
+INFO 11-15 14:44:46 [cuda.py:292] Using Flash Attention backend.
+INFO 11-15 14:44:46 [parallel_state.py:1004] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0
+INFO 11-15 14:44:46 [model_runner.py:1108] Starting to load model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16...
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.57it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.57it/s]
+
+INFO 11-15 14:44:47 [loader.py:458] Loading weights took 0.30 seconds
+INFO 11-15 14:44:47 [model_runner.py:1140] Model loading took 1.1201 GiB and 0.399405 seconds
+INFO 11-15 14:44:48 [worker.py:287] Memory profiling takes 0.60 seconds
+INFO 11-15 14:44:48 [worker.py:287] the current vLLM instance can use total_gpu_memory (23.52GiB) x gpu_memory_utilization (0.65) = 15.29GiB
+INFO 11-15 14:44:48 [worker.py:287] model weights take 1.12GiB; non_torch_memory takes 0.08GiB; PyTorch activation peak memory takes 0.48GiB; the rest of the memory reserved for KV Cache is 13.61GiB.
+INFO 11-15 14:44:48 [llm_engine.py:426] Overriding num_gpu_blocks=3982 with num_gpu_blocks_override=1536
+INFO 11-15 14:44:48 [executor_base.py:112] # cuda blocks: 1536, # CPU blocks: 0
+INFO 11-15 14:44:48 [executor_base.py:117] Maximum concurrency for 8192 tokens per request: 6.00x
+INFO 11-15 14:44:48 [model_runner.py:1450] Capturing cudagraphs for decoding. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI. If out-of-memory error occurs during cudagraph capture, consider decreasing `gpu_memory_utilization` or switching to eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+Capturing CUDA graph shapes:   0%|          | 0/11 [00:00<?, ?it/s]Capturing CUDA graph shapes:   9%|▉         | 1/11 [00:00<00:04,  2.20it/s]Capturing CUDA graph shapes:  18%|█▊        | 2/11 [00:00<00:04,  2.23it/s]Capturing CUDA graph shapes:  27%|██▋       | 3/11 [00:01<00:03,  2.22it/s]Capturing CUDA graph shapes:  36%|███▋      | 4/11 [00:01<00:03,  2.22it/s]Capturing CUDA graph shapes:  45%|████▌     | 5/11 [00:02<00:02,  2.22it/s]Capturing CUDA graph shapes:  55%|█████▍    | 6/11 [00:02<00:02,  2.18it/s]Capturing CUDA graph shapes:  64%|██████▎   | 7/11 [00:03<00:01,  2.18it/s]Capturing CUDA graph shapes:  73%|███████▎  | 8/11 [00:03<00:01,  2.19it/s]Capturing CUDA graph shapes:  82%|████████▏ | 9/11 [00:04<00:00,  2.21it/s]Capturing CUDA graph shapes:  91%|█████████ | 10/11 [00:04<00:00,  2.22it/s]Capturing CUDA graph shapes: 100%|██████████| 11/11 [00:04<00:00,  2.21it/s]Capturing CUDA graph shapes: 100%|██████████| 11/11 [00:04<00:00,  2.21it/s]
+INFO 11-15 14:44:53 [model_runner.py:1592] Graph capturing finished in 5 secs, took 0.11 GiB
+INFO 11-15 14:44:53 [llm_engine.py:437] init engine (profile, create kv cache, warmup model) took 6.00 seconds
+INFO 11-15 14:44:53 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:53 [prefix_caching_block.py:479] Successfully reset prefix cache
+WARMUP vllm shared -1 3387.52
+INFO 11-15 14:44:54 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:54 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm shared 0 3488.17
+INFO 11-15 14:44:54 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:54 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm shared 1 3468.39
+INFO 11-15 14:44:55 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:55 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm shared 2 3485.67
+INFO 11-15 14:44:55 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:55 [prefix_caching_block.py:479] Successfully reset prefix cache
+WARMUP vllm no_shared -1 1831.95
+INFO 11-15 14:44:57 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:57 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm no_shared 0 1841.97
+INFO 11-15 14:44:58 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:58 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm no_shared 1 1831.97
+INFO 11-15 14:44:59 [prefix_caching_block.py:479] Successfully reset prefix cache
+INFO 11-15 14:44:59 [prefix_caching_block.py:479] Successfully reset prefix cache
+TRIAL vllm no_shared 2 1839.91
+[rank0]:[W1115 14:45:00.417034309 ProcessGroupNCCL.cpp:1496] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

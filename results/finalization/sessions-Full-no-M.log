@@ -1,0 +1,8 @@
+WARMUP Full-no-M shared -1 992.87 64
+TRIAL Full-no-M shared 0 2065.17 96
+TRIAL Full-no-M shared 1 2090.18 96
+TRIAL Full-no-M shared 2 2081.63 96
+WARMUP Full-no-M no_shared -1 1376.01 96
+TRIAL Full-no-M no_shared 0 1380.89 96
+TRIAL Full-no-M no_shared 1 1383.79 96
+TRIAL Full-no-M no_shared 2 1373.12 96

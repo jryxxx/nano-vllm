@@ -1,0 +1,13 @@
+{
+  "source_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+  "cache_logit_checks": 576,
+  "cache_max_relative_l2": 0.0037044910714030266,
+  "prefill_logit_checks": 2680,
+  "prefill_max_relative_l2": 0.0030832034535706043,
+  "norm_bitwise_cases": 552,
+  "tier_bitwise_checks": 270,
+  "paged_cases": 37,
+  "graph_replays": 8,
+  "combined_cases": 18,
+  "greedy_tokens": 528
+}

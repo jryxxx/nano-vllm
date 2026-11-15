@@ -1,0 +1,16 @@
+WARMUP auto pollution -1 65.53 0
+TRIAL auto pollution 0 96.26 0
+TRIAL auto pollution 1 97.11 0
+TRIAL auto pollution 2 96.89 0
+WARMUP auto switch -1 95.64 0
+TRIAL auto switch 0 95.15 0
+TRIAL auto switch 1 95.93 0
+TRIAL auto switch 2 95.83 0
+WARMUP auto stream -1 91.32 0
+TRIAL auto stream 0 91.32 0
+TRIAL auto stream 1 91.08 0
+TRIAL auto stream 2 90.85 0
+WARMUP auto mixed_cost -1 100.76 0
+TRIAL auto mixed_cost 0 101.22 0
+TRIAL auto mixed_cost 1 100.52 0
+TRIAL auto mixed_cost 2 99.69 0

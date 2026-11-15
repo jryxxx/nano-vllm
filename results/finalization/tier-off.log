@@ -1,0 +1,16 @@
+WARMUP off pollution -1 65.46 0
+TRIAL off pollution 0 96.29 0
+TRIAL off pollution 1 96.98 0
+TRIAL off pollution 2 97.74 0
+WARMUP off switch -1 97.4 0
+TRIAL off switch 0 96.56 0
+TRIAL off switch 1 96.06 0
+TRIAL off switch 2 95.95 0
+WARMUP off stream -1 92.4 0
+TRIAL off stream 0 91.98 0
+TRIAL off stream 1 93.74 0
+TRIAL off stream 2 93.54 0
+WARMUP off mixed_cost -1 101.21 0
+TRIAL off mixed_cost 0 99.66 0
+TRIAL off mixed_cost 1 100.22 0
+TRIAL off mixed_cost 2 101.62 0

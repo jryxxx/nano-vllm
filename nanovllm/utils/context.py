@@ -12,6 +12,10 @@ class Context:
     slot_mapping: torch.Tensor | None = None
     context_lens: torch.Tensor | None = None
     block_tables: torch.Tensor | None = None
+    shared_enabled: bool = False
+    shared_prefix_length: torch.Tensor | None = None
+    suffix_tables: torch.Tensor | None = None
+    suffix_lengths: torch.Tensor | None = None
 
 _CONTEXT = Context()
 

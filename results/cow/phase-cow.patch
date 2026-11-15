@@ -1,0 +1,1107 @@
+--- /dev/null
++++ b/docs/KV_COW_REPORT.md
+@@ -0,0 +1,51 @@
++# KV Cache 会话分支 COW：实现与实验报告
++
++已在远程 `kv-session-cow` 分支完成会话快照、请求分支、尾块写时复制、引用计数和回收，并接入 prefill / decode 调度及共享前缀路径。
++
++## 实验设置
++
++RTX 4090 24GB；Qwen3-0.6B FP16；单 GPU、CUDA Graph；KV 页大小 256 token。分支实验关闭自定义共享注意力路径，以区分本阶段 COW 与上一阶段算子的收益。完整复制和 COW 使用同一个 Triton 复制内核。
++
++父请求已完成 prefill 并暂停。每个分支生成 32 token；每场景每模式预热一次，3 次测量交替顺序，以下为中位数。总耗时包含分支构造、复制、首次输出、后续生成和回收，不包含共同的父请求 prefill。原始每次耗时和 min/max 区间见 JSON；小幅差异不作统计显著性声明。
++
++## 正确性
++
++- gpu-auto.json: 7 组分页/变长场景通过；COW 对完整复制最大 logits 差 0.000000；独立完整重算最大相对 L2 0.002569。
++- gpu-eager.json: 7 组分页/变长场景通过；COW 对完整复制最大 logits 差 0.000000；独立完整重算最大相对 L2 0.002105。
++- 原会话已计算 KV 逐位不变；完整复制的有效 KV 逐位一致。覆盖 255/256/257、1024/1151 边界及 3/300 token 续接。
++- 多代分支、完成时保存、暂停/恢复、取消父请求、同名快照覆盖、重复取消/关闭、复制异常回滚、满池报错和释放后恢复均通过。CPU 2,000 次随机生命周期操作结束后引用归零。
++- FP16/BF16 复制内核的 0/1/255/256 有效 token 掩码、目标未写区和源块保持测试通过；完整引擎的本阶段数值验收使用 FP16。
++- 32 分支的 COW 与共享前缀 Graph 集成通过；上一阶段独立共享注意力与通用分页/变长回归结果保存在 results/cow。
++
++## 分支对照结果
++
++| 已缓存 token | 分支数 | 首 token ms：复制 → COW | 总耗时 ms：复制 → COW | 输出吞吐变化 | 峰值活跃页：复制 → COW |
++|---:|---:|---:|---:|---:|---:|
++| 256 | 1 | 3.02 → 2.79 | 83.22 → 82.65 | +0.69% | 3 → 2 |
++| 256 | 8 | 3.97 → 3.30 | 92.84 → 90.83 | +2.21% | 17 → 9 |
++| 256 | 16 | 5.10 → 3.81 | 109.03 → 98.45 | +10.75% | 33 → 17 |
++| 1151 | 1 | 3.40 → 3.15 | 85.13 → 84.82 | +0.37% | 10 → 6 |
++| 1151 | 8 | 7.42 → 5.96 | 123.53 → 116.64 | +5.91% | 45 → 13 |
++| 1151 | 16 | 12.10 → 8.51 | 170.71 → 130.11 | +31.20% | 85 → 21 |
++| 4223 | 1 | 4.90 → 3.85 | 100.06 → 99.30 | +0.76% | 34 → 18 |
++| 4223 | 8 | 19.87 → 9.59 | 247.84 → 168.59 | +47.01% | 153 → 25 |
++| 4223 | 16 | 36.68 → 16.37 | 410.32 → 253.90 | +61.61% | 289 → 33 |
++
++4,223 token × 16 分支：复制量 7.217 GiB → 0.217 GiB（减少 96.99%）；峰值活跃页减少 88.58%。这些是固定工作负载测量，不是饱和服务容量或普遍加速保证。
++
++## 普通请求回归
++
++对照为进入本阶段前保留的 `nano-vllm-pre-cow`，两边均关闭自定义共享注意力，输入与输出长度固定，每项 3 次。
++- shared_short: 5694.2 → 5682.1 output token/s，变化 -0.21%。
++- no_shared: 2597.4 → 2593.9 output token/s，变化 -0.13%。
++
++## 适用范围与解释
++
++- 当前会话 API 为单线程、单 GPU；快照驻留 GPU，无 TTL、CPU offload 或分布式会话所有权。复制同步完成后提交映射。
++- 活跃页减少意味着预分配池可容纳更多其他工作；GPU KV 池本身仍预分配，并不意味着 CUDA reserved memory 同比下降。
++- 完整块共享，部分尾块首次写入时复制。copy 模式复制全部已计算页；两种模式都按实际有效 token 复制，未用 page padding 不计入复制量。
++- 单分支/短上下文主要节省页和复制量，吞吐变化可能很小。长上下文多分支在本次试验中更有利。
++- GPU performance counters 不可用；不对实际 DRAM 事务数、L2 命中率或低层瓶颈作实测声明。复制字节数根据内核有效 token 和张量布局计算。
++- 复制事务失败的元数据回滚已验证；设备级非法访问导致的 CUDA context 损坏需要进程重启。
++
++实现与 API 示例见 [KV_SESSIONS.md](KV_SESSIONS.md)。`results/cow/summary.json` 为汇总；`benchmark.json` 为最终实验；`benchmark-initial.json` 和 `benchmark-before-fastpath.json` 为优化前诊断，不用于最终结论。
+--- /dev/null
++++ b/docs/KV_SESSIONS.md
+@@ -0,0 +1,71 @@
++# KV Cache sessions and copy-on-write branches
++
++This phase builds on the upstream-derived remote checkout and its paged shared-prefix attention implementation. `nano-vllm-pre-cow` preserves the implementation before this phase. Original upstream remains untouched.
++
++## Semantics
++
++A branch point is a completed engine step: `num_cached_tokens == len(token_ids) - 1`, with no scheduled work. The last sampled token is retained in the history but has not yet been evaluated into KV. A fork treats the entire inherited history as its prompt and starts a new output-token budget. `next_token_id` replaces only that pending token; `append_token_ids` adds a continuation after it. Already-computed tokens cannot be edited.
++
++A saved session is an immutable snapshot of token history, cached length and page IDs. It survives completion or cancellation of its source request. Saving the same name acquires the new snapshot's references before releasing the old snapshot. `close_session` releases snapshot ownership; it does not cancel descendants. Request cancellation and session closure are idempotent.
++
++Full pages and the computed portion of a partial last page are initially shared. Before a decode or prefill write, the allocator counts both missing pages and shared writable pages. It reserves enough free pages, copies only computed tokens from a shared writable page, and commits the new mapping after the copy completes. At a full-page boundary a fresh empty page is allocated without a tail copy. Full-copy mode duplicates all computed pages with the same copy kernel and is the comparison baseline.
++
++## Ownership and failure behavior
++
++`Block.ref_count` counts live request and snapshot owners. The allocator keeps an owner ledger and exposes `assert_invariants()` to verify exact counts, the free/used partition and hash-index consistency. A zero-reference page returns to the free deque; valid full-page contents may remain as an evictable prefix-cache entry, preserving upstream behavior.
++
++Copies are synchronous transactions at step boundaries. Source owners retain their references and new destinations hold an allocation reference until GPU synchronization completes. There are no deferred copy descriptors or unpinned transfers, so a source or destination cannot be recycled while copying. A failed copy releases only provisional destination pages; original mappings remain intact. The engine restores scheduling state after a scheduling/copy exception. If model execution raises, scheduled requests lose their potentially partially written cache and return to prefill. A fatal CUDA context error still requires restarting the process; injected recoverable failures test allocator rollback, not recovery from a poisoned device context.
++
++Retained sessions are never silently evicted. If no request can run because live owners hold all pages, scheduling raises `CacheCapacityError`. The caller can close sessions or cancel requests and retry. There is no automatic session TTL, CPU offload, distributed ownership or asynchronous copy overlap in this phase. Session mutation is a single-thread, single-GPU API; tensor-parallel engines reject it explicitly.
++
++## Public API
++
++```python
++from nanovllm import LLM, SamplingParams
++
++llm = LLM(model_path, max_model_len=8192)
++request = llm.add_request(prompt_tokens, SamplingParams(max_tokens=64))
++llm.step()  # ensure prefill has completed; long chunked prompts may need more steps
++llm.pause_request(request)
++llm.save_session(request, "checkpoint")
++
++branches = llm.fork_requests(
++    request, count=8,
++    sampling_params=SamplingParams(max_tokens=32),
++    next_token_ids=[100, 101, 102, 103, 104, 105, 106, 107],
++    cache_mode="cow",  # "copy" is the full-copy baseline
++)
++llm.cancel_request(request)
++while not llm.is_finished():
++    completed, processed = llm.step()
++llm.close_session("checkpoint")
++assert llm.cache_stats()["live_pages"] == 0
++```
++
++Additional calls: `fork_request`, `fork_session`, `resume_request`, `cancel_request`, `save_session`, `close_session`, `cache_stats`. `add_request(..., session_id="name")` saves a snapshot automatically when generation completes. A fork can similarly specify `session_id` or `output_session_id`. Bulk forks cannot share a single output session name. Retained or paused owners do not make `is_finished()` false: it describes runnable work, not whether every cache reference has been closed.
++
++The existing GPU KV pool remains preallocated. `live_pages` measures unique physical pages with live owners, not a reduction in `torch.cuda.memory_reserved()`. A page becoming free makes it reusable within that pool; it is not returned to the CUDA allocator.
++
++## Implementation map
++
++- `engine/block_manager.py`: snapshot ownership, bulk clone transaction, write planning, tail COW, refcount release, invariant checker and occupancy/copy counters.
++- `engine/kv_copy.py`: batched Triton page copy, valid-token masks, 64-bit plane addressing and completion synchronization.
++- `engine/scheduler.py`: request registry, pause/resume/cancel, named snapshots, COW before prefill/decode, automatic snapshot on completion and explicit capacity failure.
++- `engine/llm_engine.py`: validated branch APIs, step-boundary guard, copy callback and exception recovery.
++- `tests/validate_cow_metadata.py`: deterministic rollback cases and 2,000 random ownership operations.
++- `tests/validate_cow_gpu.py`: page boundaries, partial-tail divergence, continuation prefill, full-recompute oracle, multi-generation sessions, cancellation, snapshot replacement, injected copy failure, constrained capacity and shared-prefix graph integration.
++- `experiments/bench_cow.py`: paired bulk COW/full-copy trials using the same model, kernel, pending tokens and fixed output lengths.
++
++## Reproduction on this server
++
++```bash
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python tests/validate_cow_metadata.py
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python tests/validate_cow_gpu.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --backend auto --output results/cow/gpu-auto.json
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python experiments/bench_cow.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --output results/cow/benchmark.json
++```
++
++Benchmarks exclude parent creation/prefill, which is identical and precedes the branch point. They include CPU branch construction, the full-copy transaction, deferred COW on the first write, 32 output tokens per branch, and normal completion/reclamation. Both modes use ordinary attention (`shared_attention_backend="off"`) to isolate cache sharing from the earlier custom shared-attention kernel. One warmup pair is excluded per scenario, three measured pairs alternate order. Report medians and ranges, not statistical significance from three observations. Hardware performance counters are unavailable; no DRAM-transaction or cache-hit-rate claims are inferred from timing.
+--- /dev/null
++++ b/experiments/archive_cow.py
+@@ -0,0 +1,25 @@
++import difflib
++import hashlib
++import json
++import subprocess
++from pathlib import Path
++
++root=Path(__file__).resolve().parents[1]; previous=root.parent/'nano-vllm-pre-cow'; out=root/'results/cow'
++paths=[]
++for directory in ('nanovllm','tests','experiments','docs'):
++    paths.extend(p for p in (root/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix in ('.py','.md','.sh'))
++patch=[];changed=[]
++for p in sorted(paths):
++    rel=p.relative_to(root); before=previous/rel
++    old=before.read_text() if before.exists() else ''
++    new=p.read_text()
++    if old!=new:
++        changed.append(str(rel))
++        patch.extend(difflib.unified_diff(old.splitlines(True),new.splitlines(True),
++                     fromfile='a/'+str(rel) if before.exists() else '/dev/null',tofile='b/'+str(rel)))
++(out/'phase-cow.patch').write_text(''.join(patch))
++files=paths+list(out.glob('*.json'))+[out/'phase-cow.patch']
++manifest={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files) if p.name!='manifest.json'}
++(out/'manifest.json').write_text(json.dumps(dict(branch=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip(),
++    upstream=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),changed_since_pre_cow=changed,sha256=manifest),indent=2))
++print(json.dumps(dict(changed_files=len(changed),hashed_files=len(manifest))))
+--- /dev/null
++++ b/experiments/bench_cow.py
+@@ -0,0 +1,60 @@
++"""Matched bulk forks: include deferred COW in fork-to-first-token and total latency."""
++import argparse
++import json
++import random
++import time
++from pathlib import Path
++import torch
++from nanovllm import LLM, SamplingParams
++
++
++def main():
++    ap=argparse.ArgumentParser(); ap.add_argument('--model',required=True)
++    ap.add_argument('--output',required=True); ap.add_argument('--repeats',type=int,default=3)
++    args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=32,max_model_len=8192,max_num_batched_tokens=8192,
++            gpu_memory_utilization=.68,shared_attention_backend='off')
++    bm=llm.scheduler.block_manager; runner=llm.model_runner; rng=random.Random(2026)
++    bytes_per_token=2*runner.kv_cache.shape[1]*runner.kv_cache.shape[-2]*runner.kv_cache.shape[-1]*runner.kv_cache.element_size()
++    report=dict(config=dict(dtype=str(runner.kv_cache.dtype),gpu=torch.cuda.get_device_name(),
++                            pool_pages=len(bm.blocks),bytes_per_token=bytes_per_token,block_size=bm.block_size,
++                            backend='off',outputs=32,repeats=args.repeats),trials=[])
++    for cached in (256,1151,4223):
++        rid=llm.add_request([rng.randrange(100,10000) for _ in range(cached)],SamplingParams(max_tokens=64,ignore_eos=True))
++        llm.step(); llm.pause_request(rid)
++        for branches in (1,8,16):
++            for repeat in range(-1,args.repeats):
++                modes=['copy','cow'] if repeat%2 else ['cow','copy']
++                for mode in modes:
++                    before=bm.stats(); bm.counters['peak_live_pages']=before['live_pages']
++                    torch.manual_seed(400+max(repeat,0)); torch.cuda.synchronize()
++                    t0=time.perf_counter()
++                    children=llm.fork_requests(rid,branches,SamplingParams(max_tokens=32,temperature=.6,ignore_eos=True),
++                                               next_token_ids=list(range(700,700+branches)),cache_mode=mode)
++                    fork=time.perf_counter()-t0
++                    live_fork=bm.stats()['live_pages']
++                    llm.step(); first=time.perf_counter()-t0
++                    live_first=bm.stats()['live_pages']; outputs={}
++                    while not llm.is_finished():
++                        done,_=llm.step(); outputs.update(done)
++                    total=time.perf_counter()-t0
++                    assert len(outputs)==branches and all(len(x)==32 for x in outputs.values())
++                    after=bm.stats(); bm.assert_invariants()
++                    assert after['live_pages']==before['live_pages']
++                    row=dict(cached_tokens=cached,branches=branches,repeat=repeat,mode=mode,
++                             fork_ms=fork*1000,fork_to_first_ms=first*1000,total_ms=total*1000,
++                             tokens_per_s=branches*32/total,live_after_fork=live_fork,live_after_first=live_first,
++                             peak_live_pages=after['peak_live_pages'],parent_pages=before['live_pages'],
++                             copied_tokens=after['copied_tokens']-before['copied_tokens'],
++                             copy_bytes=(after['copied_tokens']-before['copied_tokens'])*bytes_per_token,
++                             cow_pages=after['cow_pages']-before['cow_pages'],copy_pages=after['copy_pages']-before['copy_pages'])
++                    if repeat>=0:
++                        report['trials'].append(row)
++                        Path(args.output).write_text(json.dumps(report,indent=2))
++                    print(json.dumps(row),flush=True)
++        llm.cancel_request(rid); bm.assert_invariants(); assert bm.stats()['live_pages']==0
++    report['final_stats']=bm.stats(); Path(args.output).write_text(json.dumps(report,indent=2))
++    llm.exit()
++
++
++if __name__=='__main__': main()
+--- /dev/null
++++ b/experiments/finalize_cow.py
+@@ -0,0 +1,54 @@
++import json
++import statistics as st
++from pathlib import Path
++
++root=Path(__file__).resolve().parents[1]; out=root/'results/cow'
++raw=json.loads((out/'benchmark.json').read_text()); rows=raw['trials']; summary=[]
++for cached,branches in sorted({(x['cached_tokens'],x['branches']) for x in rows}):
++    modes={mode:[r for r in rows if r['cached_tokens']==cached and r['branches']==branches and r['mode']==mode] for mode in ('copy','cow')}
++    vals={mode:{key:st.median(r[key] for r in group) for key in ('fork_ms','fork_to_first_ms','total_ms','tokens_per_s','peak_live_pages','copy_bytes')} for mode,group in modes.items()}
++    spread={mode:{key:[min(r[key] for r in group),max(r[key] for r in group)] for key in ('fork_to_first_ms','total_ms')} for mode,group in modes.items()}
++    summary.append(dict(cached=cached,branches=branches,medians=vals,ranges=spread,
++                        throughput_gain_pct=100*(vals['copy']['total_ms']/vals['cow']['total_ms']-1),
++                        page_reduction_pct=100*(1-vals['cow']['peak_live_pages']/vals['copy']['peak_live_pages']),
++                        copy_reduction_pct=100*(1-vals['cow']['copy_bytes']/vals['copy']['copy_bytes'])))
++ordinary=[]
++for scenario in ('shared_short','no_shared'):
++    vals={stage:st.median(r['output_tokens_per_s'] for r in json.loads((out/f'ordinary-{stage}.json').read_text())['trials'] if r['scenario']==scenario) for stage in ('before','after')}
++    ordinary.append(dict(scenario=scenario,**vals,change_pct=100*(vals['after']/vals['before']-1)))
++result=dict(config=raw['config'],scenarios=summary,ordinary=ordinary)
++(out/'summary.json').write_text(json.dumps(result,indent=2))
++lines=['# KV Cache 会话分支 COW：实现与实验报告','',
++'已在远程 `kv-session-cow` 分支完成会话快照、请求分支、尾块写时复制、引用计数和回收，并接入 prefill / decode 调度及共享前缀路径。',
++'', '## 实验设置','',
++'RTX 4090 24GB；Qwen3-0.6B FP16；单 GPU、CUDA Graph；KV 页大小 256 token。分支实验关闭自定义共享注意力路径，以区分本阶段 COW 与上一阶段算子的收益。完整复制和 COW 使用同一个 Triton 复制内核。',
++'', '父请求已完成 prefill 并暂停。每个分支生成 32 token；每场景每模式预热一次，3 次测量交替顺序，以下为中位数。总耗时包含分支构造、复制、首次输出、后续生成和回收，不包含共同的父请求 prefill。原始每次耗时和 min/max 区间见 JSON；小幅差异不作统计显著性声明。',
++'', '## 正确性','']
++for filename in ('gpu-auto.json','gpu-eager.json'):
++    data=json.loads((out/filename).read_text()); cases=[r for r in data['cases'] if 'cached' in r]
++    lines.append(f'- {filename}: {len(cases)} 组分页/变长场景通过；COW 对完整复制最大 logits 差 {max(r["cow_copy_max_abs"] for r in cases):.6f}；独立完整重算最大相对 L2 {max(r["fresh_recompute_relative_l2"] for r in cases):.6f}。')
++lines += ['- 原会话已计算 KV 逐位不变；完整复制的有效 KV 逐位一致。覆盖 255/256/257、1024/1151 边界及 3/300 token 续接。',
++'- 多代分支、完成时保存、暂停/恢复、取消父请求、同名快照覆盖、重复取消/关闭、复制异常回滚、满池报错和释放后恢复均通过。CPU 2,000 次随机生命周期操作结束后引用归零。',
++'- FP16/BF16 复制内核的 0/1/255/256 有效 token 掩码、目标未写区和源块保持测试通过；完整引擎的本阶段数值验收使用 FP16。',
++'- 32 分支的 COW 与共享前缀 Graph 集成通过；上一阶段独立共享注意力与通用分页/变长回归结果保存在 results/cow。',
++'', '## 分支对照结果','',
++'| 已缓存 token | 分支数 | 首 token ms：复制 → COW | 总耗时 ms：复制 → COW | 输出吞吐变化 | 峰值活跃页：复制 → COW |',
++'|---:|---:|---:|---:|---:|---:|']
++for r in summary:
++    a,b=r['medians']['copy'],r['medians']['cow']
++    lines.append(f'| {r["cached"]} | {r["branches"]} | {a["fork_to_first_ms"]:.2f} → {b["fork_to_first_ms"]:.2f} | {a["total_ms"]:.2f} → {b["total_ms"]:.2f} | {r["throughput_gain_pct"]:+.2f}% | {a["peak_live_pages"]:.0f} → {b["peak_live_pages"]:.0f} |')
++best=summary[-1];a,b=best['medians']['copy'],best['medians']['cow']
++lines += ['',f'4,223 token × 16 分支：复制量 {a["copy_bytes"]/2**30:.3f} GiB → {b["copy_bytes"]/2**30:.3f} GiB（减少 {best["copy_reduction_pct"]:.2f}%）；峰值活跃页减少 {best["page_reduction_pct"]:.2f}%。这些是固定工作负载测量，不是饱和服务容量或普遍加速保证。',
++'', '## 普通请求回归','', '对照为进入本阶段前保留的 `nano-vllm-pre-cow`，两边均关闭自定义共享注意力，输入与输出长度固定，每项 3 次。']
++for r in ordinary: lines.append(f'- {r["scenario"]}: {r["before"]:.1f} → {r["after"]:.1f} output token/s，变化 {r["change_pct"]:+.2f}%。')
++lines += ['', '## 适用范围与解释','',
++'- 当前会话 API 为单线程、单 GPU；快照驻留 GPU，无 TTL、CPU offload 或分布式会话所有权。复制同步完成后提交映射。',
++'- 活跃页减少意味着预分配池可容纳更多其他工作；GPU KV 池本身仍预分配，并不意味着 CUDA reserved memory 同比下降。',
++'- 完整块共享，部分尾块首次写入时复制。copy 模式复制全部已计算页；两种模式都按实际有效 token 复制，未用 page padding 不计入复制量。',
++'- 单分支/短上下文主要节省页和复制量，吞吐变化可能很小。长上下文多分支在本次试验中更有利。',
++'- GPU performance counters 不可用；不对实际 DRAM 事务数、L2 命中率或低层瓶颈作实测声明。复制字节数根据内核有效 token 和张量布局计算。',
++'- 复制事务失败的元数据回滚已验证；设备级非法访问导致的 CUDA context 损坏需要进程重启。',
++'', '实现与 API 示例见 [KV_SESSIONS.md](KV_SESSIONS.md)。`results/cow/summary.json` 为汇总；`benchmark.json` 为最终实验；`benchmark-initial.json` 和 `benchmark-before-fastpath.json` 为优化前诊断，不用于最终结论。',
++'']
++(root/'docs/KV_COW_REPORT.md').write_text('\n'.join(lines))
++print(json.dumps(result,indent=2))
+--- a/nanovllm/engine/block_manager.py
++++ b/nanovllm/engine/block_manager.py
+@@ -1,8 +1,21 @@
+ from collections import deque
++from collections import Counter
++from dataclasses import dataclass
+ import xxhash
+ import numpy as np
+ 
+ from nanovllm.engine.sequence import Sequence
++
++
++class CacheCapacityError(RuntimeError):
++    """Insufficient evictable KV pages; retained sessions must be released."""
++
++
++@dataclass(frozen=True)
++class CacheSnapshot:
++    token_ids: tuple
++    num_cached_tokens: int
++    block_table: tuple
+ 
+ 
+ class Block:
+@@ -31,6 +44,144 @@
+         self.hash_to_block_id: dict[int, int] = dict()
+         self.free_block_ids: deque[int] = deque(range(num_blocks))
+         self.used_block_ids: set[int] = set()
++        self.owners = {}
++        self.copy_blocks = None
++        self.counters = dict(cow_pages=0, copy_pages=0, copied_tokens=0, peak_live_pages=0)
++
++    def _track(self, owner):
++        self.owners[id(owner)] = owner
++        self.counters['peak_live_pages'] = max(self.counters['peak_live_pages'], len(self.used_block_ids))
++
++    def _release_ids(self, ids):
++        for block_id in ids:
++            block = self.blocks[block_id]
++            assert block.ref_count > 0
++            block.ref_count -= 1
++            if block.ref_count == 0:
++                self._deallocate_block(block_id)
++
++    def release(self, owner):
++        if self.owners.pop(id(owner), None) is not None:
++            self._release_ids(owner.block_table)
++
++    def _copy(self, jobs):
++        # Synchronous ownership transaction: source references and newly allocated
++        # destinations stay live until the GPU copy has completed, including errors.
++        if jobs:
++            if self.copy_blocks is None:
++                raise RuntimeError('KV copy callback is not installed')
++            self.copy_blocks(jobs)
++
++    def snapshot(self, seq):
++        self._check_source(seq)
++        n = (seq.num_cached_tokens + self.block_size - 1) // self.block_size
++        snap = CacheSnapshot(tuple(seq.token_ids), seq.num_cached_tokens, tuple(seq.block_table[:n]))
++        for i in snap.block_table:
++            self.blocks[i].ref_count += 1
++        self._track(snap)
++        return snap
++
++    def _check_source(self, source):
++        if id(source) not in self.owners:
++            raise ValueError('source no longer owns KV cache')
++        if getattr(source, 'num_scheduled_tokens', 0) or source.num_cached_tokens != len(source.token_ids) - 1:
++            raise ValueError('branching requires a completed step with exactly one pending token')
++
++    def clone_many(self, source, targets, mode='cow'):
++        self._check_source(source)
++        if mode not in ('cow', 'copy'):
++            raise ValueError('cache_mode must be cow or copy')
++        n = (source.num_cached_tokens + self.block_size - 1) // self.block_size
++        source_ids = source.block_table[:n]
++        if any(t.block_table for t in targets):
++            raise ValueError('clone target already has cache')
++        if mode == 'copy' and len(self.free_block_ids) < n * len(targets):
++            raise CacheCapacityError('full-copy fork does not fit in KV cache')
++        allocated, tables, jobs = [], [], []
++        try:
++            for target in targets:
++                table = []
++                for j, src in enumerate(source_ids):
++                    if mode == 'cow':
++                        dst = src
++                    else:
++                        dst = self._allocate_block()
++                        allocated.append(dst)
++                        valid = min(self.block_size, source.num_cached_tokens - j * self.block_size)
++                        jobs.append((src, dst, valid))
++                        if valid == self.block_size:
++                            self.blocks[dst].update(self.blocks[src].hash, list(self.blocks[src].token_ids))
++                    table.append(dst)
++                tables.append(table)
++            self._copy(jobs)
++        except BaseException:
++            self._release_ids(allocated)
++            raise
++        for target, table in zip(targets, tables):
++            if mode == 'cow':
++                for i in table:
++                    self.blocks[i].ref_count += 1
++            target.block_table = table
++            target.num_cached_tokens = source.num_cached_tokens
++            self._track(target)
++        self.counters['copy_pages'] += len(jobs)
++        self.counters['copied_tokens'] += sum(j[2] for j in jobs)
++
++    def write_plan(self, seq, count):
++        start = seq.num_cached_tokens // self.block_size
++        end = (seq.num_cached_tokens + count + self.block_size - 1) // self.block_size
++        shared = [i for i in range(start, min(end, len(seq.block_table)))
++                  if self.blocks[seq.block_table[i]].ref_count > 1]
++        missing = max(0, end - len(seq.block_table))
++        return shared, missing
++
++    def can_write(self, seq, count):
++        shared, missing = self.write_plan(seq, count)
++        return len(self.free_block_ids) >= len(shared) + missing
++
++    def ensure_writable(self, seq, count):
++        shared, missing = self.write_plan(seq, count)
++        if len(self.free_block_ids) < len(shared) + missing:
++            raise CacheCapacityError('KV cache is retained by live requests or sessions')
++        allocated, replacements, jobs = [], [], []
++        try:
++            for pos in shared:
++                src, dst = seq.block_table[pos], self._allocate_block()
++                allocated.append(dst)
++                valid = max(0, min(self.block_size, seq.num_cached_tokens - pos * self.block_size))
++                if valid:
++                    jobs.append((src, dst, valid))
++                replacements.append((pos, src, dst))
++            new_pages = [self._allocate_block() for _ in range(missing)]
++            allocated.extend(new_pages)
++            self._copy(jobs)
++        except BaseException:
++            self._release_ids(allocated)
++            raise
++        for pos, src, dst in replacements:
++            seq.block_table[pos] = dst
++            self._release_ids([src])
++        seq.block_table.extend(new_pages)
++        self._track(seq)
++        self.counters['cow_pages'] += len(jobs)
++        self.counters['copied_tokens'] += sum(j[2] for j in jobs)
++
++    def stats(self):
++        return dict(self.counters, live_pages=len(self.used_block_ids), free_pages=len(self.free_block_ids),
++                    references=sum(b.ref_count for b in self.blocks), owners=len(self.owners),
++                    shared_pages=sum(b.ref_count > 1 for b in self.blocks))
++
++    def assert_invariants(self):
++        expected = Counter(i for owner in self.owners.values() for i in owner.block_table)
++        assert len(self.free_block_ids) == len(set(self.free_block_ids))
++        assert set(self.free_block_ids).isdisjoint(self.used_block_ids)
++        assert set(self.free_block_ids) | self.used_block_ids == set(range(len(self.blocks)))
++        for block in self.blocks:
++            assert block.ref_count == expected[block.block_id]
++            assert (block.ref_count > 0) == (block.block_id in self.used_block_ids)
++        for h, i in self.hash_to_block_id.items():
++            assert self.blocks[i].hash == h
++        return True
+ 
+     @classmethod
+     def compute_hash(cls, token_ids: list[int], prefix: int = -1):
+@@ -48,6 +199,7 @@
+             del self.hash_to_block_id[block.hash]
+         block.reset()
+         self.used_block_ids.add(block_id)
++        self.counters['peak_live_pages'] = max(self.counters['peak_live_pages'], len(self.used_block_ids))
+         return block_id
+ 
+     def _deallocate_block(self, block_id: int):
+@@ -90,22 +242,24 @@
+         for i in range(num_cached_blocks, seq.num_blocks):
+             seq.block_table.append(self._allocate_block())
+         seq.num_cached_tokens = num_cached_blocks * self.block_size
++        self._track(seq)
+ 
+     def deallocate(self, seq: Sequence):
+-        for block_id in reversed(seq.block_table):
+-            block = self.blocks[block_id]
+-            block.ref_count -= 1
+-            if block.ref_count == 0:
+-                self._deallocate_block(block_id)
++        self.release(seq)
+         seq.num_cached_tokens = 0
+         seq.block_table.clear()
+ 
+     def can_append(self, seq: Sequence) -> bool:
+-        return len(self.free_block_ids) >= (len(seq) % self.block_size == 1)
++        pos = seq.num_cached_tokens // self.block_size
++        return (pos < len(seq.block_table) and self.blocks[seq.block_table[pos]].ref_count == 1) or bool(self.free_block_ids)
+ 
+     def may_append(self, seq: Sequence):
+-        if len(seq) % self.block_size == 1:
+-            seq.block_table.append(self._allocate_block())
++        pos = seq.num_cached_tokens // self.block_size
++        # Ordinary decode owns its writable page exclusively: avoid constructing
++        # a transaction or touching the owner ledger on this common path.
++        if pos < len(seq.block_table) and self.blocks[seq.block_table[pos]].ref_count == 1:
++            return
++        self.ensure_writable(seq, 1)
+ 
+     def hash_blocks(self, seq: Sequence):
+         start = seq.num_cached_tokens // self.block_size
+@@ -114,6 +268,7 @@
+         h = self.blocks[seq.block_table[start - 1]].hash if start > 0 else -1
+         for i in range(start, end):
+             block = self.blocks[seq.block_table[i]]
++            assert block.ref_count == 1, "writing a shared page without COW"
+             token_ids = seq.block(i)
+             h = self.compute_hash(token_ids, h)
+             block.update(h, token_ids)
+--- /dev/null
++++ b/nanovllm/engine/kv_copy.py
+@@ -0,0 +1,31 @@
++"""Copy only computed KV tokens; identical implementation for COW and full-copy forks."""
++import torch
++import triton
++import triton.language as tl
++
++
++@triton.jit
++def _copy_pages(cache, jobs, PAGE: tl.constexpr, PLANE: tl.constexpr,
++                WIDTH: tl.constexpr, TILE: tl.constexpr):
++    offsets = tl.program_id(0) * TILE + tl.arange(0, TILE)
++    plane, job = tl.program_id(1).to(tl.int64), tl.program_id(2)
++    src = tl.load(jobs + job * 3)
++    dst = tl.load(jobs + job * 3 + 1)
++    valid = tl.load(jobs + job * 3 + 2) * WIDTH
++    values = tl.load(cache + plane * PLANE + src * PAGE + offsets, offsets < valid, 0)
++    tl.store(cache + plane * PLANE + dst * PAGE + offsets, values, offsets < valid)
++
++
++@torch.inference_mode()
++def copy_kv_pages(cache, jobs):
++    if not jobs:
++        return
++    metadata = torch.tensor(jobs, dtype=torch.int64, device=cache.device)
++    width = cache.shape[-2] * cache.shape[-1]
++    try:
++        _copy_pages[(triton.cdiv(max(j[2] for j in jobs) * width, 1024),
++                     cache.shape[0] * cache.shape[1], len(jobs))](
++            cache, metadata, cache.stride(2), cache.stride(1), width, 1024)
++    finally:
++        # Hold source/destination references even if launch or completion fails.
++        torch.cuda.synchronize(cache.device)
+--- a/nanovllm/engine/llm_engine.py
++++ b/nanovllm/engine/llm_engine.py
+@@ -7,7 +7,7 @@
+ 
+ from nanovllm.config import Config
+ from nanovllm.sampling_params import SamplingParams
+-from nanovllm.engine.sequence import Sequence
++from nanovllm.engine.sequence import Sequence, SequenceStatus
+ from nanovllm.engine.scheduler import Scheduler
+ from nanovllm.engine.model_runner import ModelRunner
+ 
+@@ -32,27 +32,159 @@
+         self.tokenizer = AutoTokenizer.from_pretrained(config.model, use_fast=True)
+         config.eos = self.tokenizer.eos_token_id
+         self.scheduler = Scheduler(config)
++        self.config = config
++        self._in_step = False
++        self.scheduler.block_manager.copy_blocks = self.model_runner.copy_kv_blocks
+         atexit.register(self.exit)
+ 
+     def exit(self):
++        if not hasattr(self, "model_runner"):
++            return
++        if self._in_step:
++            raise RuntimeError('cannot exit during a step')
++        for request_id in list(self.scheduler.requests):
++            self.scheduler.cancel(request_id)
++        for session_id in list(self.scheduler.sessions):
++            self.scheduler.close_session(session_id)
++        self.scheduler.block_manager.copy_blocks = None
+         self.model_runner.call("exit")
+         del self.model_runner
+         for p in self.ps:
+             p.join()
+ 
+-    def add_request(self, prompt: str | list[int], sampling_params: SamplingParams):
++    def _boundary(self):
++        if self._in_step:
++            raise RuntimeError('session operations require a step boundary')
++        if self.config.tensor_parallel_size != 1:
++            raise NotImplementedError('session branching currently supports single-GPU engines')
++
++    def _validate_session_target(self, session_id):
++        if session_id is not None:
++            hash(session_id)
++            if any(getattr(s, 'save_session_id', None) == session_id for s in self.scheduler.requests.values()):
++                raise ValueError('another active request is writing this session')
++
++    def add_request(self, prompt: str | list[int], sampling_params: SamplingParams, session_id=None):
++        if self._in_step:
++            raise RuntimeError('request mutation during step')
++        if session_id is not None:
++            self._boundary()
++        self._validate_session_target(session_id)
+         if isinstance(prompt, str):
+             prompt = self.tokenizer.encode(prompt)
++        if not prompt or len(prompt) + sampling_params.max_tokens > self.config.max_model_len:
++            raise ValueError('empty prompt or request exceeds max_model_len')
++        if sampling_params.max_tokens < 1:
++            raise ValueError('max_tokens must be positive')
+         seq = Sequence(prompt, sampling_params)
++        seq.save_session_id = session_id
+         self.scheduler.add(seq)
++        return seq.seq_id
++
++    def save_session(self, request_id, session_id):
++        self._boundary()
++        hash(session_id)
++        self.scheduler.save_session(request_id, session_id)
++
++    def close_session(self, session_id):
++        self._boundary()
++        return self.scheduler.close_session(session_id)
++
++    def pause_request(self, request_id):
++        self._boundary()
++        self.scheduler.pause(request_id)
++
++    def resume_request(self, request_id):
++        self._boundary()
++        self.scheduler.resume(request_id)
++
++    def cancel_request(self, request_id):
++        self._boundary()
++        return self.scheduler.cancel(request_id)
++
++    def _fork(self, source, count, sampling_params, append_token_ids, next_token_ids, cache_mode, session_id):
++        self._boundary()
++        self._validate_session_target(session_id)
++        if count < 1 or (count > 1 and session_id is not None):
++            raise ValueError('invalid fork count or shared output session')
++        if next_token_ids is not None and len(next_token_ids) != count:
++            raise ValueError('one pending token override is required per branch')
++        sampling_params = sampling_params or SamplingParams()
++        if sampling_params.max_tokens < 1:
++            raise ValueError('max_tokens must be positive')
++        targets = []
++        vocab_size = self.config.hf_config.vocab_size
++        for i in range(count):
++            tokens = list(source.token_ids)
++            if next_token_ids is not None:
++                tokens[-1] = int(next_token_ids[i])
++            tokens.extend(append_token_ids or [])
++            if len(tokens) + sampling_params.max_tokens > self.config.max_model_len:
++                raise ValueError('branch exceeds max_model_len')
++            if any(t < 0 or t >= vocab_size for t in tokens):
++                raise ValueError('token outside vocabulary')
++            seq = Sequence(tokens, sampling_params)
++            seq.save_session_id = session_id
++            targets.append(seq)
++        self.scheduler.block_manager.clone_many(source, targets, cache_mode)
++        for seq in targets:
++            self.scheduler.requests[seq.seq_id] = seq
++            if len(seq) - seq.num_cached_tokens == 1:
++                seq.status = SequenceStatus.RUNNING
++                seq.is_prefill = False
++                self.scheduler.running.append(seq)
++            else:
++                self.scheduler.waiting.append(seq)
++        return [s.seq_id for s in targets]
++
++    def fork_requests(self, request_id, count=1, sampling_params=None, *, append_token_ids=None,
++                      next_token_ids=None, cache_mode='cow'):
++        return self._fork(self.scheduler.requests[request_id], count, sampling_params,
++                          append_token_ids, next_token_ids, cache_mode, None)
++
++    def fork_request(self, request_id, sampling_params=None, *, append_token_ids=None,
++                     next_token_id=None, cache_mode='cow', session_id=None):
++        return self._fork(self.scheduler.requests[request_id], 1, sampling_params, append_token_ids,
++                          None if next_token_id is None else [next_token_id], cache_mode, session_id)[0]
++
++    def fork_session(self, session_id, sampling_params=None, *, append_token_ids=None,
++                     next_token_id=None, cache_mode='cow', output_session_id=None):
++        return self._fork(self.scheduler.sessions[session_id], 1, sampling_params, append_token_ids,
++                          None if next_token_id is None else [next_token_id], cache_mode, output_session_id)[0]
++
++    def cache_stats(self):
++        return self.scheduler.block_manager.stats()
+ 
+     def step(self):
+-        seqs, is_prefill = self.scheduler.schedule()
+-        num_tokens = sum(seq.num_scheduled_tokens for seq in seqs) if is_prefill else -len(seqs)
+-        token_ids = self.model_runner.call("run", seqs, is_prefill)
+-        self.scheduler.postprocess(seqs, token_ids, is_prefill)
+-        outputs = [(seq.seq_id, seq.completion_token_ids) for seq in seqs if seq.is_finished]
+-        return outputs, num_tokens
++        if self._in_step:
++            raise RuntimeError('reentrant step')
++        self._in_step = True
++        try:
++            try:
++                seqs, is_prefill = self.scheduler.schedule()
++            except BaseException:
++                for seq in self.scheduler.requests.values():
++                    if seq.num_scheduled_tokens:
++                        seq.num_scheduled_tokens = 0
++                        if seq.is_prefill:
++                            self.scheduler._remove_queues(seq)
++                            seq.status = SequenceStatus.WAITING
++                            self.scheduler.waiting.appendleft(seq)
++                raise
++            num_tokens = sum(seq.num_scheduled_tokens for seq in seqs) if is_prefill else -len(seqs)
++            try:
++                token_ids = self.model_runner.call('run', seqs, is_prefill)
++            except BaseException:
++                # Potentially partially written pages are discarded before retry.
++                for seq in seqs:
++                    self.scheduler._remove_queues(seq)
++                    self.scheduler.preempt(seq)
++                raise
++            self.scheduler.postprocess(seqs, token_ids, is_prefill)
++            outputs = [(seq.seq_id, seq.completion_token_ids) for seq in seqs if seq.is_finished]
++            return outputs, num_tokens
++        finally:
++            self._in_step = False
+ 
+     def is_finished(self):
+         return self.scheduler.is_finished()
+--- a/nanovllm/engine/model_runner.py
++++ b/nanovllm/engine/model_runner.py
+@@ -258,6 +258,10 @@
+         reset_context()
+         return token_ids
+ 
++    def copy_kv_blocks(self, jobs):
++        from nanovllm.engine.kv_copy import copy_kv_pages
++        copy_kv_pages(self.kv_cache, jobs)
++
+     @torch.inference_mode()
+     def capture_cudagraph(self):
+         config = self.config
+--- a/nanovllm/engine/scheduler.py
++++ b/nanovllm/engine/scheduler.py
+@@ -2,7 +2,7 @@
+ 
+ from nanovllm.config import Config
+ from nanovllm.engine.sequence import Sequence, SequenceStatus
+-from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.block_manager import BlockManager, CacheCapacityError
+ 
+ 
+ class Scheduler:
+@@ -15,12 +15,56 @@
+         self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size)
+         self.waiting: deque[Sequence] = deque()
+         self.running: deque[Sequence] = deque()
++        self.requests = {}
++        self.sessions = {}
+ 
+     def is_finished(self):
+         return not self.waiting and not self.running
+ 
+     def add(self, seq: Sequence):
++        self.requests[seq.seq_id] = seq
+         self.waiting.append(seq)
++
++    def _remove_queues(self, seq):
++        for queue in (self.waiting, self.running):
++            if seq in queue:
++                queue.remove(seq)
++
++    def cancel(self, request_id):
++        seq = self.requests.pop(request_id, None)
++        if seq is None:
++            return False
++        self._remove_queues(seq)
++        self.block_manager.deallocate(seq)
++        seq.status = SequenceStatus.CANCELLED
++        return True
++
++    def pause(self, request_id):
++        seq = self.requests[request_id]
++        self.block_manager._check_source(seq)
++        self._remove_queues(seq)
++        seq.status = SequenceStatus.PAUSED
++
++    def resume(self, request_id):
++        seq = self.requests[request_id]
++        if seq.status != SequenceStatus.PAUSED:
++            raise ValueError('request is not paused')
++        seq.status = SequenceStatus.RUNNING
++        self.running.append(seq)
++
++    def save_session(self, request_id, session_id):
++        snap = self.block_manager.snapshot(self.requests[request_id])
++        previous = self.sessions.get(session_id)
++        self.sessions[session_id] = snap
++        if previous is not None:
++            self.block_manager.release(previous)
++
++    def close_session(self, session_id):
++        previous = self.sessions.pop(session_id, None)
++        if previous is None:
++            return False
++        self.block_manager.release(previous)
++        return True
+ 
+     def schedule(self) -> tuple[list[Sequence], bool]:
+         scheduled_seqs = []
+@@ -43,7 +87,11 @@
+                 break
+             if not seq.block_table:
+                 self.block_manager.allocate(seq, num_cached_blocks)
+-            seq.num_scheduled_tokens = min(num_tokens, remaining)
++            count = min(num_tokens, remaining)
++            if not self.block_manager.can_write(seq, count):
++                break
++            self.block_manager.ensure_writable(seq, count)
++            seq.num_scheduled_tokens = count
+             num_batched_tokens += seq.num_scheduled_tokens
+             if seq.num_cached_tokens + seq.num_scheduled_tokens == seq.num_tokens:
+                 seq.status = SequenceStatus.RUNNING
+@@ -64,17 +112,26 @@
+                     self.preempt(seq)
+                     break
+             else:
++                try:
++                    self.block_manager.may_append(seq)
++                except BaseException:
++                    self.running.appendleft(seq)
++                    self.running.extendleft(reversed(scheduled_seqs))
++                    for scheduled in scheduled_seqs:
++                        scheduled.num_scheduled_tokens = 0
++                    raise
+                 seq.num_scheduled_tokens = 1
+                 seq.is_prefill = False
+-                self.block_manager.may_append(seq)
+                 scheduled_seqs.append(seq)
+-        assert scheduled_seqs
++        if not scheduled_seqs:
++            raise CacheCapacityError("no runnable request fits; close sessions, cancel requests, or increase KV capacity")
+         self.running.extendleft(reversed(scheduled_seqs))
+         return scheduled_seqs, False
+ 
+     def preempt(self, seq: Sequence):
+         seq.status = SequenceStatus.WAITING
+         seq.is_prefill = True
++        seq.num_scheduled_tokens = 0
+         self.block_manager.deallocate(seq)
+         self.waiting.appendleft(seq)
+ 
+@@ -87,6 +144,10 @@
+                 continue
+             seq.append_token(token_id)
+             if (not seq.ignore_eos and token_id == self.eos) or seq.num_completion_tokens == seq.max_tokens:
++                session_id = getattr(seq, 'save_session_id', None)
++                if session_id is not None:
++                    self.save_session(seq.seq_id, session_id)
+                 seq.status = SequenceStatus.FINISHED
++                self.requests.pop(seq.seq_id)
+                 self.block_manager.deallocate(seq)
+                 self.running.remove(seq)
+--- a/nanovllm/engine/sequence.py
++++ b/nanovllm/engine/sequence.py
+@@ -9,6 +9,8 @@
+     WAITING = auto()
+     RUNNING = auto()
+     FINISHED = auto()
++    PAUSED = auto()
++    CANCELLED = auto()
+ 
+ 
+ class Sequence:
+--- /dev/null
++++ b/tests/validate_cow_gpu.py
+@@ -0,0 +1,143 @@
++import argparse
++import json
++import random
++from pathlib import Path
++import torch
++from nanovllm import LLM, SamplingParams
++from nanovllm.engine.block_manager import BlockManager, CacheCapacityError
++from nanovllm.engine.sequence import Sequence
++from nanovllm.utils.context import get_context, reset_context
++
++
++def main():
++    ap = argparse.ArgumentParser(); ap.add_argument('--model', required=True)
++    ap.add_argument('--output', required=True); ap.add_argument('--backend', default='off')
++    ap.add_argument('--eager', action='store_true'); args = ap.parse_args()
++    llm = LLM(args.model, enforce_eager=args.eager, shared_attention_backend=args.backend,
++              max_num_seqs=48, max_model_len=8192, max_num_batched_tokens=8192, gpu_memory_utilization=.55)
++    runner, scheduler = llm.model_runner, llm.scheduler
++    bm = scheduler.block_manager
++    rng = random.Random(42)
++    rows = []
++    def clean():
++        for rid in list(scheduler.requests): llm.cancel_request(rid)
++        for sid in list(scheduler.sessions): llm.close_session(sid)
++        bm.assert_invariants(); assert bm.stats()['live_pages'] == 0
++    def prepare_parent(p):
++        rid = llm.add_request([rng.randrange(100, 10000) for _ in range(p)], SamplingParams(max_tokens=64, ignore_eos=True))
++        llm.step(); llm.pause_request(rid); return rid
++    for p, extension in [(255,0),(256,0),(257,0),(1024,0),(1151,0),(255,3),(1151,300)]:
++        rid = prepare_parent(p); parent = scheduler.requests[rid]
++        llm.save_session(rid, 'root'); snap = scheduler.sessions['root']
++        frozen = [(page, min(256,p-j*256), runner.kv_cache[:,:,page,:min(256,p-j*256)].clone())
++                  for j,page in enumerate(snap.block_table)]
++        pairs = []
++        for token in [301, 302]:
++            pair = []
++            for mode in ['cow','copy']:
++                pair.append(llm.fork_session('root', SamplingParams(max_tokens=4,ignore_eos=True),
++                            next_token_id=token, append_token_ids=[303]*extension, cache_mode=mode))
++            pairs.append(pair)
++        # Independent oracle: recompute each branch history without any cache reuse.
++        references = {}
++        for a, b in pairs:
++            fresh = Sequence(list(scheduler.requests[a].token_ids))
++            bm.allocate(fresh, 0)
++            fresh.num_scheduled_tokens = len(fresh)
++            inputs, positions = runner.prepare_prefill([fresh])
++            references[a] = runner.run_model(inputs, positions, True).float().clone()[0]
++            reset_context(); bm.deallocate(fresh)
++        llm.cancel_request(rid)
++        fresh_rel = 0.
++        peak = 0.; steps = 0
++        while not llm.is_finished():
++            seqs,prefill = scheduler.schedule()
++            inputs,positions = runner.prepare_prefill(seqs) if prefill else runner.prepare_decode(seqs)
++            logits = runner.run_model(inputs,positions,prefill).float()
++            indices = {s.seq_id:i for i,s in enumerate(seqs)}
++            for a,b in pairs:
++                if a in indices and b in indices:
++                    x,y = logits[indices[a]],logits[indices[b]]
++                    if steps == 0:
++                        reference = references[a]
++                        relative = ((x-reference).norm()/reference.norm()).item()
++                        assert relative < .005, relative
++                        fresh_rel = max(fresh_rel, relative)
++                    peak = max(peak,(x-y).abs().max().item())
++                    torch.testing.assert_close(x,y,atol=.015625,rtol=.002)
++                    assert (x-y).norm()/x.norm() < .0005
++            scheduler.postprocess(seqs,[400+steps]*len(seqs),prefill); reset_context()
++            bm.assert_invariants(); steps += 1
++            for page,valid,value in frozen:
++                assert torch.equal(runner.kv_cache[:,:,page,:valid],value), 'snapshot modified by a child'
++        rows.append(dict(cached=p,extension=extension,steps=steps,cow_copy_max_abs=peak,snapshot_bitwise_unchanged=True,fresh_recompute_relative_l2=fresh_rel))
++        clean()
++    # Completion saves a snapshot; parent can disappear and a descendant can branch again.
++    rid=llm.add_request([600]*257,SamplingParams(max_tokens=1,ignore_eos=True),session_id='finished')
++    llm.step(); assert rid not in scheduler.requests and 'finished' in scheduler.sessions
++    child=llm.fork_session('finished',SamplingParams(max_tokens=3,ignore_eos=True))
++    llm.step(); llm.save_session(child,'generation2'); llm.pause_request(child)
++    grandchild=llm.fork_session('generation2',SamplingParams(max_tokens=2,ignore_eos=True))
++    llm.cancel_request(child); llm.close_session('finished'); llm.close_session('generation2')
++    while not llm.is_finished(): llm.step(); bm.assert_invariants()
++    assert not llm.cancel_request(grandchild) and not llm.close_session('generation2')
++    clean()
++    rid=prepare_parent(257); llm.save_session(rid,'overwrite')
++    llm.resume_request(rid); llm.step(); llm.pause_request(rid)
++    llm.save_session(rid,'overwrite'); bm.assert_invariants(); clean()
++    # Actual copied values are bitwise identical; unwritten slots are not copied.
++    rid=prepare_parent(1151); parent=scheduler.requests[rid]
++    child=llm.fork_request(rid,cache_mode='copy'); c=scheduler.requests[child]
++    for j,(src,dst) in enumerate(zip(parent.block_table,c.block_table)):
++        n=min(256,1151-j*256)
++        assert torch.equal(runner.kv_cache[:,:,src,:n],runner.kv_cache[:,:,dst,:n])
++    clean()
++    # Failure injection exercises scheduler rollback and subsequent successful reuse.
++    rid=prepare_parent(257); child=llm.fork_request(rid)
++    original=bm.copy_blocks
++    def fail(jobs):
++        original(jobs)
++        raise RuntimeError('injected completed-copy error')
++    bm.copy_blocks=fail
++    try:
++        llm.step(); assert False
++    except RuntimeError as e:
++        assert 'injected' in str(e)
++    bm.assert_invariants(); assert scheduler.requests[child].num_scheduled_tokens==0
++    bm.copy_blocks=original; llm.step(); clean()
++    # Shrink only the logical allocator; use the same preallocated GPU pool.
++    full=bm; bm=BlockManager(3,256); bm.copy_blocks=runner.copy_kv_blocks; scheduler.block_manager=bm
++    rid=prepare_parent(257); llm.save_session(rid,'pressure'); llm.cancel_request(rid)
++    try:
++        llm.fork_session('pressure',cache_mode='copy'); assert False
++    except CacheCapacityError:
++        pass
++    child=llm.fork_session('pressure',SamplingParams(max_tokens=2,ignore_eos=True)); llm.step()
++    bm.assert_invariants(); clean()
++    rid=prepare_parent(513); llm.save_session(rid,'full'); llm.cancel_request(rid)
++    child=llm.fork_session('full',SamplingParams(max_tokens=2,ignore_eos=True))
++    try:
++        llm.step(); assert False
++    except CacheCapacityError:
++        pass
++    bm.assert_invariants(); llm.close_session('full')
++    while not llm.is_finished(): llm.step()
++    clean(); scheduler.block_manager=full; bm=full
++    # Shared-prefix graph route still operates with COW-created partial tails.
++    if args.backend=='auto' and not args.eager:
++        rid=prepare_parent(1151)
++        ids=llm.fork_requests(rid,32,SamplingParams(max_tokens=2,ignore_eos=True),next_token_ids=list(range(700,732)))
++        seqs,prefill=scheduler.schedule(); assert not prefill
++        inputs,positions=runner.prepare_decode(seqs); ctx=get_context(); assert ctx.shared_enabled
++        got=runner.run_model(inputs,positions,False).float()
++        ctx.shared_enabled=False; ref=runner.run_model(inputs,positions,False).float()
++        rel=((got-ref).norm()/ref.norm()).item(); assert rel<.005
++        scheduler.postprocess(seqs,[800]*len(seqs),False); reset_context(); clean()
++        rows.append(dict(shared_cow_batch=32,relative_l2=rel))
++    report=dict(passed=True,backend=args.backend,eager=args.eager,cases=rows,
++                lifecycle=True,copy_bitwise=True,failure_rollback=True,pressure_recovery=True,final_stats=bm.stats())
++    Path(args.output).write_text(json.dumps(report,indent=2)); print(json.dumps(report),flush=True)
++    llm.exit()
++
++
++if __name__=='__main__': main()
+--- /dev/null
++++ b/tests/validate_cow_metadata.py
+@@ -0,0 +1,87 @@
++"""Deterministic CPU ownership, rollback and randomized lifetime tests."""
++import json
++import random
++import numpy as np
++from nanovllm.engine.sequence import Sequence
++from nanovllm.engine.block_manager import BlockManager, CacheCapacityError
++
++
++def main():
++    Sequence.block_size = 4
++    bm = BlockManager(96, 4)
++    data = np.full((96, 4), -1)
++    def copy(jobs):
++        for src, dst, count in jobs:
++            data[dst, :count] = data[src, :count]
++    bm.copy_blocks = copy
++    parent = Sequence(list(range(12)))
++    bm.allocate(parent, 0)
++    for j, page in enumerate(parent.block_table):
++        data[page] = np.arange(j * 4, j * 4 + 4)
++    parent.num_cached_tokens = 11
++    snap = bm.snapshot(parent)
++    child = Sequence(list(snap.token_ids))
++    bm.clone_many(snap, [child])
++    assert bm.blocks[parent.block_table[-1]].ref_count == 3
++    bm.ensure_writable(child, 1)
++    assert child.block_table[:2] == parent.block_table[:2]
++    assert child.block_table[-1] != parent.block_table[-1]
++    np.testing.assert_array_equal(data[child.block_table[-1], :3], [8, 9, 10])
++    data[child.block_table[-1], 3] = 999
++    assert data[parent.block_table[-1], 3] == 11
++    bm.assert_invariants()
++    # Copy failure must preserve the entire source/target ownership transaction.
++    bad = Sequence(list(snap.token_ids)); before = bm.stats()
++    def fail(jobs):
++        copy(jobs[:1])
++        raise RuntimeError('injected copy failure after a partial transfer')
++    bm.copy_blocks = fail
++    try:
++        bm.clone_many(snap, [bad], 'copy')
++        assert False
++    except RuntimeError:
++        pass
++    assert not bad.block_table and bm.stats()['live_pages'] == before['live_pages']
++    bm.copy_blocks = copy
++    cow_bad = Sequence(list(snap.token_ids)); bm.clone_many(snap, [cow_bad])
++    table = list(cow_bad.block_table); before = bm.stats()
++    bm.copy_blocks = fail
++    try:
++        bm.ensure_writable(cow_bad, 1)
++        assert False
++    except RuntimeError:
++        pass
++    assert cow_bad.block_table == table and bm.stats()['references'] == before['references']
++    bm.copy_blocks = copy
++    bm.deallocate(cow_bad); bm.deallocate(child); bm.deallocate(parent)
++    bm.assert_invariants()
++    assert bm.stats()['live_pages'] == 3
++    # Full-copy OOM is all-or-nothing, even for bulk branching.
++    targets = [Sequence(list(snap.token_ids)) for _ in range(40)]
++    try:
++        bm.clone_many(snap, targets, 'copy'); assert False
++    except CacheCapacityError:
++        pass
++    assert all(not s.block_table for s in targets)
++    rng = random.Random(314159); active = []
++    for _ in range(2000):
++        if active and (rng.random() < .48 or len(active) > 30):
++            s = active.pop(rng.randrange(len(active))); bm.deallocate(s); bm.deallocate(s)
++        else:
++            s = Sequence(list(snap.token_ids))
++            try:
++                bm.clone_many(snap, [s], rng.choice(['cow', 'copy']))
++                bm.ensure_writable(s, 1)
++                data[s.block_table[-1], 3] = rng.randrange(10000)
++                active.append(s)
++            except CacheCapacityError:
++                bm.deallocate(s)
++        bm.assert_invariants()
++        np.testing.assert_array_equal(data[snap.block_table[-1], :3], [8, 9, 10])
++    for s in active: bm.deallocate(s)
++    bm.release(snap); bm.release(snap)
++    bm.assert_invariants(); assert bm.stats()['live_pages'] == 0
++    print(json.dumps(dict(passed=True, randomized_operations=2000, stats=bm.stats())))
++
++
++if __name__ == '__main__': main()
+--- /dev/null
++++ b/tests/validate_kv_copy.py
+@@ -0,0 +1,17 @@
++import json
++import torch
++from nanovllm.engine.kv_copy import copy_kv_pages
++
++rows=[]
++for dtype in (torch.float16,torch.bfloat16):
++    torch.manual_seed(10)
++    cache=torch.full((2,3,6,256,8,128),-8.,device='cuda',dtype=dtype)
++    cache[:,:,0]=torch.randn_like(cache[:,:,0]); cache[:,:,1]=torch.randn_like(cache[:,:,1])
++    sources=cache[:,:,:2].clone()
++    copy_kv_pages(cache,[(0,2,1),(0,3,255),(1,4,256),(1,5,0)])
++    for src,dst,count in [(0,2,1),(0,3,255),(1,4,256),(1,5,0)]:
++        assert torch.equal(cache[:,:,dst,:count],cache[:,:,src,:count])
++        assert torch.all(cache[:,:,dst,count:]==-8)
++    assert torch.equal(sources,cache[:,:,:2])
++    rows.append(dict(dtype=str(dtype),bitwise=True,padding_untouched=True,source_unchanged=True))
++print(json.dumps(dict(passed=True,cases=rows)))

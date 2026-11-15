@@ -1,0 +1,1 @@
+{"passed": true, "randomized_operations": 2000, "stats": {"cow_pages": 509, "copy_pages": 1494, "copied_tokens": 7005, "peak_live_pages": 70, "live_pages": 0, "free_pages": 96, "references": 0, "owners": 0, "shared_pages": 0}}

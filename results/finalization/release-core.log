@@ -1,0 +1,10 @@
+validate_cow_metadata passed 5.3
+validate_cache passed 4.91
+validate_cache_policy passed 4.03
+validate_scheduler passed 5.12
+prefill-model passed 4.59
+cache-logits passed 18.55
+prefill-gpu passed 14.77
+tier-validation passed 18.08
+cow-gpu passed 13.92
+resident-kv passed 18.88

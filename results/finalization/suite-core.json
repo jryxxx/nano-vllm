@@ -1,0 +1,144 @@
+[
+  {
+    "name": "validate_cow_metadata",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_cow_metadata.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "validate_cow_metadata.log",
+    "exit_code": 0,
+    "elapsed_s": 5.301320260390639
+  },
+  {
+    "name": "validate_cache",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_cache.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "validate_cache.log",
+    "exit_code": 0,
+    "elapsed_s": 4.913643415085971
+  },
+  {
+    "name": "validate_cache_policy",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_cache_policy.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "validate_cache_policy.log",
+    "exit_code": 0,
+    "elapsed_s": 4.026557789184153
+  },
+  {
+    "name": "validate_scheduler",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_scheduler.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "validate_scheduler.log",
+    "exit_code": 0,
+    "elapsed_s": 5.1183276968076825
+  },
+  {
+    "name": "prefill-model",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_prefill_model.py",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--profile",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/cost-profile.json",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/prefill-model.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "prefill-model.log",
+    "exit_code": 0,
+    "elapsed_s": 4.585061509162188
+  },
+  {
+    "name": "cache-logits",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_cache.py",
+      "--mode",
+      "validate",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/cache-logits.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "cache-logits.log",
+    "exit_code": 0,
+    "elapsed_s": 18.54533189162612
+  },
+  {
+    "name": "prefill-gpu",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_prefill_gpu.py",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--profile",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/cost-profile.json",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/prefill-gpu.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "prefill-gpu.log",
+    "exit_code": 0,
+    "elapsed_s": 14.770126239396632
+  },
+  {
+    "name": "tier-validation",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_tier.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "tier-validation.log",
+    "exit_code": 0,
+    "elapsed_s": 18.08018702827394
+  },
+  {
+    "name": "cow-gpu",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_cow_gpu.py",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--backend",
+      "auto",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/cow-gpu.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "cow-gpu.log",
+    "exit_code": 0,
+    "elapsed_s": 13.91857001092285
+  },
+  {
+    "name": "resident-kv",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "tests/validate_cache_resident.py"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "resident-kv.log",
+    "exit_code": 0,
+    "elapsed_s": 18.879682392813265
+  }
+]

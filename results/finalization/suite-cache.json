@@ -1,0 +1,22 @@
+[
+  {
+    "name": "cache-final",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/bench_cache.py",
+      "--mode",
+      "bench",
+      "--pages",
+      "20",
+      "32",
+      "64",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/cache-final.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "cache-final.log",
+    "exit_code": 0,
+    "elapsed_s": 389.93795642536134
+  }
+]

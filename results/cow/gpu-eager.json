@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "backend": "off",
+  "eager": true,
+  "cases": [
+    {
+      "cached": 255,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.00110720400698483
+    },
+    {
+      "cached": 256,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0016681052511557937
+    },
+    {
+      "cached": 257,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0013491190038621426
+    },
+    {
+      "cached": 1024,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0017690745880827308
+    },
+    {
+      "cached": 1151,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0014660566812381148
+    },
+    {
+      "cached": 255,
+      "extension": 3,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0021047103218734264
+    },
+    {
+      "cached": 1151,
+      "extension": 300,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0014278372982516885
+    }
+  ],
+  "lifecycle": true,
+  "copy_bitwise": true,
+  "failure_rollback": true,
+  "pressure_recovery": true,
+  "final_stats": {
+    "cow_pages": 13,
+    "copy_pages": 43,
+    "copied_tokens": 11382,
+    "peak_live_pages": 21,
+    "live_pages": 0,
+    "free_pages": 404,
+    "references": 0,
+    "owners": 0,
+    "shared_pages": 0
+  }
+}

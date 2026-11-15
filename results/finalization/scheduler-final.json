@@ -1,0 +1,7227 @@
+{
+  "passed": true,
+  "permutation": [
+    {
+      "policy": "baseline",
+      "routes": {
+        "no_common_prefix": 4
+      },
+      "rows": [
+        {
+          "request": 0,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        }
+      ]
+    },
+    {
+      "policy": "fcfs",
+      "routes": {
+        "no_common_prefix": 4
+      },
+      "rows": [
+        {
+          "request": 0,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 0,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 1,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 2,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 0,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 1,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 2,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 3,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 4,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 5,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 6,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 7,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 8,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 9,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 10,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 11,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 12,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 13,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 14,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 15,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 16,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 17,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 18,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 19,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 20,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 21,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 22,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 23,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 24,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 25,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 26,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 27,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 28,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 29,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 30,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 31,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 32,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 33,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 34,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 35,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 36,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 37,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 38,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 39,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 40,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 41,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 42,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 43,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 44,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 45,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 46,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 47,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 48,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 49,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 50,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 51,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 52,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 53,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 54,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 55,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 56,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 57,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 58,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 59,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 60,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 61,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 62,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        },
+        {
+          "request": 63,
+          "token": 3,
+          "relative_l2": 0.0,
+          "kl": 0.0,
+          "shared": false
+        }
+      ]
+    },
+    {
+      "policy": "lpm",
+      "routes": {
+        "shared": 8
+      },
+      "rows": [
+        {
+          "request": 0,
+          "token": 0,
+          "relative_l2": 0.0008130636415444314,
+          "kl": 2.42970600083936e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 0,
+          "relative_l2": 0.0013220008695498109,
+          "kl": 2.6061534299515188e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 0,
+          "relative_l2": 0.0013879338512197137,
+          "kl": 4.744262696476653e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 0,
+          "relative_l2": 0.001473966520279646,
+          "kl": 4.002504283562303e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 0,
+          "relative_l2": 0.0010345563059672713,
+          "kl": 3.1109375413507223e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 0,
+          "relative_l2": 0.003756845835596323,
+          "kl": 1.3561344530899078e-05,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 0,
+          "relative_l2": 0.0007531222072429955,
+          "kl": 1.1975798770436086e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 0,
+          "relative_l2": 0.000862204353325069,
+          "kl": 1.698603227850981e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 0,
+          "relative_l2": 0.0008790014544501901,
+          "kl": 2.723092620726675e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 0,
+          "relative_l2": 0.001308166771195829,
+          "kl": 4.30954787589144e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 0,
+          "relative_l2": 0.0013033205177634954,
+          "kl": 2.540529749239795e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 0,
+          "relative_l2": 0.0009217664483003318,
+          "kl": 2.975419192807749e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 0,
+          "relative_l2": 0.0008162246085703373,
+          "kl": 2.2628792066825554e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 0,
+          "relative_l2": 0.0008718934841454029,
+          "kl": 2.41450607063598e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 0,
+          "relative_l2": 0.0007957589696161449,
+          "kl": 2.363362000323832e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 0,
+          "relative_l2": 0.001229838584549725,
+          "kl": 3.28172609442845e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 0,
+          "relative_l2": 0.0009637370239943266,
+          "kl": 4.260913556208834e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 0,
+          "relative_l2": 0.0009701350936666131,
+          "kl": 4.0898139559431e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 0,
+          "relative_l2": 0.0007398315938189626,
+          "kl": 2.319135546713369e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 0,
+          "relative_l2": 0.0010269423946738243,
+          "kl": 3.154316800646484e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 0,
+          "relative_l2": 0.0011510597541928291,
+          "kl": 5.542588041862473e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 0,
+          "relative_l2": 0.0018710163421928883,
+          "kl": 2.6804532353708055e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 0,
+          "relative_l2": 0.0012325928546488285,
+          "kl": 4.2394531192258e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 0,
+          "relative_l2": 0.0008576841210015118,
+          "kl": 1.5530004020547494e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 0,
+          "relative_l2": 0.0015171271516010165,
+          "kl": 3.0799110390944406e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 0,
+          "relative_l2": 0.0006713617476634681,
+          "kl": 1.8617574824020267e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 0,
+          "relative_l2": 0.001760240993462503,
+          "kl": 2.8987160476390272e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 0,
+          "relative_l2": 0.0011309132678434253,
+          "kl": 2.8901795303681865e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 0,
+          "relative_l2": 0.0007526649278588593,
+          "kl": 1.3863391359336674e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 0,
+          "relative_l2": 0.0007173856720328331,
+          "kl": 2.4547052817069925e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 0,
+          "relative_l2": 0.0009604031220078468,
+          "kl": 2.287430106662214e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 0,
+          "relative_l2": 0.000807813077699393,
+          "kl": 3.074546839343384e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 0,
+          "relative_l2": 0.0010444227373227477,
+          "kl": 2.4117680368362926e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 0,
+          "relative_l2": 0.001010635867714882,
+          "kl": 3.064849806833081e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 0,
+          "relative_l2": 0.0009603785583749413,
+          "kl": 2.867551302188076e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 0,
+          "relative_l2": 0.0024623314384371042,
+          "kl": 5.214824341237545e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 0,
+          "relative_l2": 0.0008015437051653862,
+          "kl": 1.4145589375402778e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 0,
+          "relative_l2": 0.0008941045380197465,
+          "kl": 2.5774606910999864e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 0,
+          "relative_l2": 0.0007355244015343487,
+          "kl": 2.0421102817635983e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 0,
+          "relative_l2": 0.0007139720255509019,
+          "kl": 1.408257958246395e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 0,
+          "relative_l2": 0.0011655240086838603,
+          "kl": 3.305456630187109e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 0,
+          "relative_l2": 0.0016642857808619738,
+          "kl": 2.097076503559947e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 0,
+          "relative_l2": 0.0007253024959936738,
+          "kl": 2.0107727323193103e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 0,
+          "relative_l2": 0.0010847531957551837,
+          "kl": 2.19715730054304e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 0,
+          "relative_l2": 0.002975062234327197,
+          "kl": 6.404043233487755e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 0,
+          "relative_l2": 0.0008887562435120344,
+          "kl": 4.1608309402363375e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 0,
+          "relative_l2": 0.0007644933648407459,
+          "kl": 3.1358049454865977e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 0,
+          "relative_l2": 0.001073633087798953,
+          "kl": 1.7765560187399387e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 0,
+          "relative_l2": 0.0011786868562921882,
+          "kl": 2.354401658521965e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 0,
+          "relative_l2": 0.0015591904520988464,
+          "kl": 1.6951489669736475e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 0,
+          "relative_l2": 0.0008284313371405005,
+          "kl": 2.2246749722398818e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 0,
+          "relative_l2": 0.0008221419993788004,
+          "kl": 1.4707311493111774e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 0,
+          "relative_l2": 0.0031296408269554377,
+          "kl": 2.6894776965491474e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 0,
+          "relative_l2": 0.0009969478705897927,
+          "kl": 2.8885460778838024e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 0,
+          "relative_l2": 0.002108803251758218,
+          "kl": 2.1204014046816155e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 0,
+          "relative_l2": 0.0015106478240340948,
+          "kl": 9.966106517822482e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 0,
+          "relative_l2": 0.0010814674897119403,
+          "kl": 3.4367731132078916e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 0,
+          "relative_l2": 0.0007780476589687169,
+          "kl": 1.5776192867633654e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 0,
+          "relative_l2": 0.0010913227451965213,
+          "kl": 2.9365801310632378e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 0,
+          "relative_l2": 0.000973208574578166,
+          "kl": 2.0177285477984697e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 0,
+          "relative_l2": 0.0008020391687750816,
+          "kl": 4.261911271896679e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 0,
+          "relative_l2": 0.0027860691770911217,
+          "kl": 1.8683873349800706e-05,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 0,
+          "relative_l2": 0.0008779686177149415,
+          "kl": 3.8042417145334184e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 0,
+          "relative_l2": 0.0011956006055697799,
+          "kl": 2.5549634301569313e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 1,
+          "relative_l2": 0.0010341750457882881,
+          "kl": 2.425553248031065e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 1,
+          "relative_l2": 0.0013058069162070751,
+          "kl": 1.1199917935300618e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 1,
+          "relative_l2": 0.0008880341774784029,
+          "kl": 3.0779247026657686e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 1,
+          "relative_l2": 0.0023466828279197216,
+          "kl": 3.2662319426890463e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 1,
+          "relative_l2": 0.0011124511947855353,
+          "kl": 2.377585133217508e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 1,
+          "relative_l2": 0.0010249101324006915,
+          "kl": 5.896989023312926e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 1,
+          "relative_l2": 0.0008111119968816638,
+          "kl": 3.415094397496432e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 1,
+          "relative_l2": 0.0017217909917235374,
+          "kl": 2.881010004784912e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 1,
+          "relative_l2": 0.0015280626248568296,
+          "kl": 2.4924593162722886e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 1,
+          "relative_l2": 0.0025096284225583076,
+          "kl": 6.212441803654656e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 1,
+          "relative_l2": 0.0010499154450371861,
+          "kl": 5.322403012542054e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 1,
+          "relative_l2": 0.002059462945908308,
+          "kl": 3.2194293453358114e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 1,
+          "relative_l2": 0.0016266957391053438,
+          "kl": 9.451534424442798e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 1,
+          "relative_l2": 0.0009589829132892191,
+          "kl": 4.940844519296661e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 1,
+          "relative_l2": 0.0008300265180878341,
+          "kl": 1.8484929569240194e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 1,
+          "relative_l2": 0.0008964106673374772,
+          "kl": 9.411614882992581e-07,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 1,
+          "relative_l2": 0.0011388573329895735,
+          "kl": 2.816352207446471e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 1,
+          "relative_l2": 0.001372823491692543,
+          "kl": 2.177439455408603e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 1,
+          "relative_l2": 0.0008848813595250249,
+          "kl": 2.977001713588834e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 1,
+          "relative_l2": 0.0008036868530325592,
+          "kl": 2.133208909071982e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 1,
+          "relative_l2": 0.0011231512762606144,
+          "kl": 2.7504866011440754e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 1,
+          "relative_l2": 0.0010104976827278733,
+          "kl": 2.315478923264891e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 1,
+          "relative_l2": 0.001395747414790094,
+          "kl": 4.245754098519683e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 1,
+          "relative_l2": 0.0008499612449668348,
+          "kl": 2.284428774146363e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 1,
+          "relative_l2": 0.002414403483271599,
+          "kl": 6.6955763031728566e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 1,
+          "relative_l2": 0.001699381391517818,
+          "kl": 5.482062988448888e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 1,
+          "relative_l2": 0.00148561573587358,
+          "kl": 3.5126013244735077e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 1,
+          "relative_l2": 0.0012456781696528196,
+          "kl": 9.763898560777307e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 1,
+          "relative_l2": 0.0010592993348836899,
+          "kl": 4.076508048456162e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 1,
+          "relative_l2": 0.0020994029473513365,
+          "kl": 1.2917334970552474e-05,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 1,
+          "relative_l2": 0.0018211192218586802,
+          "kl": 3.055502020288259e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 1,
+          "relative_l2": 0.0010196351213380694,
+          "kl": 4.46761077910196e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 1,
+          "relative_l2": 0.001549371867440641,
+          "kl": 2.7134574338560924e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 1,
+          "relative_l2": 0.001449422910809517,
+          "kl": 5.41780173080042e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 1,
+          "relative_l2": 0.001358583103865385,
+          "kl": 3.710604914886062e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 1,
+          "relative_l2": 0.0007546093547716737,
+          "kl": 2.996566763613373e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 1,
+          "relative_l2": 0.0010091207223013043,
+          "kl": 3.120219844277017e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 1,
+          "relative_l2": 0.001033117063343525,
+          "kl": 2.1119776647537947e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 1,
+          "relative_l2": 0.001426745904609561,
+          "kl": 5.328528459358495e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 1,
+          "relative_l2": 0.0016397908329963684,
+          "kl": 3.1201780075207353e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 1,
+          "relative_l2": 0.0011744523653760552,
+          "kl": 2.0178813429083675e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 1,
+          "relative_l2": 0.0009216978796757758,
+          "kl": 1.994584636122454e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 1,
+          "relative_l2": 0.0008076046360656619,
+          "kl": 6.377595127560198e-07,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 1,
+          "relative_l2": 0.0007815194549039006,
+          "kl": 2.4177566047001164e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 1,
+          "relative_l2": 0.0013030963018536568,
+          "kl": 4.848920070799068e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 1,
+          "relative_l2": 0.0017458349466323853,
+          "kl": 3.4980912460014224e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 1,
+          "relative_l2": 0.0009607441606931388,
+          "kl": 3.427960109547712e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 1,
+          "relative_l2": 0.0011641306336969137,
+          "kl": 2.1024061425123364e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 1,
+          "relative_l2": 0.0012922290479764342,
+          "kl": 5.171572411200032e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 1,
+          "relative_l2": 0.001256660558283329,
+          "kl": 3.3116075428551994e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 1,
+          "relative_l2": 0.0008315304294228554,
+          "kl": 2.385575498919934e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 1,
+          "relative_l2": 0.0007572132162749767,
+          "kl": 2.320565727131907e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 1,
+          "relative_l2": 0.0006516695721074939,
+          "kl": 3.068950718443375e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 1,
+          "relative_l2": 0.0011287863599136472,
+          "kl": 4.577289473672863e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 1,
+          "relative_l2": 0.002286565722897649,
+          "kl": 3.3221804187633097e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 1,
+          "relative_l2": 0.0012372866040095687,
+          "kl": 5.608634637610521e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 1,
+          "relative_l2": 0.00202646991237998,
+          "kl": 3.063960321014747e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 1,
+          "relative_l2": 0.001118971616961062,
+          "kl": 4.314068064559251e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 1,
+          "relative_l2": 0.001356626395136118,
+          "kl": 3.877399649354629e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 1,
+          "relative_l2": 0.0017956846859306097,
+          "kl": 4.475818059290759e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 1,
+          "relative_l2": 0.0007678086403757334,
+          "kl": 1.800342943170108e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 1,
+          "relative_l2": 0.0009640054195187986,
+          "kl": 2.163636963814497e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 1,
+          "relative_l2": 0.001267045154236257,
+          "kl": 3.910608938895166e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 1,
+          "relative_l2": 0.0011260689934715629,
+          "kl": 2.3706747924734373e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 2,
+          "relative_l2": 0.0037966216914355755,
+          "kl": 2.119870623573661e-05,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 2,
+          "relative_l2": 0.0010327317286282778,
+          "kl": 3.055196430068463e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 2,
+          "relative_l2": 0.0010665621375665069,
+          "kl": 4.083415660716128e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 2,
+          "relative_l2": 0.0010325696785002947,
+          "kl": 8.179868018487468e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 2,
+          "relative_l2": 0.0008316105813719332,
+          "kl": 1.8289947547600605e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 2,
+          "relative_l2": 0.0007672248175367713,
+          "kl": 2.286019025632413e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 2,
+          "relative_l2": 0.0010135510237887502,
+          "kl": 3.7537029129453003e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 2,
+          "relative_l2": 0.001750857918523252,
+          "kl": 3.5739485610974953e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 2,
+          "relative_l2": 0.0007966460543684661,
+          "kl": 3.075399945373647e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 2,
+          "relative_l2": 0.0014797570183873177,
+          "kl": 2.0176285033812746e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 2,
+          "relative_l2": 0.001071785925887525,
+          "kl": 2.8368731364025734e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 2,
+          "relative_l2": 0.0007973818574100733,
+          "kl": 1.3981973552290583e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 2,
+          "relative_l2": 0.0008603999158367515,
+          "kl": 1.8190885384683497e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 2,
+          "relative_l2": 0.0009781784610822797,
+          "kl": 3.0138799047563225e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 2,
+          "relative_l2": 0.0010244373697787523,
+          "kl": 2.522949216654524e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 2,
+          "relative_l2": 0.0010362764587625861,
+          "kl": 1.8652999642654322e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 2,
+          "relative_l2": 0.0010912524303421378,
+          "kl": 4.93250809086021e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 2,
+          "relative_l2": 0.0013094082241877913,
+          "kl": 1.8318314687348902e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 2,
+          "relative_l2": 0.0010714615928009152,
+          "kl": 3.457225830061361e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 2,
+          "relative_l2": 0.0014466254506260157,
+          "kl": 5.670394784829114e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 2,
+          "relative_l2": 0.0008127063629217446,
+          "kl": 2.1844384718860965e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 2,
+          "relative_l2": 0.0012603061040863395,
+          "kl": 1.3023127394262701e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 2,
+          "relative_l2": 0.000849236617796123,
+          "kl": 1.702115696389228e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 2,
+          "relative_l2": 0.0018040459835901856,
+          "kl": 6.867834599688649e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 2,
+          "relative_l2": 0.0008625583723187447,
+          "kl": 1.3412088719633175e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 2,
+          "relative_l2": 0.0009341934928670526,
+          "kl": 3.1411618692800403e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 2,
+          "relative_l2": 0.0009180241613648832,
+          "kl": 2.854242666217033e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 2,
+          "relative_l2": 0.001461324281990528,
+          "kl": 5.15361170982942e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 2,
+          "relative_l2": 0.0014825372491031885,
+          "kl": 3.0617484299000353e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 2,
+          "relative_l2": 0.0015601309714838862,
+          "kl": 3.991200173913967e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 2,
+          "relative_l2": 0.0012785224243998528,
+          "kl": 3.4305094231967814e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 2,
+          "relative_l2": 0.001584764919243753,
+          "kl": 2.2690983314532787e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 2,
+          "relative_l2": 0.0010571997845545411,
+          "kl": 3.235787289668224e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 2,
+          "relative_l2": 0.0008744911756366491,
+          "kl": 2.6174093363806605e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 2,
+          "relative_l2": 0.0014826618134975433,
+          "kl": 5.161193257663399e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 2,
+          "relative_l2": 0.0011266128858551383,
+          "kl": 2.6695106498664245e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 2,
+          "relative_l2": 0.002158944495022297,
+          "kl": 1.6610756574664265e-05,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 2,
+          "relative_l2": 0.0009484130423516035,
+          "kl": 3.4267686714883894e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 2,
+          "relative_l2": 0.0009281340753659606,
+          "kl": 1.7911479517351836e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 2,
+          "relative_l2": 0.002067730762064457,
+          "kl": 2.7838814276037738e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 2,
+          "relative_l2": 0.0012741487007588148,
+          "kl": 7.5016068876720965e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 2,
+          "relative_l2": 0.0009191417484544218,
+          "kl": 4.631541287380969e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 2,
+          "relative_l2": 0.002705976599827409,
+          "kl": 5.076552042737603e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 2,
+          "relative_l2": 0.0010972830932587385,
+          "kl": 5.183101166039705e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 2,
+          "relative_l2": 0.0016680759144946933,
+          "kl": 1.0335308616049588e-05,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 2,
+          "relative_l2": 0.0011658138828352094,
+          "kl": 2.4382243282161653e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 2,
+          "relative_l2": 0.0009653294691815972,
+          "kl": 3.5978755477117375e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 2,
+          "relative_l2": 0.0007961463998071849,
+          "kl": 1.6898350168048637e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 2,
+          "relative_l2": 0.0008400158840231597,
+          "kl": 2.243730705231428e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 2,
+          "relative_l2": 0.0011359569616615772,
+          "kl": 5.209828486840706e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 2,
+          "relative_l2": 0.0011520384578034282,
+          "kl": 1.7270285752601922e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 2,
+          "relative_l2": 0.000694496906362474,
+          "kl": 1.6768117347965017e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 2,
+          "relative_l2": 0.0010736577678471804,
+          "kl": 2.284361016791081e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 2,
+          "relative_l2": 0.0012134754797443748,
+          "kl": 4.815010470338166e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 2,
+          "relative_l2": 0.0008985979948192835,
+          "kl": 2.9582297429442406e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 2,
+          "relative_l2": 0.001137722167186439,
+          "kl": 4.139546945225447e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 2,
+          "relative_l2": 0.0013062268262729049,
+          "kl": 5.597146810032427e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 2,
+          "relative_l2": 0.001045437529683113,
+          "kl": 2.7562891773413867e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 2,
+          "relative_l2": 0.0009999870089814067,
+          "kl": 3.894412657245994e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 2,
+          "relative_l2": 0.0014917668886482716,
+          "kl": 3.829061824944802e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 2,
+          "relative_l2": 0.0025910967960953712,
+          "kl": 1.09706015791744e-05,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 2,
+          "relative_l2": 0.0008602046873420477,
+          "kl": 3.537192242220044e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 2,
+          "relative_l2": 0.0008049017051234841,
+          "kl": 2.1140367607586086e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 2,
+          "relative_l2": 0.0008041260298341513,
+          "kl": 2.646595021360554e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 3,
+          "relative_l2": 0.0017181852599605918,
+          "kl": 2.013133780565113e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 3,
+          "relative_l2": 0.0010156884090974927,
+          "kl": 3.1664876587456092e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 3,
+          "relative_l2": 0.0027368227019906044,
+          "kl": 5.177207640372217e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 3,
+          "relative_l2": 0.0009339756215922534,
+          "kl": 3.1747622415423393e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 3,
+          "relative_l2": 0.0020132246427237988,
+          "kl": 9.097610018216074e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 3,
+          "relative_l2": 0.0012481530429795384,
+          "kl": 3.4723962016869336e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 3,
+          "relative_l2": 0.0009814511286094785,
+          "kl": 2.1834043764101807e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 3,
+          "relative_l2": 0.0008318132604472339,
+          "kl": 3.5633856896311045e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 3,
+          "relative_l2": 0.0013992569874972105,
+          "kl": 5.0244534577359445e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 3,
+          "relative_l2": 0.0009923765901476145,
+          "kl": 5.185670488572214e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 3,
+          "relative_l2": 0.0013668099418282509,
+          "kl": 5.9308731579221785e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 3,
+          "relative_l2": 0.002364212879911065,
+          "kl": 1.0579853551462293e-05,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 3,
+          "relative_l2": 0.0008526330930180848,
+          "kl": 3.216527147742454e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 3,
+          "relative_l2": 0.000890405208338052,
+          "kl": 1.7282272892771289e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 3,
+          "relative_l2": 0.000750940409488976,
+          "kl": 1.5817622625036165e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 3,
+          "relative_l2": 0.0018821702105924487,
+          "kl": 3.0523424356942996e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 3,
+          "relative_l2": 0.0009615421295166016,
+          "kl": 3.6672754504252225e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 3,
+          "relative_l2": 0.0011472109472379088,
+          "kl": 4.11896689911373e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 3,
+          "relative_l2": 0.0015084515325725079,
+          "kl": 2.395310502834036e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 3,
+          "relative_l2": 0.000914101314265281,
+          "kl": 2.8004287742078304e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 3,
+          "relative_l2": 0.001302254037000239,
+          "kl": 2.036464138654992e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 3,
+          "relative_l2": 0.0013355095870792866,
+          "kl": 4.58486465504393e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 3,
+          "relative_l2": 0.0011952790664508939,
+          "kl": 3.5408238545642234e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 3,
+          "relative_l2": 0.0010519397910684347,
+          "kl": 3.4279901228728704e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 3,
+          "relative_l2": 0.0012222299119457603,
+          "kl": 7.51507468521595e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 3,
+          "relative_l2": 0.0017289548413828015,
+          "kl": 2.290846168762073e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 3,
+          "relative_l2": 0.0007996426429599524,
+          "kl": 2.9370621632551774e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 3,
+          "relative_l2": 0.000912453921046108,
+          "kl": 3.2694156288926024e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 3,
+          "relative_l2": 0.00171730387955904,
+          "kl": 6.046448106644675e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 3,
+          "relative_l2": 0.0007660618284717202,
+          "kl": 2.521039277780801e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 3,
+          "relative_l2": 0.0007776242564432323,
+          "kl": 2.09573408938013e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 3,
+          "relative_l2": 0.0010257051326334476,
+          "kl": 2.0806728571187705e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 3,
+          "relative_l2": 0.0009007956250570714,
+          "kl": 2.5755853130249307e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 3,
+          "relative_l2": 0.0020554333459585905,
+          "kl": 3.509216185193509e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 3,
+          "relative_l2": 0.0008523096330463886,
+          "kl": 5.169353244127706e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 3,
+          "relative_l2": 0.0010466892272233963,
+          "kl": 3.626499164965935e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 3,
+          "relative_l2": 0.001381562789902091,
+          "kl": 1.83459633262828e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 3,
+          "relative_l2": 0.0011697221780195832,
+          "kl": 3.3537344279466197e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 3,
+          "relative_l2": 0.0010207097511738539,
+          "kl": 3.068402293138206e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 3,
+          "relative_l2": 0.0018296445487067103,
+          "kl": 3.7505451473407447e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 3,
+          "relative_l2": 0.0008423831895925105,
+          "kl": 2.329741164430743e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 3,
+          "relative_l2": 0.0011102245189249516,
+          "kl": 2.4020755517994985e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 3,
+          "relative_l2": 0.0009275360498577356,
+          "kl": 2.8524382287287153e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 3,
+          "relative_l2": 0.0010019914479926229,
+          "kl": 1.8949940567836165e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 3,
+          "relative_l2": 0.001139876083470881,
+          "kl": 4.798432200914249e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 3,
+          "relative_l2": 0.0010398192098364234,
+          "kl": 1.927683115354739e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 3,
+          "relative_l2": 0.0008320900960825384,
+          "kl": 2.0999113985453732e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 3,
+          "relative_l2": 0.000884608190972358,
+          "kl": 3.910774466930889e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 3,
+          "relative_l2": 0.0008823317475616932,
+          "kl": 3.2081788958748803e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 3,
+          "relative_l2": 0.0010736354161053896,
+          "kl": 4.37987910117954e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 3,
+          "relative_l2": 0.0011173448292538524,
+          "kl": 4.698586053564213e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 3,
+          "relative_l2": 0.0009505812195129693,
+          "kl": 2.865148417185992e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 3,
+          "relative_l2": 0.0012364503927528858,
+          "kl": 1.7773145373212174e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 3,
+          "relative_l2": 0.0008896833751350641,
+          "kl": 2.02943010663148e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 3,
+          "relative_l2": 0.00139917794149369,
+          "kl": 3.0502123991027474e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 3,
+          "relative_l2": 0.0009978781454265118,
+          "kl": 3.1254166970029473e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 3,
+          "relative_l2": 0.0008514481014572084,
+          "kl": 3.7318459362722933e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 3,
+          "relative_l2": 0.0010676042875275016,
+          "kl": 4.009647454950027e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 3,
+          "relative_l2": 0.0018606988014653325,
+          "kl": 3.7130812415853143e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 3,
+          "relative_l2": 0.0010730124777182937,
+          "kl": 2.6023099053418264e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 3,
+          "relative_l2": 0.0015195994637906551,
+          "kl": 2.103459564750665e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 3,
+          "relative_l2": 0.0007478144834749401,
+          "kl": 2.5733625079737976e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 3,
+          "relative_l2": 0.0011923449346795678,
+          "kl": 2.916712219303008e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 3,
+          "relative_l2": 0.0011922776466235518,
+          "kl": 6.219230272108689e-06,
+          "shared": true
+        }
+      ]
+    },
+    {
+      "policy": "cost",
+      "routes": {
+        "shared": 8
+      },
+      "rows": [
+        {
+          "request": 0,
+          "token": 0,
+          "relative_l2": 0.0008130636415444314,
+          "kl": 2.42970600083936e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 0,
+          "relative_l2": 0.0013220008695498109,
+          "kl": 2.6061534299515188e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 0,
+          "relative_l2": 0.0013879338512197137,
+          "kl": 4.744262696476653e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 0,
+          "relative_l2": 0.001473966520279646,
+          "kl": 4.002504283562303e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 0,
+          "relative_l2": 0.0010345563059672713,
+          "kl": 3.1109375413507223e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 0,
+          "relative_l2": 0.003756845835596323,
+          "kl": 1.3561344530899078e-05,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 0,
+          "relative_l2": 0.0007531222072429955,
+          "kl": 1.1975798770436086e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 0,
+          "relative_l2": 0.000862204353325069,
+          "kl": 1.698603227850981e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 0,
+          "relative_l2": 0.0008790014544501901,
+          "kl": 2.723092620726675e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 0,
+          "relative_l2": 0.001308166771195829,
+          "kl": 4.30954787589144e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 0,
+          "relative_l2": 0.0013033205177634954,
+          "kl": 2.540529749239795e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 0,
+          "relative_l2": 0.0009217664483003318,
+          "kl": 2.975419192807749e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 0,
+          "relative_l2": 0.0008162246085703373,
+          "kl": 2.2628792066825554e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 0,
+          "relative_l2": 0.0008718934841454029,
+          "kl": 2.41450607063598e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 0,
+          "relative_l2": 0.0007957589696161449,
+          "kl": 2.363362000323832e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 0,
+          "relative_l2": 0.001229838584549725,
+          "kl": 3.28172609442845e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 0,
+          "relative_l2": 0.0009637370239943266,
+          "kl": 4.260913556208834e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 0,
+          "relative_l2": 0.0009701350936666131,
+          "kl": 4.0898139559431e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 0,
+          "relative_l2": 0.0007398315938189626,
+          "kl": 2.319135546713369e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 0,
+          "relative_l2": 0.0010269423946738243,
+          "kl": 3.154316800646484e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 0,
+          "relative_l2": 0.0011510597541928291,
+          "kl": 5.542588041862473e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 0,
+          "relative_l2": 0.0018710163421928883,
+          "kl": 2.6804532353708055e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 0,
+          "relative_l2": 0.0012325928546488285,
+          "kl": 4.2394531192258e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 0,
+          "relative_l2": 0.0008576841210015118,
+          "kl": 1.5530004020547494e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 0,
+          "relative_l2": 0.0015171271516010165,
+          "kl": 3.0799110390944406e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 0,
+          "relative_l2": 0.0006713617476634681,
+          "kl": 1.8617574824020267e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 0,
+          "relative_l2": 0.001760240993462503,
+          "kl": 2.8987160476390272e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 0,
+          "relative_l2": 0.0011309132678434253,
+          "kl": 2.8901795303681865e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 0,
+          "relative_l2": 0.0007526649278588593,
+          "kl": 1.3863391359336674e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 0,
+          "relative_l2": 0.0007173856720328331,
+          "kl": 2.4547052817069925e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 0,
+          "relative_l2": 0.0009604031220078468,
+          "kl": 2.287430106662214e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 0,
+          "relative_l2": 0.000807813077699393,
+          "kl": 3.074546839343384e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 0,
+          "relative_l2": 0.0010444227373227477,
+          "kl": 2.4117680368362926e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 0,
+          "relative_l2": 0.001010635867714882,
+          "kl": 3.064849806833081e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 0,
+          "relative_l2": 0.0009603785583749413,
+          "kl": 2.867551302188076e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 0,
+          "relative_l2": 0.0024623314384371042,
+          "kl": 5.214824341237545e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 0,
+          "relative_l2": 0.0008015437051653862,
+          "kl": 1.4145589375402778e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 0,
+          "relative_l2": 0.0008941045380197465,
+          "kl": 2.5774606910999864e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 0,
+          "relative_l2": 0.0007355244015343487,
+          "kl": 2.0421102817635983e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 0,
+          "relative_l2": 0.0007139720255509019,
+          "kl": 1.408257958246395e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 0,
+          "relative_l2": 0.0011655240086838603,
+          "kl": 3.305456630187109e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 0,
+          "relative_l2": 0.0016642857808619738,
+          "kl": 2.097076503559947e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 0,
+          "relative_l2": 0.0007253024959936738,
+          "kl": 2.0107727323193103e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 0,
+          "relative_l2": 0.0010847531957551837,
+          "kl": 2.19715730054304e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 0,
+          "relative_l2": 0.002975062234327197,
+          "kl": 6.404043233487755e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 0,
+          "relative_l2": 0.0008887562435120344,
+          "kl": 4.1608309402363375e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 0,
+          "relative_l2": 0.0007644933648407459,
+          "kl": 3.1358049454865977e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 0,
+          "relative_l2": 0.001073633087798953,
+          "kl": 1.7765560187399387e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 0,
+          "relative_l2": 0.0011786868562921882,
+          "kl": 2.354401658521965e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 0,
+          "relative_l2": 0.0015591904520988464,
+          "kl": 1.6951489669736475e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 0,
+          "relative_l2": 0.0008284313371405005,
+          "kl": 2.2246749722398818e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 0,
+          "relative_l2": 0.0008221419993788004,
+          "kl": 1.4707311493111774e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 0,
+          "relative_l2": 0.0031296408269554377,
+          "kl": 2.6894776965491474e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 0,
+          "relative_l2": 0.0009969478705897927,
+          "kl": 2.8885460778838024e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 0,
+          "relative_l2": 0.002108803251758218,
+          "kl": 2.1204014046816155e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 0,
+          "relative_l2": 0.0015106478240340948,
+          "kl": 9.966106517822482e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 0,
+          "relative_l2": 0.0010814674897119403,
+          "kl": 3.4367731132078916e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 0,
+          "relative_l2": 0.0007780476589687169,
+          "kl": 1.5776192867633654e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 0,
+          "relative_l2": 0.0010913227451965213,
+          "kl": 2.9365801310632378e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 0,
+          "relative_l2": 0.000973208574578166,
+          "kl": 2.0177285477984697e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 0,
+          "relative_l2": 0.0008020391687750816,
+          "kl": 4.261911271896679e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 0,
+          "relative_l2": 0.0027860691770911217,
+          "kl": 1.8683873349800706e-05,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 0,
+          "relative_l2": 0.0008779686177149415,
+          "kl": 3.8042417145334184e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 0,
+          "relative_l2": 0.0011956006055697799,
+          "kl": 2.5549634301569313e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 1,
+          "relative_l2": 0.0010341750457882881,
+          "kl": 2.425553248031065e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 1,
+          "relative_l2": 0.0013058069162070751,
+          "kl": 1.1199917935300618e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 1,
+          "relative_l2": 0.0008880341774784029,
+          "kl": 3.0779247026657686e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 1,
+          "relative_l2": 0.0023466828279197216,
+          "kl": 3.2662319426890463e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 1,
+          "relative_l2": 0.0011124511947855353,
+          "kl": 2.377585133217508e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 1,
+          "relative_l2": 0.0010249101324006915,
+          "kl": 5.896989023312926e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 1,
+          "relative_l2": 0.0008111119968816638,
+          "kl": 3.415094397496432e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 1,
+          "relative_l2": 0.0017217909917235374,
+          "kl": 2.881010004784912e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 1,
+          "relative_l2": 0.0015280626248568296,
+          "kl": 2.4924593162722886e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 1,
+          "relative_l2": 0.0025096284225583076,
+          "kl": 6.212441803654656e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 1,
+          "relative_l2": 0.0010499154450371861,
+          "kl": 5.322403012542054e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 1,
+          "relative_l2": 0.002059462945908308,
+          "kl": 3.2194293453358114e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 1,
+          "relative_l2": 0.0016266957391053438,
+          "kl": 9.451534424442798e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 1,
+          "relative_l2": 0.0009589829132892191,
+          "kl": 4.940844519296661e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 1,
+          "relative_l2": 0.0008300265180878341,
+          "kl": 1.8484929569240194e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 1,
+          "relative_l2": 0.0008964106673374772,
+          "kl": 9.411614882992581e-07,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 1,
+          "relative_l2": 0.0011388573329895735,
+          "kl": 2.816352207446471e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 1,
+          "relative_l2": 0.001372823491692543,
+          "kl": 2.177439455408603e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 1,
+          "relative_l2": 0.0008848813595250249,
+          "kl": 2.977001713588834e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 1,
+          "relative_l2": 0.0008036868530325592,
+          "kl": 2.133208909071982e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 1,
+          "relative_l2": 0.0011231512762606144,
+          "kl": 2.7504866011440754e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 1,
+          "relative_l2": 0.0010104976827278733,
+          "kl": 2.315478923264891e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 1,
+          "relative_l2": 0.001395747414790094,
+          "kl": 4.245754098519683e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 1,
+          "relative_l2": 0.0008499612449668348,
+          "kl": 2.284428774146363e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 1,
+          "relative_l2": 0.002414403483271599,
+          "kl": 6.6955763031728566e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 1,
+          "relative_l2": 0.001699381391517818,
+          "kl": 5.482062988448888e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 1,
+          "relative_l2": 0.00148561573587358,
+          "kl": 3.5126013244735077e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 1,
+          "relative_l2": 0.0012456781696528196,
+          "kl": 9.763898560777307e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 1,
+          "relative_l2": 0.0010592993348836899,
+          "kl": 4.076508048456162e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 1,
+          "relative_l2": 0.0020994029473513365,
+          "kl": 1.2917334970552474e-05,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 1,
+          "relative_l2": 0.0018211192218586802,
+          "kl": 3.055502020288259e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 1,
+          "relative_l2": 0.0010196351213380694,
+          "kl": 4.46761077910196e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 1,
+          "relative_l2": 0.001549371867440641,
+          "kl": 2.7134574338560924e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 1,
+          "relative_l2": 0.001449422910809517,
+          "kl": 5.41780173080042e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 1,
+          "relative_l2": 0.001358583103865385,
+          "kl": 3.710604914886062e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 1,
+          "relative_l2": 0.0007546093547716737,
+          "kl": 2.996566763613373e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 1,
+          "relative_l2": 0.0010091207223013043,
+          "kl": 3.120219844277017e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 1,
+          "relative_l2": 0.001033117063343525,
+          "kl": 2.1119776647537947e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 1,
+          "relative_l2": 0.001426745904609561,
+          "kl": 5.328528459358495e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 1,
+          "relative_l2": 0.0016397908329963684,
+          "kl": 3.1201780075207353e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 1,
+          "relative_l2": 0.0011744523653760552,
+          "kl": 2.0178813429083675e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 1,
+          "relative_l2": 0.0009216978796757758,
+          "kl": 1.994584636122454e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 1,
+          "relative_l2": 0.0008076046360656619,
+          "kl": 6.377595127560198e-07,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 1,
+          "relative_l2": 0.0007815194549039006,
+          "kl": 2.4177566047001164e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 1,
+          "relative_l2": 0.0013030963018536568,
+          "kl": 4.848920070799068e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 1,
+          "relative_l2": 0.0017458349466323853,
+          "kl": 3.4980912460014224e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 1,
+          "relative_l2": 0.0009607441606931388,
+          "kl": 3.427960109547712e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 1,
+          "relative_l2": 0.0011641306336969137,
+          "kl": 2.1024061425123364e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 1,
+          "relative_l2": 0.0012922290479764342,
+          "kl": 5.171572411200032e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 1,
+          "relative_l2": 0.001256660558283329,
+          "kl": 3.3116075428551994e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 1,
+          "relative_l2": 0.0008315304294228554,
+          "kl": 2.385575498919934e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 1,
+          "relative_l2": 0.0007572132162749767,
+          "kl": 2.320565727131907e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 1,
+          "relative_l2": 0.0006516695721074939,
+          "kl": 3.068950718443375e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 1,
+          "relative_l2": 0.0011287863599136472,
+          "kl": 4.577289473672863e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 1,
+          "relative_l2": 0.002286565722897649,
+          "kl": 3.3221804187633097e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 1,
+          "relative_l2": 0.0012372866040095687,
+          "kl": 5.608634637610521e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 1,
+          "relative_l2": 0.00202646991237998,
+          "kl": 3.063960321014747e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 1,
+          "relative_l2": 0.001118971616961062,
+          "kl": 4.314068064559251e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 1,
+          "relative_l2": 0.001356626395136118,
+          "kl": 3.877399649354629e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 1,
+          "relative_l2": 0.0017956846859306097,
+          "kl": 4.475818059290759e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 1,
+          "relative_l2": 0.0007678086403757334,
+          "kl": 1.800342943170108e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 1,
+          "relative_l2": 0.0009640054195187986,
+          "kl": 2.163636963814497e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 1,
+          "relative_l2": 0.001267045154236257,
+          "kl": 3.910608938895166e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 1,
+          "relative_l2": 0.0011260689934715629,
+          "kl": 2.3706747924734373e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 2,
+          "relative_l2": 0.0037966216914355755,
+          "kl": 2.119870623573661e-05,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 2,
+          "relative_l2": 0.0010327317286282778,
+          "kl": 3.055196430068463e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 2,
+          "relative_l2": 0.0010665621375665069,
+          "kl": 4.083415660716128e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 2,
+          "relative_l2": 0.0010325696785002947,
+          "kl": 8.179868018487468e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 2,
+          "relative_l2": 0.0008316105813719332,
+          "kl": 1.8289947547600605e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 2,
+          "relative_l2": 0.0007672248175367713,
+          "kl": 2.286019025632413e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 2,
+          "relative_l2": 0.0010135510237887502,
+          "kl": 3.7537029129453003e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 2,
+          "relative_l2": 0.001750857918523252,
+          "kl": 3.5739485610974953e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 2,
+          "relative_l2": 0.0007966460543684661,
+          "kl": 3.075399945373647e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 2,
+          "relative_l2": 0.0014797570183873177,
+          "kl": 2.0176285033812746e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 2,
+          "relative_l2": 0.001071785925887525,
+          "kl": 2.8368731364025734e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 2,
+          "relative_l2": 0.0007973818574100733,
+          "kl": 1.3981973552290583e-06,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 2,
+          "relative_l2": 0.0008603999158367515,
+          "kl": 1.8190885384683497e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 2,
+          "relative_l2": 0.0009781784610822797,
+          "kl": 3.0138799047563225e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 2,
+          "relative_l2": 0.0010244373697787523,
+          "kl": 2.522949216654524e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 2,
+          "relative_l2": 0.0010362764587625861,
+          "kl": 1.8652999642654322e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 2,
+          "relative_l2": 0.0010912524303421378,
+          "kl": 4.93250809086021e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 2,
+          "relative_l2": 0.0013094082241877913,
+          "kl": 1.8318314687348902e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 2,
+          "relative_l2": 0.0010714615928009152,
+          "kl": 3.457225830061361e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 2,
+          "relative_l2": 0.0014466254506260157,
+          "kl": 5.670394784829114e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 2,
+          "relative_l2": 0.0008127063629217446,
+          "kl": 2.1844384718860965e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 2,
+          "relative_l2": 0.0012603061040863395,
+          "kl": 1.3023127394262701e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 2,
+          "relative_l2": 0.000849236617796123,
+          "kl": 1.702115696389228e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 2,
+          "relative_l2": 0.0018040459835901856,
+          "kl": 6.867834599688649e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 2,
+          "relative_l2": 0.0008625583723187447,
+          "kl": 1.3412088719633175e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 2,
+          "relative_l2": 0.0009341934928670526,
+          "kl": 3.1411618692800403e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 2,
+          "relative_l2": 0.0009180241613648832,
+          "kl": 2.854242666217033e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 2,
+          "relative_l2": 0.001461324281990528,
+          "kl": 5.15361170982942e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 2,
+          "relative_l2": 0.0014825372491031885,
+          "kl": 3.0617484299000353e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 2,
+          "relative_l2": 0.0015601309714838862,
+          "kl": 3.991200173913967e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 2,
+          "relative_l2": 0.0012785224243998528,
+          "kl": 3.4305094231967814e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 2,
+          "relative_l2": 0.001584764919243753,
+          "kl": 2.2690983314532787e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 2,
+          "relative_l2": 0.0010571997845545411,
+          "kl": 3.235787289668224e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 2,
+          "relative_l2": 0.0008744911756366491,
+          "kl": 2.6174093363806605e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 2,
+          "relative_l2": 0.0014826618134975433,
+          "kl": 5.161193257663399e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 2,
+          "relative_l2": 0.0011266128858551383,
+          "kl": 2.6695106498664245e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 2,
+          "relative_l2": 0.002158944495022297,
+          "kl": 1.6610756574664265e-05,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 2,
+          "relative_l2": 0.0009484130423516035,
+          "kl": 3.4267686714883894e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 2,
+          "relative_l2": 0.0009281340753659606,
+          "kl": 1.7911479517351836e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 2,
+          "relative_l2": 0.002067730762064457,
+          "kl": 2.7838814276037738e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 2,
+          "relative_l2": 0.0012741487007588148,
+          "kl": 7.5016068876720965e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 2,
+          "relative_l2": 0.0009191417484544218,
+          "kl": 4.631541287380969e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 2,
+          "relative_l2": 0.002705976599827409,
+          "kl": 5.076552042737603e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 2,
+          "relative_l2": 0.0010972830932587385,
+          "kl": 5.183101166039705e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 2,
+          "relative_l2": 0.0016680759144946933,
+          "kl": 1.0335308616049588e-05,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 2,
+          "relative_l2": 0.0011658138828352094,
+          "kl": 2.4382243282161653e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 2,
+          "relative_l2": 0.0009653294691815972,
+          "kl": 3.5978755477117375e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 2,
+          "relative_l2": 0.0007961463998071849,
+          "kl": 1.6898350168048637e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 2,
+          "relative_l2": 0.0008400158840231597,
+          "kl": 2.243730705231428e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 2,
+          "relative_l2": 0.0011359569616615772,
+          "kl": 5.209828486840706e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 2,
+          "relative_l2": 0.0011520384578034282,
+          "kl": 1.7270285752601922e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 2,
+          "relative_l2": 0.000694496906362474,
+          "kl": 1.6768117347965017e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 2,
+          "relative_l2": 0.0010736577678471804,
+          "kl": 2.284361016791081e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 2,
+          "relative_l2": 0.0012134754797443748,
+          "kl": 4.815010470338166e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 2,
+          "relative_l2": 0.0008985979948192835,
+          "kl": 2.9582297429442406e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 2,
+          "relative_l2": 0.001137722167186439,
+          "kl": 4.139546945225447e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 2,
+          "relative_l2": 0.0013062268262729049,
+          "kl": 5.597146810032427e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 2,
+          "relative_l2": 0.001045437529683113,
+          "kl": 2.7562891773413867e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 2,
+          "relative_l2": 0.0009999870089814067,
+          "kl": 3.894412657245994e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 2,
+          "relative_l2": 0.0014917668886482716,
+          "kl": 3.829061824944802e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 2,
+          "relative_l2": 0.0025910967960953712,
+          "kl": 1.09706015791744e-05,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 2,
+          "relative_l2": 0.0008602046873420477,
+          "kl": 3.537192242220044e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 2,
+          "relative_l2": 0.0008049017051234841,
+          "kl": 2.1140367607586086e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 2,
+          "relative_l2": 0.0008041260298341513,
+          "kl": 2.646595021360554e-06,
+          "shared": true
+        },
+        {
+          "request": 0,
+          "token": 3,
+          "relative_l2": 0.0017181852599605918,
+          "kl": 2.013133780565113e-06,
+          "shared": true
+        },
+        {
+          "request": 2,
+          "token": 3,
+          "relative_l2": 0.0010156884090974927,
+          "kl": 3.1664876587456092e-06,
+          "shared": true
+        },
+        {
+          "request": 4,
+          "token": 3,
+          "relative_l2": 0.0027368227019906044,
+          "kl": 5.177207640372217e-06,
+          "shared": true
+        },
+        {
+          "request": 6,
+          "token": 3,
+          "relative_l2": 0.0009339756215922534,
+          "kl": 3.1747622415423393e-06,
+          "shared": true
+        },
+        {
+          "request": 8,
+          "token": 3,
+          "relative_l2": 0.0020132246427237988,
+          "kl": 9.097610018216074e-06,
+          "shared": true
+        },
+        {
+          "request": 10,
+          "token": 3,
+          "relative_l2": 0.0012481530429795384,
+          "kl": 3.4723962016869336e-06,
+          "shared": true
+        },
+        {
+          "request": 12,
+          "token": 3,
+          "relative_l2": 0.0009814511286094785,
+          "kl": 2.1834043764101807e-06,
+          "shared": true
+        },
+        {
+          "request": 14,
+          "token": 3,
+          "relative_l2": 0.0008318132604472339,
+          "kl": 3.5633856896311045e-06,
+          "shared": true
+        },
+        {
+          "request": 16,
+          "token": 3,
+          "relative_l2": 0.0013992569874972105,
+          "kl": 5.0244534577359445e-06,
+          "shared": true
+        },
+        {
+          "request": 18,
+          "token": 3,
+          "relative_l2": 0.0009923765901476145,
+          "kl": 5.185670488572214e-06,
+          "shared": true
+        },
+        {
+          "request": 20,
+          "token": 3,
+          "relative_l2": 0.0013668099418282509,
+          "kl": 5.9308731579221785e-06,
+          "shared": true
+        },
+        {
+          "request": 22,
+          "token": 3,
+          "relative_l2": 0.002364212879911065,
+          "kl": 1.0579853551462293e-05,
+          "shared": true
+        },
+        {
+          "request": 24,
+          "token": 3,
+          "relative_l2": 0.0008526330930180848,
+          "kl": 3.216527147742454e-06,
+          "shared": true
+        },
+        {
+          "request": 26,
+          "token": 3,
+          "relative_l2": 0.000890405208338052,
+          "kl": 1.7282272892771289e-06,
+          "shared": true
+        },
+        {
+          "request": 28,
+          "token": 3,
+          "relative_l2": 0.000750940409488976,
+          "kl": 1.5817622625036165e-06,
+          "shared": true
+        },
+        {
+          "request": 30,
+          "token": 3,
+          "relative_l2": 0.0018821702105924487,
+          "kl": 3.0523424356942996e-06,
+          "shared": true
+        },
+        {
+          "request": 32,
+          "token": 3,
+          "relative_l2": 0.0009615421295166016,
+          "kl": 3.6672754504252225e-06,
+          "shared": true
+        },
+        {
+          "request": 34,
+          "token": 3,
+          "relative_l2": 0.0011472109472379088,
+          "kl": 4.11896689911373e-06,
+          "shared": true
+        },
+        {
+          "request": 36,
+          "token": 3,
+          "relative_l2": 0.0015084515325725079,
+          "kl": 2.395310502834036e-06,
+          "shared": true
+        },
+        {
+          "request": 38,
+          "token": 3,
+          "relative_l2": 0.000914101314265281,
+          "kl": 2.8004287742078304e-06,
+          "shared": true
+        },
+        {
+          "request": 40,
+          "token": 3,
+          "relative_l2": 0.001302254037000239,
+          "kl": 2.036464138654992e-06,
+          "shared": true
+        },
+        {
+          "request": 42,
+          "token": 3,
+          "relative_l2": 0.0013355095870792866,
+          "kl": 4.58486465504393e-06,
+          "shared": true
+        },
+        {
+          "request": 44,
+          "token": 3,
+          "relative_l2": 0.0011952790664508939,
+          "kl": 3.5408238545642234e-06,
+          "shared": true
+        },
+        {
+          "request": 46,
+          "token": 3,
+          "relative_l2": 0.0010519397910684347,
+          "kl": 3.4279901228728704e-06,
+          "shared": true
+        },
+        {
+          "request": 48,
+          "token": 3,
+          "relative_l2": 0.0012222299119457603,
+          "kl": 7.51507468521595e-06,
+          "shared": true
+        },
+        {
+          "request": 50,
+          "token": 3,
+          "relative_l2": 0.0017289548413828015,
+          "kl": 2.290846168762073e-06,
+          "shared": true
+        },
+        {
+          "request": 52,
+          "token": 3,
+          "relative_l2": 0.0007996426429599524,
+          "kl": 2.9370621632551774e-06,
+          "shared": true
+        },
+        {
+          "request": 54,
+          "token": 3,
+          "relative_l2": 0.000912453921046108,
+          "kl": 3.2694156288926024e-06,
+          "shared": true
+        },
+        {
+          "request": 56,
+          "token": 3,
+          "relative_l2": 0.00171730387955904,
+          "kl": 6.046448106644675e-06,
+          "shared": true
+        },
+        {
+          "request": 58,
+          "token": 3,
+          "relative_l2": 0.0007660618284717202,
+          "kl": 2.521039277780801e-06,
+          "shared": true
+        },
+        {
+          "request": 60,
+          "token": 3,
+          "relative_l2": 0.0007776242564432323,
+          "kl": 2.09573408938013e-06,
+          "shared": true
+        },
+        {
+          "request": 62,
+          "token": 3,
+          "relative_l2": 0.0010257051326334476,
+          "kl": 2.0806728571187705e-06,
+          "shared": true
+        },
+        {
+          "request": 1,
+          "token": 3,
+          "relative_l2": 0.0009007956250570714,
+          "kl": 2.5755853130249307e-06,
+          "shared": true
+        },
+        {
+          "request": 3,
+          "token": 3,
+          "relative_l2": 0.0020554333459585905,
+          "kl": 3.509216185193509e-06,
+          "shared": true
+        },
+        {
+          "request": 5,
+          "token": 3,
+          "relative_l2": 0.0008523096330463886,
+          "kl": 5.169353244127706e-06,
+          "shared": true
+        },
+        {
+          "request": 7,
+          "token": 3,
+          "relative_l2": 0.0010466892272233963,
+          "kl": 3.626499164965935e-06,
+          "shared": true
+        },
+        {
+          "request": 9,
+          "token": 3,
+          "relative_l2": 0.001381562789902091,
+          "kl": 1.83459633262828e-06,
+          "shared": true
+        },
+        {
+          "request": 11,
+          "token": 3,
+          "relative_l2": 0.0011697221780195832,
+          "kl": 3.3537344279466197e-06,
+          "shared": true
+        },
+        {
+          "request": 13,
+          "token": 3,
+          "relative_l2": 0.0010207097511738539,
+          "kl": 3.068402293138206e-06,
+          "shared": true
+        },
+        {
+          "request": 15,
+          "token": 3,
+          "relative_l2": 0.0018296445487067103,
+          "kl": 3.7505451473407447e-06,
+          "shared": true
+        },
+        {
+          "request": 17,
+          "token": 3,
+          "relative_l2": 0.0008423831895925105,
+          "kl": 2.329741164430743e-06,
+          "shared": true
+        },
+        {
+          "request": 19,
+          "token": 3,
+          "relative_l2": 0.0011102245189249516,
+          "kl": 2.4020755517994985e-06,
+          "shared": true
+        },
+        {
+          "request": 21,
+          "token": 3,
+          "relative_l2": 0.0009275360498577356,
+          "kl": 2.8524382287287153e-06,
+          "shared": true
+        },
+        {
+          "request": 23,
+          "token": 3,
+          "relative_l2": 0.0010019914479926229,
+          "kl": 1.8949940567836165e-06,
+          "shared": true
+        },
+        {
+          "request": 25,
+          "token": 3,
+          "relative_l2": 0.001139876083470881,
+          "kl": 4.798432200914249e-06,
+          "shared": true
+        },
+        {
+          "request": 27,
+          "token": 3,
+          "relative_l2": 0.0010398192098364234,
+          "kl": 1.927683115354739e-06,
+          "shared": true
+        },
+        {
+          "request": 29,
+          "token": 3,
+          "relative_l2": 0.0008320900960825384,
+          "kl": 2.0999113985453732e-06,
+          "shared": true
+        },
+        {
+          "request": 31,
+          "token": 3,
+          "relative_l2": 0.000884608190972358,
+          "kl": 3.910774466930889e-06,
+          "shared": true
+        },
+        {
+          "request": 33,
+          "token": 3,
+          "relative_l2": 0.0008823317475616932,
+          "kl": 3.2081788958748803e-06,
+          "shared": true
+        },
+        {
+          "request": 35,
+          "token": 3,
+          "relative_l2": 0.0010736354161053896,
+          "kl": 4.37987910117954e-06,
+          "shared": true
+        },
+        {
+          "request": 37,
+          "token": 3,
+          "relative_l2": 0.0011173448292538524,
+          "kl": 4.698586053564213e-06,
+          "shared": true
+        },
+        {
+          "request": 39,
+          "token": 3,
+          "relative_l2": 0.0009505812195129693,
+          "kl": 2.865148417185992e-06,
+          "shared": true
+        },
+        {
+          "request": 41,
+          "token": 3,
+          "relative_l2": 0.0012364503927528858,
+          "kl": 1.7773145373212174e-06,
+          "shared": true
+        },
+        {
+          "request": 43,
+          "token": 3,
+          "relative_l2": 0.0008896833751350641,
+          "kl": 2.02943010663148e-06,
+          "shared": true
+        },
+        {
+          "request": 45,
+          "token": 3,
+          "relative_l2": 0.00139917794149369,
+          "kl": 3.0502123991027474e-06,
+          "shared": true
+        },
+        {
+          "request": 47,
+          "token": 3,
+          "relative_l2": 0.0009978781454265118,
+          "kl": 3.1254166970029473e-06,
+          "shared": true
+        },
+        {
+          "request": 49,
+          "token": 3,
+          "relative_l2": 0.0008514481014572084,
+          "kl": 3.7318459362722933e-06,
+          "shared": true
+        },
+        {
+          "request": 51,
+          "token": 3,
+          "relative_l2": 0.0010676042875275016,
+          "kl": 4.009647454950027e-06,
+          "shared": true
+        },
+        {
+          "request": 53,
+          "token": 3,
+          "relative_l2": 0.0018606988014653325,
+          "kl": 3.7130812415853143e-06,
+          "shared": true
+        },
+        {
+          "request": 55,
+          "token": 3,
+          "relative_l2": 0.0010730124777182937,
+          "kl": 2.6023099053418264e-06,
+          "shared": true
+        },
+        {
+          "request": 57,
+          "token": 3,
+          "relative_l2": 0.0015195994637906551,
+          "kl": 2.103459564750665e-06,
+          "shared": true
+        },
+        {
+          "request": 59,
+          "token": 3,
+          "relative_l2": 0.0007478144834749401,
+          "kl": 2.5733625079737976e-06,
+          "shared": true
+        },
+        {
+          "request": 61,
+          "token": 3,
+          "relative_l2": 0.0011923449346795678,
+          "kl": 2.916712219303008e-06,
+          "shared": true
+        },
+        {
+          "request": 63,
+          "token": 3,
+          "relative_l2": 0.0011922776466235518,
+          "kl": 6.219230272108689e-06,
+          "shared": true
+        }
+      ]
+    }
+  ],
+  "mixed_phases": [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "admission_rollback": true
+}

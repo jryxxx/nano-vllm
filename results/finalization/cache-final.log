@@ -1,0 +1,192 @@
+WARMUP pollution 20 cost
+WARMUP pollution 20 fifo
+WARMUP pollution 20 lru
+WARMUP pollution 20 leaf_lru
+TRIAL pollution 20 0 fifo 94.41 24576
+TRIAL pollution 20 0 lru 95.51 44288
+TRIAL pollution 20 0 leaf_lru 96.88 44288
+TRIAL pollution 20 0 cost 96.86 41472
+TRIAL pollution 20 1 lru 96.78 44288
+TRIAL pollution 20 1 leaf_lru 96.57 44288
+TRIAL pollution 20 1 cost 95.89 41472
+TRIAL pollution 20 1 fifo 94.73 24576
+TRIAL pollution 20 2 leaf_lru 97.1 44288
+TRIAL pollution 20 2 cost 97.28 41472
+TRIAL pollution 20 2 fifo 95.3 24576
+TRIAL pollution 20 2 lru 97.36 44288
+WARMUP pollution 32 cost
+WARMUP pollution 32 fifo
+WARMUP pollution 32 lru
+WARMUP pollution 32 leaf_lru
+TRIAL pollution 32 0 fifo 99.6 69632
+TRIAL pollution 32 0 lru 101.28 69632
+TRIAL pollution 32 0 leaf_lru 101.99 69632
+TRIAL pollution 32 0 cost 102.02 69632
+TRIAL pollution 32 1 lru 102.06 69632
+TRIAL pollution 32 1 leaf_lru 102.33 69632
+TRIAL pollution 32 1 cost 103.36 69632
+TRIAL pollution 32 1 fifo 102.51 69632
+TRIAL pollution 32 2 leaf_lru 102.09 69632
+TRIAL pollution 32 2 cost 101.86 69632
+TRIAL pollution 32 2 fifo 102.07 69632
+TRIAL pollution 32 2 lru 101.77 69632
+WARMUP pollution 64 cost
+WARMUP pollution 64 fifo
+WARMUP pollution 64 lru
+WARMUP pollution 64 leaf_lru
+TRIAL pollution 64 0 fifo 102.02 69632
+TRIAL pollution 64 0 lru 101.94 69632
+TRIAL pollution 64 0 leaf_lru 102.33 69632
+TRIAL pollution 64 0 cost 102.52 69632
+TRIAL pollution 64 1 lru 103.24 69632
+TRIAL pollution 64 1 leaf_lru 102.14 69632
+TRIAL pollution 64 1 cost 101.54 69632
+TRIAL pollution 64 1 fifo 102.26 69632
+TRIAL pollution 64 2 leaf_lru 101.58 69632
+TRIAL pollution 64 2 cost 101.77 69632
+TRIAL pollution 64 2 fifo 101.93 69632
+TRIAL pollution 64 2 lru 101.89 69632
+WARMUP switch 20 cost
+WARMUP switch 20 fifo
+WARMUP switch 20 lru
+WARMUP switch 20 leaf_lru
+TRIAL switch 20 0 fifo 96.4 24576
+TRIAL switch 20 0 lru 97.63 42496
+TRIAL switch 20 0 leaf_lru 97.7 42496
+TRIAL switch 20 0 cost 95.62 26112
+TRIAL switch 20 1 lru 96.45 42496
+TRIAL switch 20 1 leaf_lru 94.21 42496
+TRIAL switch 20 1 cost 95.58 26112
+TRIAL switch 20 1 fifo 94.51 24576
+TRIAL switch 20 2 leaf_lru 96.56 42496
+TRIAL switch 20 2 cost 95.12 26112
+TRIAL switch 20 2 fifo 94.34 24576
+TRIAL switch 20 2 lru 97.34 42496
+WARMUP switch 32 cost
+WARMUP switch 32 fifo
+WARMUP switch 32 lru
+WARMUP switch 32 leaf_lru
+TRIAL switch 32 0 fifo 97.48 65536
+TRIAL switch 32 0 lru 99.98 65536
+TRIAL switch 32 0 leaf_lru 100.15 65536
+TRIAL switch 32 0 cost 97.94 47360
+TRIAL switch 32 1 lru 99.63 65536
+TRIAL switch 32 1 leaf_lru 100.3 65536
+TRIAL switch 32 1 cost 98.27 47360
+TRIAL switch 32 1 fifo 98.05 65536
+TRIAL switch 32 2 leaf_lru 101.36 65536
+TRIAL switch 32 2 cost 98.64 47360
+TRIAL switch 32 2 fifo 100.26 65536
+TRIAL switch 32 2 lru 99.32 65536
+WARMUP switch 64 cost
+WARMUP switch 64 fifo
+WARMUP switch 64 lru
+WARMUP switch 64 leaf_lru
+TRIAL switch 64 0 fifo 101.42 65536
+TRIAL switch 64 0 lru 101.0 65536
+TRIAL switch 64 0 leaf_lru 100.91 65536
+TRIAL switch 64 0 cost 100.72 59136
+TRIAL switch 64 1 lru 102.19 65536
+TRIAL switch 64 1 leaf_lru 102.37 65536
+TRIAL switch 64 1 cost 101.04 59136
+TRIAL switch 64 1 fifo 101.37 65536
+TRIAL switch 64 2 leaf_lru 101.14 65536
+TRIAL switch 64 2 cost 100.66 59136
+TRIAL switch 64 2 fifo 101.06 65536
+TRIAL switch 64 2 lru 101.03 65536
+WARMUP stream 20 cost
+WARMUP stream 20 fifo
+WARMUP stream 20 lru
+WARMUP stream 20 leaf_lru
+TRIAL stream 20 0 fifo 94.86 0
+TRIAL stream 20 0 lru 94.7 0
+TRIAL stream 20 0 leaf_lru 94.11 0
+TRIAL stream 20 0 cost 92.73 0
+TRIAL stream 20 1 lru 93.73 0
+TRIAL stream 20 1 leaf_lru 93.73 0
+TRIAL stream 20 1 cost 93.7 0
+TRIAL stream 20 1 fifo 93.87 0
+TRIAL stream 20 2 leaf_lru 93.72 0
+TRIAL stream 20 2 cost 93.75 0
+TRIAL stream 20 2 fifo 93.09 0
+TRIAL stream 20 2 lru 93.89 0
+WARMUP stream 32 cost
+WARMUP stream 32 fifo
+WARMUP stream 32 lru
+WARMUP stream 32 leaf_lru
+TRIAL stream 32 0 fifo 93.64 0
+TRIAL stream 32 0 lru 92.53 0
+TRIAL stream 32 0 leaf_lru 93.16 0
+TRIAL stream 32 0 cost 92.76 0
+TRIAL stream 32 1 lru 92.88 0
+TRIAL stream 32 1 leaf_lru 93.01 0
+TRIAL stream 32 1 cost 92.43 0
+TRIAL stream 32 1 fifo 93.49 0
+TRIAL stream 32 2 leaf_lru 93.61 0
+TRIAL stream 32 2 cost 94.04 0
+TRIAL stream 32 2 fifo 93.24 0
+TRIAL stream 32 2 lru 93.05 0
+WARMUP stream 64 cost
+WARMUP stream 64 fifo
+WARMUP stream 64 lru
+WARMUP stream 64 leaf_lru
+TRIAL stream 64 0 fifo 93.16 0
+TRIAL stream 64 0 lru 92.97 0
+TRIAL stream 64 0 leaf_lru 92.49 0
+TRIAL stream 64 0 cost 93.19 0
+TRIAL stream 64 1 lru 92.89 0
+TRIAL stream 64 1 leaf_lru 93.87 0
+TRIAL stream 64 1 cost 92.65 0
+TRIAL stream 64 1 fifo 92.55 0
+TRIAL stream 64 2 leaf_lru 92.52 0
+TRIAL stream 64 2 cost 92.6 0
+TRIAL stream 64 2 fifo 93.08 0
+TRIAL stream 64 2 lru 91.77 0
+WARMUP mixed_cost 20 cost
+WARMUP mixed_cost 20 fifo
+WARMUP mixed_cost 20 lru
+WARMUP mixed_cost 20 leaf_lru
+TRIAL mixed_cost 20 0 fifo 95.41 0
+TRIAL mixed_cost 20 0 lru 100.89 23040
+TRIAL mixed_cost 20 0 leaf_lru 101.3 23040
+TRIAL mixed_cost 20 0 cost 104.2 36096
+TRIAL mixed_cost 20 1 lru 101.06 23040
+TRIAL mixed_cost 20 1 leaf_lru 101.14 23040
+TRIAL mixed_cost 20 1 cost 104.48 36096
+TRIAL mixed_cost 20 1 fifo 94.33 0
+TRIAL mixed_cost 20 2 leaf_lru 100.74 23040
+TRIAL mixed_cost 20 2 cost 104.11 36096
+TRIAL mixed_cost 20 2 fifo 94.6 0
+TRIAL mixed_cost 20 2 lru 101.45 23040
+WARMUP mixed_cost 32 cost
+WARMUP mixed_cost 32 fifo
+WARMUP mixed_cost 32 lru
+WARMUP mixed_cost 32 leaf_lru
+TRIAL mixed_cost 32 0 fifo 104.4 55296
+TRIAL mixed_cost 32 0 lru 109.31 71424
+TRIAL mixed_cost 32 0 leaf_lru 109.64 71424
+TRIAL mixed_cost 32 0 cost 109.24 71424
+TRIAL mixed_cost 32 1 lru 109.47 71424
+TRIAL mixed_cost 32 1 leaf_lru 109.24 71424
+TRIAL mixed_cost 32 1 cost 109.36 71424
+TRIAL mixed_cost 32 1 fifo 105.58 55296
+TRIAL mixed_cost 32 2 leaf_lru 109.48 71424
+TRIAL mixed_cost 32 2 cost 110.43 71424
+TRIAL mixed_cost 32 2 fifo 106.66 55296
+TRIAL mixed_cost 32 2 lru 110.73 71424
+WARMUP mixed_cost 64 cost
+WARMUP mixed_cost 64 fifo
+WARMUP mixed_cost 64 lru
+WARMUP mixed_cost 64 leaf_lru
+TRIAL mixed_cost 64 0 fifo 109.32 73728
+TRIAL mixed_cost 64 0 lru 109.31 73728
+TRIAL mixed_cost 64 0 leaf_lru 109.27 73728
+TRIAL mixed_cost 64 0 cost 108.66 73728
+TRIAL mixed_cost 64 1 lru 108.31 73728
+TRIAL mixed_cost 64 1 leaf_lru 107.88 73728
+TRIAL mixed_cost 64 1 cost 108.8 73728
+TRIAL mixed_cost 64 1 fifo 108.88 73728
+TRIAL mixed_cost 64 2 leaf_lru 109.07 73728
+TRIAL mixed_cost 64 2 cost 109.01 73728
+TRIAL mixed_cost 64 2 fifo 109.05 73728
+TRIAL mixed_cost 64 2 lru 108.63 73728

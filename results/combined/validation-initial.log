@@ -1,0 +1,15 @@
+long copy off PASS {'off': 4}
+long copy auto PASS {'no_common_prefix': 4}
+long cow off PASS {'off': 4}
+long cow auto PASS {'shared': 4}
+long eager_tail off PASS {'off': 4}
+long eager_tail auto PASS {'shared': 4}
+shrinking copy off PASS {'off': 4}
+shrinking copy auto PASS {'no_common_prefix': 2, 'small_batch': 2}
+shrinking cow off PASS {'off': 4}
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/root/autodl-tmp/shared-context/src/nano-vllm-shared/tests/validate_combined.py", line 64, in <module>
+[rank0]:     if __name__=='__main__':main()
+[rank0]:   File "/root/autodl-tmp/shared-context/src/nano-vllm-shared/tests/validate_combined.py", line 46, in main
+[rank0]:     assert torch.equal(logits,ref), (scenario,mode,backend,step,diff.abs().max().item())
+[rank0]: AssertionError: ('shrinking', 'cow', 'auto', 2, 0.0185546875)

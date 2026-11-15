@@ -1,0 +1,18 @@
+long copy off PASS {'off': 64}
+long copy auto PASS {'no_common_prefix': 64}
+long cow off PASS {'off': 64}
+long cow auto PASS {'shared': 64}
+long eager_tail off PASS {'off': 64}
+long eager_tail auto PASS {'shared': 64}
+shrinking copy off PASS {'off': 48}
+shrinking copy auto PASS {'no_common_prefix': 16, 'small_batch': 32}
+shrinking cow off PASS {'off': 48}
+shrinking cow auto PASS {'shared': 16, 'small_batch': 32}
+shrinking eager_tail off PASS {'off': 48}
+shrinking eager_tail auto PASS {'shared': 16, 'small_batch': 32}
+continuation copy off PASS {'off': 4}
+continuation copy auto PASS {'no_common_prefix': 3, 'small_batch': 1}
+continuation cow off PASS {'off': 4}
+continuation cow auto PASS {'shared': 3, 'small_batch': 1}
+continuation eager_tail off PASS {'off': 4}
+continuation eager_tail auto PASS {'shared': 3, 'small_batch': 1}

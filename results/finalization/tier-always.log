@@ -1,0 +1,16 @@
+WARMUP always pollution -1 65.3 99
+TRIAL always pollution 0 93.46 99
+TRIAL always pollution 1 93.9 99
+TRIAL always pollution 2 93.19 99
+WARMUP always switch -1 92.69 90
+TRIAL always switch 0 92.69 90
+TRIAL always switch 1 93.58 90
+TRIAL always switch 2 93.53 90
+WARMUP always stream -1 90.99 0
+TRIAL always stream 0 90.76 0
+TRIAL always stream 1 90.79 0
+TRIAL always stream 2 91.52 0
+WARMUP always mixed_cost -1 94.89 186
+TRIAL always mixed_cost 0 92.64 186
+TRIAL always mixed_cost 1 94.2 186
+TRIAL always mixed_cost 2 94.73 186

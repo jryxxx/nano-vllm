@@ -1,0 +1,146 @@
+[
+  {
+    "name": "sessions-B0",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "B0",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-B0.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-B0.log",
+    "exit_code": 0,
+    "elapsed_s": 23.15532893035561
+  },
+  {
+    "name": "sessions-B1",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "B1",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-B1.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-B1.log",
+    "exit_code": 0,
+    "elapsed_s": 28.731394133530557
+  },
+  {
+    "name": "sessions-B2",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "B2",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-B2.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-B2.log",
+    "exit_code": 0,
+    "elapsed_s": 29.098787434399128
+  },
+  {
+    "name": "sessions-M",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "M",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-M.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-M.log",
+    "exit_code": 0,
+    "elapsed_s": 28.011432003229856
+  },
+  {
+    "name": "sessions-K",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "K",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-K.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-K.log",
+    "exit_code": 0,
+    "elapsed_s": 31.210932633839548
+  },
+  {
+    "name": "sessions-S",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "S",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-S.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-S.log",
+    "exit_code": 0,
+    "elapsed_s": 24.170850857160985
+  },
+  {
+    "name": "sessions-Full",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "Full",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-Full.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-Full.log",
+    "exit_code": 0,
+    "elapsed_s": 22.404916326515377
+  },
+  {
+    "name": "sessions-Tiered",
+    "command": [
+      "/root/autodl-tmp/shared-context/envs/main/bin/python",
+      "experiments/replay_sessions.py",
+      "--variant",
+      "Tiered",
+      "--model",
+      "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+      "--output",
+      "/root/autodl-tmp/shared-context/src/nano-vllm-shared/results/finalization/sessions-Tiered.json"
+    ],
+    "code_sha256": "d0f36c37df987bec781942dab402776132f115eced8ac44e1bfb4c00a0be19b5",
+    "status": "passed",
+    "log": "sessions-Tiered.log",
+    "exit_code": 0,
+    "elapsed_s": 24.688134228810668
+  }
+]

@@ -1,0 +1,4 @@
+fifo PASS 2215
+lru PASS 2360
+leaf_lru PASS 2360
+cost PASS 2332

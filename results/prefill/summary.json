@@ -1,0 +1,2216 @@
+{
+  "config": {
+    "model": "/root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16",
+    "profile": "results/prefill/cost-profile.json",
+    "variants": {
+      "baseline": {
+        "policy": "baseline",
+        "chunk": 1024,
+        "prefill": "fixed",
+        "phase": "guarded"
+      },
+      "fixed_v1": {
+        "policy": "cost",
+        "chunk": 1024,
+        "prefill": "fixed",
+        "phase": "guarded"
+      },
+      "fixed_large": {
+        "policy": "cost",
+        "chunk": 4096,
+        "prefill": "fixed",
+        "phase": "guarded"
+      },
+      "model_only": {
+        "policy": "cost",
+        "chunk": 1024,
+        "prefill": "model",
+        "phase": "guarded"
+      },
+      "joint": {
+        "policy": "cost",
+        "chunk": 1024,
+        "prefill": "model",
+        "phase": "predictive"
+      }
+    },
+    "repeats": 5,
+    "ttft_slo_ms": 500,
+    "request_max_itl_slo_ms": 75,
+    "queue_limit": 96,
+    "service_budget_ms": 70,
+    "prediction_margin": 1.1,
+    "planning_margin_ms": 2
+  },
+  "scenarios": {
+    "mixed": {
+      "baseline": {
+        "median": {
+          "elapsed_s": 1.9425596580840647,
+          "output_tokens_per_s": 2174.450592763831,
+          "goodput": 0.0,
+          "good": 0,
+          "offered": 80,
+          "accepted": 80,
+          "rejected": 0,
+          "peak_live_pages": 354
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.9399952720850706,
+            1.945765235926956
+          ],
+          "output_tokens_per_s": [
+            2170.868264067685,
+            2177.324893921068
+          ],
+          "goodput": [
+            0.0,
+            0.0
+          ],
+          "good": [
+            0,
+            0
+          ],
+          "offered": [
+            80,
+            80
+          ],
+          "accepted": [
+            80,
+            80
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            354,
+            354
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 761.1824963241816,
+              "95": 761.1824963241816,
+              "99": 761.1824963241816,
+              "100": 761.1824963241816
+            },
+            "request_max_itl_ms": {
+              "50": 18.01012409850955,
+              "95": 18.01012409850955,
+              "99": 18.01012409850955,
+              "100": 18.01012409850955
+            },
+            "good": 0,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 274.8283836990595,
+              "95": 438.4683809475973,
+              "99": 450.4683809587732,
+              "100": 453.46838096156716
+            },
+            "request_max_itl_ms": {
+              "50": 1449.9236987903714,
+              "95": 1758.7518482469022,
+              "99": 1758.7518482469022,
+              "100": 1758.7518482469022
+            },
+            "good": 0,
+            "offered": 16,
+            "rejected": 0
+          }
+        },
+        "metrics": {},
+        "routes": {
+          "no_common_prefix": 320,
+          "small_batch": 35
+        },
+        "median_prefill_steps": 8,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_v1": {
+        "median": {
+          "elapsed_s": 3.652642233297229,
+          "output_tokens_per_s": 1156.4231398011866,
+          "goodput": 17.797611474968264,
+          "good": 65,
+          "offered": 80,
+          "accepted": 80,
+          "rejected": 0,
+          "peak_live_pages": 131
+        },
+        "ranges": {
+          "elapsed_s": [
+            3.620359720196575,
+            3.7151477090083063
+          ],
+          "output_tokens_per_s": [
+            1136.966907064786,
+            1166.7348900265217
+          ],
+          "goodput": [
+            17.495939621025354,
+            18.06911155939354
+          ],
+          "good": [
+            65,
+            66
+          ],
+          "offered": [
+            80,
+            80
+          ],
+          "accepted": [
+            80,
+            80
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            131,
+            131
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 56.04925798252225,
+              "95": 56.04925798252225,
+              "99": 56.04925798252225,
+              "100": 56.04925798252225
+            },
+            "request_max_itl_ms": {
+              "50": 72.00601138174534,
+              "95": 73.08962782844901,
+              "99": 73.55182848870754,
+              "100": 73.56159994378686
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 2187.9145053680986,
+              "95": 3221.7956100357696,
+              "99": 3307.224533497356,
+              "100": 3328.5817643627524
+            },
+            "request_max_itl_ms": {
+              "50": 48.664339585229754,
+              "95": 72.01145787257701,
+              "99": 72.11190017405897,
+              "100": 72.13701074942946
+            },
+            "good": 1,
+            "offered": 16,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 144,
+          "decode_age_guard": 464,
+          "decode_steps": 494,
+          "prefill_steps": 320,
+          "phase_decode_guard": 315,
+          "phase_wait_guard": 310,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 325,
+          "small_batch": 169
+        },
+        "median_prefill_steps": 64,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_large": {
+        "median": {
+          "elapsed_s": 1.8849876262247562,
+          "output_tokens_per_s": 2240.863516149337,
+          "goodput": 3.1830447672575812,
+          "good": 6,
+          "offered": 80,
+          "accepted": 80,
+          "rejected": 0,
+          "peak_live_pages": 182
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.8778581619262695,
+            1.8894860311411321
+          ],
+          "output_tokens_per_s": [
+            2235.52856723104,
+            2249.3711642561466
+          ],
+          "goodput": [
+            3.1754667148168187,
+            3.195129494682026
+          ],
+          "good": [
+            6,
+            6
+          ],
+          "offered": [
+            80,
+            80
+          ],
+          "accepted": [
+            80,
+            80
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            182,
+            182
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.94216363877058,
+              "95": 54.94216363877058,
+              "99": 54.94216363877058,
+              "100": 54.94216363877058
+            },
+            "request_max_itl_ms": {
+              "50": 79.96653532609344,
+              "95": 80.24201265070587,
+              "99": 80.24735702201724,
+              "100": 80.24735702201724
+            },
+            "good": 0,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 531.4416468609124,
+              "95": 938.6169717181474,
+              "99": 974.4584506843239,
+              "100": 983.418820425868
+            },
+            "request_max_itl_ms": {
+              "50": 62.48239008709788,
+              "95": 67.05138715915382,
+              "99": 77.53391764126718,
+              "100": 80.14123793691397
+            },
+            "good": 6,
+            "offered": 16,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 75,
+          "decode_age_guard": 161,
+          "decode_steps": 465,
+          "prefill_steps": 80,
+          "phase_decode_guard": 75,
+          "phase_wait_guard": 70,
+          "cost_fcfs_selected": 38,
+          "cost_group_selected": 266
+        },
+        "routes": {
+          "no_common_prefix": 195,
+          "shared": 269,
+          "small_batch": 1
+        },
+        "median_prefill_steps": 16,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "model_only": {
+        "median": {
+          "elapsed_s": 2.7932074051350355,
+          "output_tokens_per_s": 1512.2400120501593,
+          "goodput": 18.8425103183242,
+          "good": 52,
+          "offered": 80,
+          "accepted": 80,
+          "rejected": 0,
+          "peak_live_pages": 148
+        },
+        "ranges": {
+          "elapsed_s": [
+            2.7597172097302973,
+            2.8028274248354137
+          ],
+          "output_tokens_per_s": [
+            1507.0496180292084,
+            1530.5916073961812
+          ],
+          "goodput": [
+            17.23513965137569,
+            21.480681989348852
+          ],
+          "good": [
+            48,
+            60
+          ],
+          "offered": [
+            80,
+            80
+          ],
+          "accepted": [
+            80,
+            80
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            148,
+            148
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 56.56898906454444,
+              "95": 56.56898906454444,
+              "99": 56.56898906454444,
+              "100": 56.56898906454444
+            },
+            "request_max_itl_ms": {
+              "50": 74.46708693169057,
+              "95": 75.57417172938585,
+              "99": 78.86644892860204,
+              "100": 78.9142339490354
+            },
+            "good": 50,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 1657.777899876237,
+              "95": 2438.586318399757,
+              "99": 2456.67671514675,
+              "100": 2461.1993143334985
+            },
+            "request_max_itl_ms": {
+              "50": 56.27082707360387,
+              "95": 63.49037529435009,
+              "99": 71.71875226777047,
+              "100": 74.11460019648075
+            },
+            "good": 2,
+            "offered": 16,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 160,
+          "prefill_no_slack": 510,
+          "prefill_forced_progress": 510,
+          "decode_age_guard": 355,
+          "decode_steps": 385,
+          "prefill_model_steps": 195,
+          "prefill_steps": 195,
+          "prefill_prediction_abs_error_us": 287535,
+          "prefill_prediction_count": 195,
+          "phase_decode_guard": 190,
+          "phase_wait_guard": 185,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 325,
+          "small_batch": 60
+        },
+        "median_prefill_steps": 39,
+        "engine_prefill_prediction_mae_ms": 1.4745384615384616
+      },
+      "joint": {
+        "median": {
+          "elapsed_s": 2.5107432398945093,
+          "output_tokens_per_s": 1682.370356666767,
+          "goodput": 27.08361369634,
+          "good": 68,
+          "offered": 80,
+          "accepted": 80,
+          "rejected": 0,
+          "peak_live_pages": 166
+        },
+        "ranges": {
+          "elapsed_s": [
+            2.4765792889520526,
+            2.52117052488029
+          ],
+          "output_tokens_per_s": [
+            1675.4122572492647,
+            1705.5783430165711
+          ],
+          "goodput": [
+            26.971598838293087,
+            27.457227112956165
+          ],
+          "good": [
+            68,
+            68
+          ],
+          "offered": [
+            80,
+            80
+          ],
+          "accepted": [
+            80,
+            80
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            166,
+            166
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.513830691576004,
+              "95": 54.513830691576004,
+              "99": 55.97016918938606,
+              "100": 58.44988068565726
+            },
+            "request_max_itl_ms": {
+              "50": 61.91146932542324,
+              "95": 61.91146932542324,
+              "99": 61.91146932542324,
+              "100": 61.91146932542324
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 905.219635926187,
+              "95": 1589.3540506949648,
+              "99": 1648.7443974940106,
+              "100": 1663.591984193772
+            },
+            "request_max_itl_ms": {
+              "50": 61.2846789881587,
+              "95": 70.83761505782604,
+              "99": 70.83761505782604,
+              "100": 70.83761505782604
+            },
+            "good": 4,
+            "offered": 16,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 159,
+          "prefill_no_slack": 320,
+          "decode_tail_refresh_steps": 170,
+          "decode_tail_refresh_requests": 1120,
+          "decode_steps": 605,
+          "prefill_model_steps": 160,
+          "prefill_steps": 160,
+          "prefill_prediction_abs_error_us": 121774,
+          "prefill_prediction_count": 160,
+          "phase_decode_guard": 155,
+          "decode_age_guard": 163,
+          "phase_wait_guard": 155,
+          "cost_fcfs_selected": 48,
+          "cost_group_selected": 224
+        },
+        "routes": {
+          "no_common_prefix": 205,
+          "small_batch": 165,
+          "shared": 235
+        },
+        "median_prefill_steps": 32,
+        "engine_prefill_prediction_mae_ms": 0.7610875
+      }
+    },
+    "overload": {
+      "baseline": {
+        "median": {
+          "elapsed_s": 2.6163854277692735,
+          "output_tokens_per_s": 1657.2481844530328,
+          "goodput": 0.0,
+          "good": 0,
+          "offered": 160,
+          "accepted": 94,
+          "rejected": 66,
+          "peak_live_pages": 578
+        },
+        "ranges": {
+          "elapsed_s": [
+            2.608205107972026,
+            2.6214965009130538
+          ],
+          "output_tokens_per_s": [
+            1654.0170847032578,
+            1662.4459429003255
+          ],
+          "goodput": [
+            0.0,
+            0.0
+          ],
+          "good": [
+            0,
+            0
+          ],
+          "offered": [
+            160,
+            160
+          ],
+          "accepted": [
+            94,
+            94
+          ],
+          "rejected": [
+            66,
+            66
+          ],
+          "peak_live_pages": [
+            578,
+            578
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 1387.1449218131602,
+              "95": 1387.1449218131602,
+              "99": 1387.1449218131602,
+              "100": 1387.1449218131602
+            },
+            "request_max_itl_ms": {
+              "50": 18.02768697962165,
+              "95": 18.02768697962165,
+              "99": 18.02768697962165,
+              "100": 18.02768697962165
+            },
+            "good": 0,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 668.8759711105376,
+              "95": 1181.3786001643164,
+              "99": 1217.936494750902,
+              "100": 1219.386494718492
+            },
+            "request_max_itl_ms": {
+              "50": 1768.3722637593746,
+              "95": 2350.867600459605,
+              "99": 2390.729662962258,
+              "100": 2390.729662962258
+            },
+            "good": 0,
+            "offered": 96,
+            "rejected": 66
+          }
+        },
+        "metrics": {
+          "rejected_requests": 330
+        },
+        "routes": {
+          "no_common_prefix": 320,
+          "small_batch": 35
+        },
+        "median_prefill_steps": 15,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_v1": {
+        "median": {
+          "elapsed_s": 5.922682647127658,
+          "output_tokens_per_s": 732.1006811166632,
+          "goodput": 10.781806002600918,
+          "good": 63,
+          "offered": 160,
+          "accepted": 94,
+          "rejected": 66,
+          "peak_live_pages": 131
+        },
+        "ranges": {
+          "elapsed_s": [
+            5.75906551303342,
+            5.9923113700933754
+          ],
+          "output_tokens_per_s": [
+            723.5939076264046,
+            752.8999262444817
+          ],
+          "goodput": [
+            10.411097060457108,
+            10.974756520429683
+          ],
+          "good": [
+            62,
+            65
+          ],
+          "offered": [
+            160,
+            160
+          ],
+          "accepted": [
+            94,
+            94
+          ],
+          "rejected": [
+            66,
+            66
+          ],
+          "peak_live_pages": [
+            131,
+            131
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 55.678816977888346,
+              "95": 55.678816977888346,
+              "99": 55.678816977888346,
+              "100": 55.678816977888346
+            },
+            "request_max_itl_ms": {
+              "50": 71.95269712246954,
+              "95": 72.98618799541146,
+              "99": 78.15555888228117,
+              "100": 80.41648613288999
+            },
+            "good": 62,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 3481.8808543495834,
+              "95": 5528.15509964712,
+              "99": 5708.6185059743,
+              "100": 5753.252225928009
+            },
+            "request_max_itl_ms": {
+              "50": 41.041594464331865,
+              "95": 71.91298685502261,
+              "99": 72.9136339854449,
+              "100": 73.30774934962392
+            },
+            "good": 1,
+            "offered": 96,
+            "rejected": 66
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 145,
+          "decode_age_guard": 745,
+          "decode_steps": 775,
+          "prefill_steps": 600,
+          "phase_decode_guard": 595,
+          "rejected_requests": 330,
+          "phase_wait_guard": 590,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 325,
+          "small_batch": 450
+        },
+        "median_prefill_steps": 120,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_large": {
+        "median": {
+          "elapsed_s": 2.6800173092633486,
+          "output_tokens_per_s": 1623.8701089569554,
+          "goodput": 1.8656595920920902,
+          "good": 5,
+          "offered": 160,
+          "accepted": 96,
+          "rejected": 64,
+          "peak_live_pages": 182
+        },
+        "ranges": {
+          "elapsed_s": [
+            2.6771029201336205,
+            2.684980462770909
+          ],
+          "output_tokens_per_s": [
+            1620.8684049450108,
+            1625.6379115162226
+          ],
+          "goodput": [
+            1.8622109431813083,
+            1.8676906152530133
+          ],
+          "good": [
+            5,
+            5
+          ],
+          "offered": [
+            160,
+            160
+          ],
+          "accepted": [
+            96,
+            96
+          ],
+          "rejected": [
+            64,
+            64
+          ],
+          "peak_live_pages": [
+            182,
+            182
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 57.36686289310455,
+              "95": 57.36686289310455,
+              "99": 57.36686289310455,
+              "100": 57.36686289310455
+            },
+            "request_max_itl_ms": {
+              "50": 80.21593373268843,
+              "95": 81.60513499751687,
+              "99": 81.86706807464361,
+              "100": 83.01517879590392
+            },
+            "good": 0,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 1253.5433070734143,
+              "95": 2163.961945171468,
+              "99": 2242.6279540453106,
+              "100": 2265.9218553453684
+            },
+            "request_max_itl_ms": {
+              "50": 62.5365455634892,
+              "95": 63.55814076960087,
+              "99": 77.41447758395228,
+              "100": 83.94505688920617
+            },
+            "good": 5,
+            "offered": 96,
+            "rejected": 64
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 155,
+          "decode_age_guard": 320,
+          "decode_steps": 350,
+          "prefill_steps": 160,
+          "phase_decode_guard": 155,
+          "rejected_requests": 320,
+          "phase_wait_guard": 150,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 335,
+          "small_batch": 15
+        },
+        "median_prefill_steps": 32,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "model_only": {
+        "median": {
+          "elapsed_s": 3.5721728238277137,
+          "output_tokens_per_s": 1216.0665830678497,
+          "goodput": 14.797618972970033,
+          "good": 53,
+          "offered": 160,
+          "accepted": 95,
+          "rejected": 65,
+          "peak_live_pages": 153
+        },
+        "ranges": {
+          "elapsed_s": [
+            3.552132898941636,
+            3.5939099569804966
+          ],
+          "output_tokens_per_s": [
+            1208.711417925926,
+            1222.9272168544994
+          ],
+          "goodput": [
+            10.016945452424801,
+            16.252662402429166
+          ],
+          "good": [
+            36,
+            58
+          ],
+          "offered": [
+            160,
+            160
+          ],
+          "accepted": [
+            95,
+            95
+          ],
+          "rejected": [
+            65,
+            65
+          ],
+          "peak_live_pages": [
+            153,
+            153
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 55.13018602505326,
+              "95": 55.13018602505326,
+              "99": 55.13018602505326,
+              "100": 55.13018602505326
+            },
+            "request_max_itl_ms": {
+              "50": 74.73362027667463,
+              "95": 75.46352720819414,
+              "99": 75.61300486791879,
+              "100": 75.66145993769169
+            },
+            "good": 51,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 2688.0457447841763,
+              "95": 3271.60185854882,
+              "99": 3327.780180145055,
+              "100": 3341.8339691124856
+            },
+            "request_max_itl_ms": {
+              "50": 52.08407389000058,
+              "95": 57.15073482133448,
+              "99": 68.6326951254159,
+              "100": 73.57517024502158
+            },
+            "good": 2,
+            "offered": 96,
+            "rejected": 65
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 160,
+          "prefill_no_slack": 585,
+          "prefill_forced_progress": 585,
+          "decode_age_guard": 430,
+          "decode_steps": 460,
+          "prefill_model_steps": 270,
+          "prefill_steps": 270,
+          "prefill_prediction_abs_error_us": 383447,
+          "prefill_prediction_count": 270,
+          "phase_decode_guard": 265,
+          "rejected_requests": 325,
+          "phase_wait_guard": 260,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 325,
+          "small_batch": 135
+        },
+        "median_prefill_steps": 54,
+        "engine_prefill_prediction_mae_ms": 1.420174074074074
+      },
+      "joint": {
+        "median": {
+          "elapsed_s": 3.7470264602452517,
+          "output_tokens_per_s": 1157.1842488980444,
+          "goodput": 17.95012094479565,
+          "good": 67,
+          "offered": 160,
+          "accepted": 94,
+          "rejected": 66,
+          "peak_live_pages": 166
+        },
+        "ranges": {
+          "elapsed_s": [
+            3.7163872150704265,
+            3.7973514581099153
+          ],
+          "output_tokens_per_s": [
+            1141.8484825100152,
+            1166.7244958805595
+          ],
+          "goodput": [
+            0.7913141000493858,
+            18.147723460578188
+          ],
+          "good": [
+            3,
+            68
+          ],
+          "offered": [
+            160,
+            160
+          ],
+          "accepted": [
+            94,
+            94
+          ],
+          "rejected": [
+            66,
+            66
+          ],
+          "peak_live_pages": [
+            166,
+            166
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 56.871314998716116,
+              "95": 56.871314998716116,
+              "99": 58.37144442833959,
+              "100": 60.92571886256337
+            },
+            "request_max_itl_ms": {
+              "50": 64.54927707090974,
+              "95": 64.54927707090974,
+              "99": 64.54927707090974,
+              "100": 64.54927707090974
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          },
+          "cold": {
+            "ttft_ms": {
+              "50": 1824.841811787337,
+              "95": 3342.843650327995,
+              "99": 3478.181671872735,
+              "100": 3512.0787331834435
+            },
+            "request_max_itl_ms": {
+              "50": 61.196343973279,
+              "95": 72.44120491668582,
+              "99": 72.44120491668582,
+              "100": 72.44120491668582
+            },
+            "good": 3,
+            "offered": 96,
+            "rejected": 66
+          }
+        },
+        "metrics": {
+          "phase_decode_due": 300,
+          "prefill_no_slack": 600,
+          "decode_tail_refresh_steps": 310,
+          "decode_tail_refresh_requests": 1610,
+          "decode_steps": 640,
+          "prefill_model_steps": 300,
+          "prefill_steps": 300,
+          "prefill_prediction_abs_error_us": 239100,
+          "prefill_prediction_count": 300,
+          "phase_decode_guard": 295,
+          "rejected_requests": 330,
+          "decode_age_guard": 300,
+          "phase_wait_guard": 295,
+          "cost_fcfs_selected": 30
+        },
+        "routes": {
+          "no_common_prefix": 320,
+          "small_batch": 320
+        },
+        "median_prefill_steps": 60,
+        "engine_prefill_prediction_mae_ms": 0.7969999999999999
+      }
+    },
+    "cold_only": {
+      "baseline": {
+        "median": {
+          "elapsed_s": 0.5931429751217365,
+          "output_tokens_per_s": 1726.3965737600356,
+          "goodput": 8.429670770312674,
+          "good": 5,
+          "offered": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "peak_live_pages": 160
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5663179461844265,
+            0.5986677501350641
+          ],
+          "output_tokens_per_s": [
+            1710.4646104103279,
+            1808.171552569032
+          ],
+          "goodput": [
+            6.681502384415343,
+            14.126340254445562
+          ],
+          "good": [
+            4,
+            8
+          ],
+          "offered": [
+            32,
+            32
+          ],
+          "accepted": [
+            32,
+            32
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            160,
+            160
+          ]
+        },
+        "cohorts": {
+          "cold": {
+            "ttft_ms": {
+              "50": 56.86909309588373,
+              "95": 74.81455872766674,
+              "99": 76.13664367701858,
+              "100": 76.43271563574672
+            },
+            "request_max_itl_ms": {
+              "50": 176.51719646528363,
+              "95": 310.6896700337529,
+              "99": 335.60127753298735,
+              "100": 346.79344901815057
+            },
+            "good": 5,
+            "offered": 32,
+            "rejected": 0
+          }
+        },
+        "metrics": {},
+        "routes": {
+          "no_common_prefix": 155
+        },
+        "median_prefill_steps": 10,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_v1": {
+        "median": {
+          "elapsed_s": 1.4913664883933961,
+          "output_tokens_per_s": 686.6186198827118,
+          "goodput": 10.728415935667371,
+          "good": 16,
+          "offered": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "peak_live_pages": 155
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.4713893351145089,
+            1.5084242401644588
+          ],
+          "output_tokens_per_s": [
+            678.8541132754248,
+            695.940887678317
+          ],
+          "goodput": [
+            9.94415204993298,
+            10.874076369973704
+          ],
+          "good": [
+            15,
+            16
+          ],
+          "offered": [
+            32,
+            32
+          ],
+          "accepted": [
+            32,
+            32
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            155,
+            155
+          ]
+        },
+        "cohorts": {
+          "cold": {
+            "ttft_ms": {
+              "50": 514.7245160769671,
+              "95": 971.8053036835045,
+              "99": 1013.7572235334665,
+              "100": 1024.2395303212106
+            },
+            "request_max_itl_ms": {
+              "50": 44.022141955792904,
+              "95": 44.038909021764994,
+              "99": 44.038909021764994,
+              "100": 44.038909021764994
+            },
+            "good": 16,
+            "offered": 32,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "prefill_steps": 160,
+          "phase_decode_guard": 155,
+          "cost_fcfs_selected": 155,
+          "decode_steps": 310,
+          "decode_age_guard": 155,
+          "phase_wait_guard": 140
+        },
+        "routes": {
+          "small_batch": 310
+        },
+        "median_prefill_steps": 32,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_large": {
+        "median": {
+          "elapsed_s": 0.5913073420524597,
+          "output_tokens_per_s": 1731.7559366769246,
+          "goodput": 54.117373021153895,
+          "good": 32,
+          "offered": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "peak_live_pages": 160
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5888339807279408,
+            0.5991265010088682
+          ],
+          "output_tokens_per_s": [
+            1709.1549084804092,
+            1739.0300721675217
+          ],
+          "goodput": [
+            53.41109089001279,
+            54.34468975523505
+          ],
+          "good": [
+            32,
+            32
+          ],
+          "offered": [
+            32,
+            32
+          ],
+          "accepted": [
+            32,
+            32
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            160,
+            160
+          ]
+        },
+        "cohorts": {
+          "cold": {
+            "ttft_ms": {
+              "50": 65.40980259887874,
+              "95": 88.50778222549707,
+              "99": 94.40027768258007,
+              "100": 96.5410047210753
+            },
+            "request_max_itl_ms": {
+              "50": 45.610963832587004,
+              "95": 45.610963832587004,
+              "99": 45.610963832587004,
+              "100": 45.610963832587004
+            },
+            "good": 32,
+            "offered": 32,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "prefill_steps": 45,
+          "phase_decode_guard": 40,
+          "cost_fcfs_selected": 155,
+          "decode_steps": 195,
+          "decode_age_guard": 40
+        },
+        "routes": {
+          "small_batch": 80,
+          "no_common_prefix": 115
+        },
+        "median_prefill_steps": 9,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "model_only": {
+        "median": {
+          "elapsed_s": 0.5686834896914661,
+          "output_tokens_per_s": 1800.6501306298899,
+          "goodput": 56.27031658218406,
+          "good": 32,
+          "offered": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "peak_live_pages": 160
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5660229991190135,
+            0.5833578729070723
+          ],
+          "output_tokens_per_s": [
+            1755.3547274455334,
+            1809.113766744116
+          ],
+          "goodput": [
+            54.85483523267292,
+            56.534805210753625
+          ],
+          "good": [
+            32,
+            32
+          ],
+          "offered": [
+            32,
+            32
+          ],
+          "accepted": [
+            32,
+            32
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            160,
+            160
+          ]
+        },
+        "cohorts": {
+          "cold": {
+            "ttft_ms": {
+              "50": 63.023467315360904,
+              "95": 85.03856733441353,
+              "99": 85.76862127520144,
+              "100": 85.92695416882634
+            },
+            "request_max_itl_ms": {
+              "50": 50.707329995930195,
+              "95": 50.707329995930195,
+              "99": 50.707329995930195,
+              "100": 50.707329995930195
+            },
+            "good": 32,
+            "offered": 32,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "prefill_model_steps": 40,
+          "prefill_steps": 40,
+          "prefill_prediction_abs_error_us": 53256,
+          "prefill_prediction_count": 40,
+          "phase_decode_guard": 35,
+          "cost_fcfs_selected": 155,
+          "decode_steps": 190,
+          "prefill_no_slack": 30,
+          "prefill_forced_progress": 30,
+          "decode_age_guard": 35
+        },
+        "routes": {
+          "small_batch": 70,
+          "no_common_prefix": 120
+        },
+        "median_prefill_steps": 8,
+        "engine_prefill_prediction_mae_ms": 1.3314
+      },
+      "joint": {
+        "median": {
+          "elapsed_s": 0.572453040163964,
+          "output_tokens_per_s": 1788.7930155925144,
+          "goodput": 55.899781737266075,
+          "good": 32,
+          "offered": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "peak_live_pages": 160
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5645622019656003,
+            0.5953829190693796
+          ],
+          "output_tokens_per_s": [
+            1719.9015410125899,
+            1813.7948244406098
+          ],
+          "goodput": [
+            53.74692315664343,
+            56.681088263769055
+          ],
+          "good": [
+            32,
+            32
+          ],
+          "offered": [
+            32,
+            32
+          ],
+          "accepted": [
+            32,
+            32
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            160,
+            160
+          ]
+        },
+        "cohorts": {
+          "cold": {
+            "ttft_ms": {
+              "50": 61.90522760152817,
+              "95": 85.473578190431,
+              "99": 87.27221619337797,
+              "100": 87.33193296939135
+            },
+            "request_max_itl_ms": {
+              "50": 50.84877600893378,
+              "95": 56.059409864246845,
+              "99": 56.059409864246845,
+              "100": 56.059409864246845
+            },
+            "good": 32,
+            "offered": 32,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "prefill_model_steps": 41,
+          "prefill_steps": 41,
+          "prefill_prediction_abs_error_us": 61172,
+          "prefill_prediction_count": 41,
+          "phase_decode_guard": 36,
+          "cost_fcfs_selected": 155,
+          "decode_steps": 191,
+          "prefill_no_slack": 31,
+          "decode_tail_refresh_steps": 31,
+          "decode_tail_refresh_requests": 370,
+          "decode_age_guard": 5
+        },
+        "routes": {
+          "small_batch": 72,
+          "no_common_prefix": 119
+        },
+        "median_prefill_steps": 8,
+        "engine_prefill_prediction_mae_ms": 1.492
+      }
+    },
+    "two_hot_groups": {
+      "baseline": {
+        "median": {
+          "elapsed_s": 1.1576797682791948,
+          "output_tokens_per_s": 3538.11141235404,
+          "goodput": 55.28299081803188,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 98
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.1515279640443623,
+            1.1639043889008462
+          ],
+          "output_tokens_per_s": [
+            3519.189410281484,
+            3557.013053868141
+          ],
+          "goodput": [
+            54.98733453564819,
+            55.5783289666897
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            98,
+            98
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.51574409380555,
+              "95": 54.51574409380555,
+              "99": 54.51574409380555,
+              "100": 54.51574409380555
+            },
+            "request_max_itl_ms": {
+              "50": 18.00691895186901,
+              "95": 18.00691895186901,
+              "99": 18.00691895186901,
+              "100": 18.00691895186901
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {},
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_v1": {
+        "median": {
+          "elapsed_s": 1.0895299050025642,
+          "output_tokens_per_s": 3759.4195268925273,
+          "goodput": 58.74093010769574,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 98
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.0771164260804653,
+            1.100144607014954
+          ],
+          "output_tokens_per_s": [
+            3723.1469153075836,
+            3802.7458321334807
+          ],
+          "goodput": [
+            58.174170551680994,
+            59.417903627085636
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            98,
+            98
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.68846298754215,
+              "95": 54.68846298754215,
+              "99": 54.68846298754215,
+              "100": 54.68846298754215
+            },
+            "request_max_itl_ms": {
+              "50": 17.033821903169155,
+              "95": 17.320568673312664,
+              "99": 17.320568673312664,
+              "100": 17.320568673312664
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "decode_age_guard": 5,
+          "decode_steps": 635,
+          "cost_group_selected": 625,
+          "cost_fcfs_selected": 5
+        },
+        "routes": {
+          "no_common_prefix": 5,
+          "shared": 630
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_large": {
+        "median": {
+          "elapsed_s": 1.0903811980970204,
+          "output_tokens_per_s": 3756.4844360380694,
+          "goodput": 58.695069313094834,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 98
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.0796962422318757,
+            1.1038026879541576
+          ],
+          "output_tokens_per_s": [
+            3710.80814053074,
+            3793.659586638019
+          ],
+          "goodput": [
+            57.98137719579281,
+            59.275931041219046
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            98,
+            98
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 55.47810485586524,
+              "95": 55.47810485586524,
+              "99": 55.47810485586524,
+              "100": 55.47810485586524
+            },
+            "request_max_itl_ms": {
+              "50": 17.05966517329216,
+              "95": 17.33659114688635,
+              "99": 17.33659114688635,
+              "100": 17.33659114688635
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "decode_age_guard": 4,
+          "decode_steps": 635,
+          "cost_group_selected": 625,
+          "cost_fcfs_selected": 6
+        },
+        "routes": {
+          "no_common_prefix": 5,
+          "shared": 630
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "model_only": {
+        "median": {
+          "elapsed_s": 1.0881659099832177,
+          "output_tokens_per_s": 3764.1318868950516,
+          "goodput": 58.81456073273518,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 98
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.0835824590176344,
+            1.096722957212478
+          ],
+          "output_tokens_per_s": [
+            3734.7627065368756,
+            3780.053807546308
+          ],
+          "goodput": [
+            58.35566728963868,
+            59.06334074291106
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            98,
+            98
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.66391006484628,
+              "95": 54.66391006484628,
+              "99": 54.66391006484628,
+              "100": 54.66391006484628
+            },
+            "request_max_itl_ms": {
+              "50": 17.18935277312994,
+              "95": 17.334244213998318,
+              "99": 17.334244213998318,
+              "100": 17.334244213998318
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "decode_age_guard": 5,
+          "decode_steps": 635,
+          "cost_group_selected": 625,
+          "cost_fcfs_selected": 5
+        },
+        "routes": {
+          "no_common_prefix": 5,
+          "shared": 630
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "joint": {
+        "median": {
+          "elapsed_s": 1.0863927849568427,
+          "output_tokens_per_s": 3770.2754074924337,
+          "goodput": 58.91055324206928,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 98
+        },
+        "ranges": {
+          "elapsed_s": [
+            1.0793587793596089,
+            1.0949375540949404
+          ],
+          "output_tokens_per_s": [
+            3740.852603585868,
+            3794.8456790523214
+          ],
+          "goodput": [
+            58.45082193102919,
+            59.29446373519252
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            98,
+            98
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 54.973562713712454,
+              "95": 54.973562713712454,
+              "99": 54.973562713712454,
+              "100": 54.973562713712454
+            },
+            "request_max_itl_ms": {
+              "50": 17.14171632193029,
+              "95": 17.31270970776677,
+              "99": 17.31270970776677,
+              "100": 17.31270970776677
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "decode_age_guard": 5,
+          "decode_steps": 635,
+          "cost_group_selected": 625,
+          "cost_fcfs_selected": 5
+        },
+        "routes": {
+          "no_common_prefix": 5,
+          "shared": 630
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      }
+    },
+    "short_hot_groups": {
+      "baseline": {
+        "median": {
+          "elapsed_s": 0.504762614145875,
+          "output_tokens_per_s": 8114.705576860071,
+          "goodput": 126.79227463843861,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 74
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5018067271448672,
+            0.5066907717846334
+          ],
+          "output_tokens_per_s": [
+            8083.825931096661,
+            8162.505160712046
+          ],
+          "goodput": [
+            126.30978017338533,
+            127.53914313612572
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            74,
+            74
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 25.83756810054183,
+              "95": 25.83756810054183,
+              "99": 25.83756810054183,
+              "100": 25.83756810054183
+            },
+            "request_max_itl_ms": {
+              "50": 7.96104222536087,
+              "95": 7.96104222536087,
+              "99": 7.96104222536087,
+              "100": 7.96104222536087
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {},
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_v1": {
+        "median": {
+          "elapsed_s": 0.5323405293747783,
+          "output_tokens_per_s": 7694.323039447434,
+          "goodput": 120.22379749136616,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 74
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5307156168855727,
+            0.5332626779563725
+          ],
+          "output_tokens_per_s": [
+            7681.017572235017,
+            7717.881045288962
+          ],
+          "goodput": [
+            120.01589956617214,
+            120.59189133264003
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            74,
+            74
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 26.19989588856697,
+              "95": 26.19989588856697,
+              "99": 26.19989588856697,
+              "100": 26.19989588856697
+            },
+            "request_max_itl_ms": {
+              "50": 8.360472973436117,
+              "95": 8.360472973436117,
+              "99": 8.360472973436117,
+              "100": 8.360472973436117
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "cost_fcfs_selected": 320,
+          "decode_steps": 320
+        },
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "fixed_large": {
+        "median": {
+          "elapsed_s": 0.5315672266297042,
+          "output_tokens_per_s": 7705.51643292584,
+          "goodput": 120.39869426446624,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 74
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.528977373149246,
+            0.5342936967499554
+          ],
+          "output_tokens_per_s": [
+            7666.195624083678,
+            7743.242353854618
+          ],
+          "goodput": [
+            119.78430662630747,
+            120.98816177897841
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            74,
+            74
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 26.23960468918085,
+              "95": 26.23960468918085,
+              "99": 26.23960468918085,
+              "100": 26.23960468918085
+            },
+            "request_max_itl_ms": {
+              "50": 8.378807920962572,
+              "95": 8.378807920962572,
+              "99": 8.378807920962572,
+              "100": 8.378807920962572
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "cost_fcfs_selected": 320,
+          "decode_steps": 320
+        },
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "model_only": {
+        "median": {
+          "elapsed_s": 0.5323846503160894,
+          "output_tokens_per_s": 7693.685378735296,
+          "goodput": 120.213834042739,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 74
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.5246059577912092,
+            0.5333499680273235
+          ],
+          "output_tokens_per_s": [
+            7679.760467877561,
+            7807.764931312864
+          ],
+          "goodput": [
+            119.99625731058688,
+            121.9963270517635
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            74,
+            74
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 26.43481083214283,
+              "95": 26.43481083214283,
+              "99": 26.43481083214283,
+              "100": 26.43481083214283
+            },
+            "request_max_itl_ms": {
+              "50": 8.369473274797201,
+              "95": 8.369473274797201,
+              "99": 8.369473274797201,
+              "100": 8.369473274797201
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "cost_fcfs_selected": 320,
+          "decode_steps": 320
+        },
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      },
+      "joint": {
+        "median": {
+          "elapsed_s": 0.5317122228443623,
+          "output_tokens_per_s": 7703.415163354148,
+          "goodput": 120.36586192740856,
+          "good": 64,
+          "offered": 64,
+          "accepted": 64,
+          "rejected": 0,
+          "peak_live_pages": 74
+        },
+        "ranges": {
+          "elapsed_s": [
+            0.528857012744993,
+            0.5325844483450055
+          ],
+          "output_tokens_per_s": [
+            7690.799107499722,
+            7745.004606708374
+          ],
+          "goodput": [
+            120.16873605468315,
+            121.01569697981834
+          ],
+          "good": [
+            64,
+            64
+          ],
+          "offered": [
+            64,
+            64
+          ],
+          "accepted": [
+            64,
+            64
+          ],
+          "rejected": [
+            0,
+            0
+          ],
+          "peak_live_pages": [
+            74,
+            74
+          ]
+        },
+        "cohorts": {
+          "hot": {
+            "ttft_ms": {
+              "50": 26.653227861970663,
+              "95": 26.653227861970663,
+              "99": 26.653227861970663,
+              "100": 26.653227861970663
+            },
+            "request_max_itl_ms": {
+              "50": 8.364677894860506,
+              "95": 8.364677894860506,
+              "99": 8.364677894860506,
+              "100": 8.364677894860506
+            },
+            "good": 64,
+            "offered": 64,
+            "rejected": 0
+          }
+        },
+        "metrics": {
+          "cost_fcfs_selected": 320,
+          "decode_steps": 320
+        },
+        "routes": {
+          "no_common_prefix": 320
+        },
+        "median_prefill_steps": 0,
+        "engine_prefill_prediction_mae_ms": 0.0
+      }
+    }
+  },
+  "changes_vs_fixed_v1": {
+    "mixed": {
+      "throughput_pct": 45.48051649640994,
+      "goodput_pct": 52.17555307594046,
+      "cold_ttft_p95_reduction_pct": 50.66868780427325
+    },
+    "overload": {
+      "throughput_pct": 58.06353944829106,
+      "goodput_pct": 66.48528957454349,
+      "cold_ttft_p95_reduction_pct": 39.530574123338546
+    },
+    "cold_only": {
+      "throughput_pct": 160.5220662233244,
+      "goodput_pct": 421.0441324466488,
+      "cold_ttft_p95_reduction_pct": 91.20466024763867
+    },
+    "two_hot_groups": {
+      "throughput_pct": 0.2887648085628802,
+      "goodput_pct": 0.2887648085628802
+    },
+    "short_hot_groups": {
+      "throughput_pct": 0.11816665170021334,
+      "goodput_pct": 0.11816665170021334
+    }
+  },
+  "quality": {
+    "request_token_comparisons": 2680,
+    "max_relative_l2": 0.003456615377217531,
+    "max_kl": 3.087853838223964e-05
+  },
+  "holdout_mape": 0.02766911962182969,
+  "fresh_audit_mape": 0.03212329037057288,
+  "fresh_audit_max_error": 0.08477748197448487
+}

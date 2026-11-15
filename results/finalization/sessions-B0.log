@@ -1,0 +1,8 @@
+WARMUP B0 shared -1 950.51 64
+TRIAL B0 shared 0 3669.79 96
+TRIAL B0 shared 1 3712.9 96
+TRIAL B0 shared 2 3723.84 96
+WARMUP B0 no_shared -1 2098.86 75
+TRIAL B0 no_shared 0 2114.68 75
+TRIAL B0 no_shared 1 2001.3 75
+TRIAL B0 no_shared 2 1930.13 75

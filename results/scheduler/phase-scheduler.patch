@@ -1,0 +1,957 @@
+--- /dev/null
++++ b/docs/SCHEDULER.md
+@@ -0,0 +1,70 @@
++# Fair and shared-prefix-aware scheduling
++
++This phase extends the COW/shared-attention engine with independent policies. The previous checkout is preserved at `/root/autodl-tmp/shared-context/src/nano-vllm-pre-scheduler`. `baseline` remains the default; enabling scheduling does not silently change the attention backend.
++
++## Policies
++
++- `baseline`: upstream-style prefill priority and original decode queue behavior.
++- `fcfs`: bounded prefill chunks, decode service-age checks, a maximum consecutive decode count while prefill work is waiting, oldest-arrival prefill service, and oldest-last-service decode rotation.
++- `lpm`: the same fairness mechanisms, with cached-prefix priority among up to 16 non-overdue waiting candidates and shared physical-prefix group selection for decode. Group score is common complete-prefix length times group size. This is the project's bounded prefix-priority baseline, not a reproduction of another engine's entire LPM implementation.
++- `cost`: the same stage fairness and waiting-prefix heuristic, with measured decode cost comparison. It compares fair mixed-batch tokens/ms to candidate-group tokens/ms, requires at least 5% estimated improvement, and refuses a group when its predicted duration would push deferred work across the configured decode service interval.
++
++Group discovery examines at most `schedule_candidate_limit` ready requests and retains at most `schedule_max_groups` distinct keys. Keys use the first `shared_min_prefix` worth of complete physical pages, whose ownership is protected by the existing synchronous cache manager. Each group is verified again by the existing attention dispatcher. This is a bounded, single-level prefix grouping implementation; it does not search every nested prefix boundary.
++
++One group executes per engine step. The selected sequence objects are passed to the runner in the chosen order, sampled in that order, then postprocessed against those same objects. Deferred requests remain runnable and completed requests retain their original IDs. There is no new multi-group fused kernel or row-reordering inside a captured graph. The existing ordinary/shared graph banks are reused for each selected batch.
++
++## Fairness and admission
++
++When prefill and decode both exist:
++
++1. A prefill step is followed by a decode opportunity.
++2. Decode requests exceeding the service interval get supplemental decode opportunities, including when the runnable queue is larger than one batch.
++3. After the configured maximum consecutive decode steps, waiting prefill gets an opportunity.
++4. Oldest waiting arrivals override prefix preference after the waiting threshold.
++
++These are service-opportunity guards, not hard end-to-end deadlines. A CUDA kernel cannot be preempted mid-step; waiting through a complete prompt can span multiple chunks. Offered load above processing capacity still produces long queues and missed SLOs. A bounded active-request registry provides explicit backpressure through `RequestQueueFull`, including atomic bulk-fork rejection before KV references are acquired. Paused requests count toward the limit; saved snapshots do not count as runnable requests but retain KV ownership.
++
++## Configuration
++
++```python
++llm = LLM(
++    model_path,
++    shared_attention_backend="auto",
++    schedule_policy="cost",  # baseline / fcfs / lpm / cost
++    schedule_cost_profile="results/scheduler/cost-profile.json",
++    schedule_prefill_chunk=1024,
++    schedule_decode_interval_ms=25,
++    schedule_wait_ms=100,
++    schedule_max_decode_steps=4,
++    schedule_queue_limit=96,
++)
++```
++
++The queue limit defaults to 0 (unlimited) for compatibility; a serving deployment should set a finite limit. Candidate limit defaults to 512; at most four groups are considered by default. Session COW APIs retain their single-GPU/single-thread scope.
++
++The decode table records model, GPU, execution mode, batch size, context length, common physical-prefix availability, selected attention route and complete engine-step duration. It is calibrated on this RTX 4090/FP16 model and should be regenerated on another platform. Lookup requires the same route/common-prefix category and a nearby batch/context shape (log2 distance at most 0.6). Unknown configurations fall back to fair FCFS. Measured executions update neighboring entries with a 0.1 EWMA weight; online entries are capped at 128.
++
++Prefill currently uses a fixed bounded token chunk. An initial ms/token adaptation shrank chunks below a useful size because it charged fixed execution overhead as per-token work; the resulting cold-request slowdown is retained in diagnostic artifacts. A calibrated affine/context-dependent Prefill time model remains future work. The current implementation does not promise that a 1024-token chunk fits a fixed number of milliseconds.
++
++## Validation and replay
++
++- `tests/validate_scheduler.py`: deterministic stage opportunities, decode rotation, measured group choice, overdue override and admission rejection.
++- `tests/validate_scheduler_gpu.py`: per-request/per-token comparison across different scheduling orders and batch shapes, plus mixed chunked prefill/decode and bulk-fork rejection with unchanged references.
++- Existing COW, paged attention and engine integration tests remain regression checks.
++- `experiments/calibrate_scheduler.py`: offline decode lookup calibration.
++- `experiments/replay_scheduler.py`: preset open-loop arrivals, fixed-format natural-language synthetic documents, real sampling, fixed output lengths, explicit rejection and complete cohort accounting.
++
++Replay counts latency from the intended arrival time, including time waiting outside the engine while a step executes. Hot sessions are materialized before timed arrivals; actual client fork requests are created only at their scheduled times. Cold prompts are not prefetched. Goodput counts completed requests meeting both TTFT <= 500 ms and maximum per-request ITL <= 75 ms, divided by the elapsed cohort drain time. Rejected, unfinished or late requests never count as good. It is a finite-cohort replay, not a sustained production-capacity or P99 certification.
++
++The end-to-end report must include both hot/cold cohorts, rejected requests, raw throughput and goodput: stronger decode service can improve hot latency while reducing total throughput and increasing cold TTFT. All four policies use the same queue cap, model, attention setting and workload.
++
++## Reproduction
++
++```bash
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python experiments/calibrate_scheduler.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --output results/scheduler/cost-profile.json
++bash /root/autodl-tmp/shared-context/run_cow_env.sh python experiments/replay_scheduler.py \
++  --model /root/autodl-tmp/shared-context/models/Qwen3-0.6B-fp16 \
++  --profile results/scheduler/cost-profile.json --output results/scheduler/replay.json
++```
+--- /dev/null
++++ b/docs/SCHEDULER_REPORT.md
+@@ -0,0 +1,100 @@
++# 共享感知调度：实现、在线回放与边界
++
++已完成可切换的 baseline / 公平 FCFS / 前缀优先 LPM / 成本调度，接入会话 COW 和已有共享注意力。默认策略仍为 baseline；新策略需显式启用。
++
++## 实现范围
++
++- Prefill/Decode 阶段服务机会保护、超时 Decode 补充服务、连续 Decode 次数上限、等待请求的到达顺序保护。
++- 有界候选的物理前缀分组；一个 engine step 执行一个选定组。原有 ordinary/shared CUDA Graph 保留。
++- 离线 decode 成本表和有限在线 EWMA 更新；按 tokens/ms 比较拆组与整批，保留 5% 选择余量，未知形状回退公平 FCFS。
++- 活跃请求上限和 RequestQueueFull 背压；bulk fork 在引用获取前原子拒绝。
++- Prefill 使用固定上限 1024 token；尚未实现可靠的上下文相关 Prefill 时间模型、多组融合 kernel、嵌套前缀最优搜索或硬 SLO 保证。
++
++## 实验协议
++
++RTX 4090、Qwen3-0.6B FP16、CUDA Graph。所有策略 attention=auto，队列上限 96（包含 2 个暂停父会话的场景，最多接纳 94 个客户端请求）。每场景每策略预热一次，正式运行 4 次轮转顺序，共 80 次正式回放。
++
++输入为自然语言格式的合成设计文档；不是生产对话数据集。父会话在计时外准备；客户端 fork/冷请求按预定到达时刻注入。TTFT 从预定到达时刻计，包含等待引擎当前 step 完成的时间。使用实际采样并固定输出长度。
++
++goodput 门槛在运行前固定为 TTFT ≤ 500 ms 且请求内最大 ITL ≤ 75 ms。分子为满足两项的完成请求数，分母为该有限请求队列全部处理完成的时间；拒绝与超时均不计成功。下面为四次回放的中位数，范围和逐请求数据保存在 JSON。此处不是长时间稳态容量或生产 P99 认证。
++
++场景定义：
++- two_hot_groups：两个 4223-token 父会话，交错到达 64 个分支，各输出 64 token。
++- short_hot_groups：相同分支结构，父会话缩短至 1151 token，验证不值得拆组时的选择。
++- mixed：64 个长上下文热点分支，加 16 个独立 4096-token 冷请求，间隔 20 ms 到达，各输出 8 token。
++- overload：64 个热点分支，加 96 个冷请求，间隔 5 ms 到达；测量相同队列上限下的显式拒绝。
++- cold_only：32 个独立 1024-token 请求，间隔 10 ms，各输出 32 token。
++
++## 主结果
++
++| 场景 | 策略 | 总吞吐 output tok/s | 达标请求 goodput req/s | 达标 / offered | 拒绝 |
++|---|---|---:|---:|---:|---:|
++| two_hot_groups | baseline | 3531.3 | 55.18 | 64 / 64 | 0 |
++| two_hot_groups | fcfs | 3515.0 | 54.92 | 64 / 64 | 0 |
++| two_hot_groups | lpm | 3837.9 | 59.97 | 64 / 64 | 0 |
++| two_hot_groups | cost | 3771.5 | 58.93 | 64 / 64 | 0 |
++| short_hot_groups | baseline | 8092.4 | 126.44 | 64 / 64 | 0 |
++| short_hot_groups | fcfs | 8012.3 | 125.19 | 64 / 64 | 0 |
++| short_hot_groups | lpm | 6292.4 | 98.32 | 64 / 64 | 0 |
++| short_hot_groups | cost | 7677.1 | 119.95 | 64 / 64 | 0 |
++| mixed | baseline | 2173.8 | 0.00 | 0 / 80 | 0 |
++| mixed | fcfs | 1168.7 | 18.26 | 66 / 80 | 0 |
++| mixed | lpm | 1168.4 | 17.95 | 64.5 / 80 | 0 |
++| mixed | cost | 1164.3 | 17.99 | 65.5 / 80 | 0 |
++| overload | baseline | 1659.6 | 0.00 | 0 / 160 | 66 |
++| overload | fcfs | 735.5 | 10.94 | 64.5 / 160 | 66 |
++| overload | lpm | 737.7 | 11.06 | 65 / 160 | 66 |
++| overload | cost | 760.1 | 11.45 | 65 / 160 | 66 |
++| cold_only | baseline | 1708.4 | 7.51 | 4.5 / 32 | 0 |
++| cold_only | fcfs | 695.2 | 10.85 | 16 / 32 | 0 |
++| cold_only | lpm | 691.9 | 10.81 | 16 / 32 | 0 |
++| cold_only | cost | 694.7 | 10.52 | 15.5 / 32 | 0 |
++
++另补充 16 次关闭共享注意力的 FCFS/cost 对照；合计 96 次正式回放。
++
++## 关闭共享注意力的消融
++
++| 场景 | FCFS tok/s | cost tok/s | cost 拆组选中次数 |
++|---|---:|---:|---:|
++| two_hot_groups | 3526.3 | 3464.7 | 0 |
++| short_hot_groups | 8013.8 | 7771.0 | 0 |
++
++两组均未执行共享注意力；成本策略根据当前路径的实测时间保留整批。
++
++“达标请求数”的 .5 来自四次计数的中位数，不代表存在半个请求。
++
++## 冷热公平性的代价
++
++| 场景 | 策略 | 热 TTFT p95 ms | 热请求 max-ITL 的 p95 ms | 冷 TTFT p95 ms | 冷请求 max-ITL 的 p95 ms |
++|---|---|---:|---:|---:|---:|
++| mixed | baseline | 762.5 | 18.0 | 440.0 | 1759.9 |
++| mixed | fcfs | 54.7 | 73.0 | 3188.6 | 72.2 |
++| mixed | lpm | 54.6 | 72.7 | 3185.7 | 72.2 |
++| mixed | cost | 55.1 | 72.8 | 3197.7 | 72.4 |
++| overload | baseline | 1384.3 | 18.0 | 1178.7 | 2346.8 |
++| overload | fcfs | 55.0 | 73.1 | 5505.5 | 71.8 |
++| overload | lpm | 60.4 | 72.5 | 5487.6 | 71.4 |
++| overload | cost | 57.7 | 72.5 | 5321.5 | 71.5 |
++
++## 如何解释收益
++
++- 长上下文双组：成本调度相对公平 FCFS 吞吐变化 +7.30%，共享路径实际执行。简单前缀优先也能获益，成本策略并不在所有场景优于 LPM。
++- 短上下文双组：简单前缀优先相对公平 FCFS 吞吐变化 -21.47%；成本策略变化 -4.18%。校准表指出两次 32 请求共享执行的总成本高于一次普通 64 请求执行，成本策略因此保留整批。
++- 混合负载：原优先 Prefill 的基线在固定双 SLO 下 goodput 为 0.00 req/s；成本策略为 17.99 req/s，但原始输出吞吐变化 -46.44%。不能将延迟保护写成无代价的吞吐提升。
++- 冷请求不会因持续偏好共享组而完全失去服务机会，但高到达率下仍有较长 TTFT，当前机制不能保证全部请求满足 100 ms 等待目标或 500 ms TTFT。队列上限也不是 SLO 感知准入控制。
++- 过载实验各策略接纳/拒绝数一致，goodput 改善不是通过额外拒绝冷请求得到。热点和冷请求的未达标比例均应保留。
++
++## 正确性与回归
++
++- 调度重排验证共 1024 个请求/token 对齐点；最大相对 L2 0.004100，最大 KL 0.000027，均通过原定 L2 < .005、KL < .001 门槛。验证使用固定请求历史，按请求 ID 与生成位置对齐，不按批次位置比较。
++- CPU 测试覆盖阶段交替、超过单批上限的 Decode 轮转、成本选择、超时覆盖和背压。GPU 混合 Prefill/Decode 与 bulk-fork 拒绝后的引用不变测试通过。
++- 既有会话 COW GPU 测试通过；37 个分页算子 case 和 8 次动态 Graph replay 回归通过。回放全部完成已接纳请求，最终 KV 引用归零。
++
++## 保留的诊断与下一步
++
++- 初始 ms/token 自适应 chunk 将固定执行开销误算为线性成本，导致 mixed 冷请求延迟接近 20 秒；该方案已撤下，原日志与中间数据保留为 replay-adaptive-diagnostic。
++- 第二轮发现一次 Decode 不足以服务所有活跃请求时过早插入 Prefill，现已补充 overdue Decode 服务；诊断保留为 replay-fixed-v1。
++- 下一步应校准带固定开销、已缓存上下文和 batch 结构的 Prefill 成本模型，改善当前吞吐/冷 TTFT 代价；然后做更长时间、真实会话轨迹与不同 SLO 下的验证。
++- 缓存 LRU/成本淘汰、更大模型、BF16 共享引擎路径、GPU/CPU 分层仍未在本阶段实现。
++
++实现与参数见 [SCHEDULER.md](SCHEDULER.md)。最终原始回放为 `results/scheduler/replay.json`，汇总为 `summary.json`；GPU 成本表为 `cost-profile.json`。
+--- /dev/null
++++ b/experiments/archive_scheduler.py
+@@ -0,0 +1,18 @@
++import difflib,hashlib,json,subprocess
++from pathlib import Path
++root=Path(__file__).resolve().parents[1];before=root.parent/'nano-vllm-pre-scheduler';out=root/'results/scheduler'
++paths=[]
++for folder in ('nanovllm','tests','experiments','docs'):
++    paths += [p for p in (root/folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix in ('.py','.md','.sh')]
++patch=[];changed=[]
++for p in sorted(paths):
++    rel=p.relative_to(root);old=before/rel
++    a=old.read_text() if old.exists() else '';b=p.read_text()
++    if a!=b:
++        changed.append(str(rel));patch.extend(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile='a/'+str(rel) if old.exists() else '/dev/null',tofile='b/'+str(rel)))
++(out/'phase-scheduler.patch').write_text(''.join(patch))
++files=paths+[p for p in out.iterdir() if p.is_file() and p.name!='manifest.json']
++manifest=dict(branch=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip(),
++              upstream=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),changed_since_pre_scheduler=changed,
++              sha256={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)})
++(out/'manifest.json').write_text(json.dumps(manifest,indent=2));print(json.dumps(dict(changed=len(changed),hashed=len(files))))
+--- /dev/null
++++ b/experiments/calibrate_scheduler.py
+@@ -0,0 +1,42 @@
++import argparse,json,random,time,statistics
++from pathlib import Path
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.block_manager import BlockManager
++from nanovllm.engine.schedule_cost import ScheduleCost
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--output',required=True);args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=16384,
++            gpu_memory_utilization=.65,shared_attention_backend='auto')
++    rows=[];rng=random.Random(555)
++    for context in (1151,4223):
++        for groups,batch in ((1,8),(1,16),(1,32),(1,64),(2,32),(2,64)):
++            for backend in ('off','auto'):
++                llm.config.shared_attention_backend=backend
++                bm=BlockManager(len(llm.scheduler.block_manager.blocks),256);bm.copy_blocks=llm.model_runner.copy_kv_blocks;llm.scheduler.block_manager=bm
++                parents=[llm.add_request([rng.randrange(100,10000) for _ in range(context)],SamplingParams(max_tokens=64,ignore_eos=True)) for _ in range(groups)]
++                llm.step()
++                for rid in parents:llm.pause_request(rid)
++                for rid in parents:llm.fork_requests(rid,batch//groups,SamplingParams(max_tokens=32,ignore_eos=True))
++                durations=[]
++                features=ScheduleCost.features(list(llm.scheduler.running),llm.config,True)
++                for i in range(32):
++                    t=time.perf_counter();llm.step();elapsed=(time.perf_counter()-t)*1000
++                    if i>=8:durations.append(elapsed)
++                rows.append(dict(features,ms=statistics.median(durations),samples_ms=durations))
++                for rid in parents:llm.cancel_request(rid)
++                bm.assert_invariants();assert bm.stats()['live_pages']==0
++                print(context,groups,batch,backend,rows[-1]['ms'],flush=True)
++    # Duplicate off/auto fallback observations are combined.
++    merged={}
++    for row in rows:
++        key=(row['batch'],row['context'],row['common'],row['shared'])
++        if key not in merged:merged[key]=dict(row)
++        else:merged[key]['samples_ms']+=row['samples_ms']
++    for row in merged.values():row['ms']=statistics.median(row['samples_ms'])
++    Path(args.output).write_text(json.dumps(dict(model=args.model,eager=False,gpu=torch.cuda.get_device_name(),decode=list(merged.values())),indent=2))
++    llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/experiments/replay_scheduler.py
+@@ -0,0 +1,130 @@
++"""Open-loop replay with preset arrivals, natural-language formatted inputs and explicit admission loss."""
++import argparse,json,time,statistics,random
++from pathlib import Path
++import numpy as np
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.scheduler import Scheduler,RequestQueueFull
++
++POLICIES=['baseline','fcfs','lpm','cost']
++SCENARIOS=['two_hot_groups','short_hot_groups','mixed','overload','cold_only']
++SLO_TTFT_MS=500.;SLO_MAX_ITL_MS=75.
++
++
++def percentiles(x):
++    return {str(p):float(np.percentile(x,p)) if x else None for p in (50,95,99,100)}
++
++
++def text_tokens(tokenizer,label,n):
++    text=(f'会话资料：{label}。请根据资料回答问题。\n'+
++          (f'{label}的设计文档说明：系统需要记录请求到达时间、缓存所有权和资源使用。'
++           '处理共享上下文时，完整历史可以复用，独立分支必须保持各自的输出。'
++           '评估应同时关注吞吐、首个输出的等待时间以及不同请求之间的公平性。\n')*160)
++    ids=tokenizer.encode(text)
++    return (ids*((n+len(ids)-1)//len(ids)))[:n]
++
++
++def trial(llm,args,scenario,policy,repeat):
++    config=llm.config;config.schedule_policy=policy
++    sc=Scheduler(config);sc.shared_capable=llm.model_runner.shared_auto_calibrated
++    sc.block_manager.copy_blocks=llm.model_runner.copy_kv_blocks;llm.scheduler=sc
++    torch.manual_seed(200+max(repeat,0));parents=[]
++    if scenario!='cold_only':
++        # Session preparation is outside online client latency; no future user
++        # request is injected early. Subsequent fork arrivals are explicitly dated.
++        config.schedule_policy='baseline'
++        parents=[llm.add_request(text_tokens(llm.tokenizer,f'主题{g}',1151 if scenario=='short_hot_groups' else 4223),SamplingParams(max_tokens=128,ignore_eos=True)) for g in range(2)]
++        while any(sc.requests[rid].num_cached_tokens != len(sc.requests[rid])-1 for rid in parents):
++            llm.step()
++        for rid in parents:llm.pause_request(rid)
++        config.schedule_policy=policy
++    events=[]
++    if parents:
++        events += [dict(at=0.,kind='hot',parent=i%2,index=i,output=64) for i in range(64)]
++    count,period=(16,.02) if scenario=='mixed' else ((96,.005) if scenario=='overload' else ((32,.01) if scenario=='cold_only' else (0,0)))
++    for i in range(count):
++        events.append(dict(at=i*period,kind='cold',index=i,output=8 if scenario!='cold_only' else 32,
++                           tokens=text_tokens(llm.tokenizer,f'独立任务编号{i}',4096 if scenario!='cold_only' else 1024)))
++    events.sort(key=lambda e:e['at'])
++    records=[];by_id={};step_rows=[];preemptions=[];original_preempt=sc.preempt
++    def preempt(seq):preemptions.append(seq.seq_id);return original_preempt(seq)
++    sc.preempt=preempt;original_post=sc.postprocess
++    def post(seqs,ids,prefill):
++        before={s.seq_id:s.num_completion_tokens for s in seqs}
++        original_post(seqs,ids,prefill);now=time.perf_counter()
++        for s in seqs:
++            if s.seq_id in by_id and s.num_completion_tokens>before[s.seq_id]:by_id[s.seq_id]['times'].append(now)
++    sc.postprocess=post;llm.model_runner.attention_route_counts.clear();sc.metrics.clear()
++    start=time.perf_counter();cursor=0;peak_queue=0
++    while cursor<len(events) or not llm.is_finished():
++        now=time.perf_counter()
++        while cursor<len(events) and start+events[cursor]['at']<=now:
++            event=events[cursor];cursor+=1
++            record=dict(kind=event['kind'],arrival=start+event['at'],times=[],rejected=False,expected=event['output'])
++            records.append(record)
++            try:
++                sp=SamplingParams(max_tokens=event['output'],ignore_eos=True,temperature=.6)
++                if event['kind']=='hot':rid=llm.fork_request(parents[event['parent']],sp,next_token_id=700+event['index'])
++                else:rid=llm.add_request(event['tokens'],sp)
++                by_id[rid]=record
++            except RequestQueueFull:record['rejected']=True
++            now=time.perf_counter()
++        peak_queue=max(peak_queue,len(sc.waiting))
++        if not llm.is_finished():
++            t=time.perf_counter();done,work=llm.step();elapsed=(time.perf_counter()-t)*1000
++            step_rows.append(dict(ms=elapsed,work=work,waiting=len(sc.waiting),running=len(sc.running)))
++        elif cursor<len(events):time.sleep(min(.001,max(0,start+events[cursor]['at']-time.perf_counter())))
++        if time.perf_counter()-start>90:raise RuntimeError('replay failed to drain within 90 seconds')
++    elapsed=time.perf_counter()-start;results=[]
++    for r in records:
++        times=r['times'];intervals=[(b-a)*1000 for a,b in zip(times,times[1:])]
++        ttft=(times[0]-r['arrival'])*1000 if times else None
++        finished=len(times)==r['expected'];max_itl=max(intervals,default=0.)
++        results.append(dict(kind=r['kind'],arrival_s=r['arrival']-start,rejected=r['rejected'],finished=finished,
++                            ttft_ms=ttft,max_itl_ms=max_itl if times else None,
++                            completion_ms=(times[-1]-r['arrival'])*1000 if times else None,
++                            good=finished and ttft<=SLO_TTFT_MS and max_itl<=SLO_MAX_ITL_MS,
++                            token_times_s=[t-start for t in times]))
++    for rid in parents:llm.cancel_request(rid)
++    sc.block_manager.assert_invariants();assert sc.block_manager.stats()['live_pages']==0
++    assert all(r['finished'] or r['rejected'] for r in results)
++    cohorts={}
++    for kind in ('hot','cold'):
++        group=[r for r in results if r['kind']==kind]
++        if not group:continue
++        accepted=[r for r in group if not r['rejected']]
++        cohorts[kind]=dict(offered=len(group),rejected=sum(r['rejected'] for r in group),good=sum(r['good'] for r in group),
++                           ttft_ms=percentiles([r['ttft_ms'] for r in accepted]),
++                           request_max_itl_ms=percentiles([r['max_itl_ms'] for r in accepted]))
++    return dict(scenario=scenario,policy=policy,repeat=repeat,elapsed_s=elapsed,offered=len(results),
++                accepted=sum(not r['rejected'] for r in results),rejected=sum(r['rejected'] for r in results),unfinished=0,
++                good=sum(r['good'] for r in results),goodput=sum(r['good'] for r in results)/elapsed,
++                output_tokens_per_s=sum(len(r['times']) for r in records)/elapsed,
++                cohorts=cohorts,peak_waiting=peak_queue,preemptions=len(preemptions),
++                routes=dict(llm.model_runner.attention_route_counts),scheduler_metrics=dict(sc.metrics),
++                peak_live_pages=sc.block_manager.stats()['peak_live_pages'],records=results,steps=step_rows)
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True)
++    ap.add_argument('--output',required=True);ap.add_argument('--repeats',type=int,default=4)
++    ap.add_argument('--scenarios',nargs='+',default=SCENARIOS)
++    ap.add_argument('--policies',nargs='+',choices=POLICIES,default=POLICIES)
++    ap.add_argument('--backend',choices=['auto','off'],default='auto');args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=8192,gpu_memory_utilization=.84,
++            shared_attention_backend='auto',schedule_queue_limit=96,schedule_cost_profile=args.profile,
++            schedule_decode_interval_ms=25,schedule_wait_ms=100,schedule_prefill_chunk=1024)
++    llm.config.shared_attention_backend=args.backend
++    report=dict(config=dict(model=args.model,profile=args.profile,attention_backend=args.backend,ttft_slo_ms=SLO_TTFT_MS,request_max_itl_slo_ms=SLO_MAX_ITL_MS,
++                            queue_limit=96,decode_interval_ms=25,wait_ms=100,repeats=args.repeats,source='natural-language formatted synthetic documents'),trials=[])
++    for scenario in args.scenarios:
++        for repeat in range(-1,args.repeats):
++            n=len(args.policies)
++            order=args.policies[repeat%n:]+args.policies[:repeat%n]
++            for policy in order:
++                row=trial(llm,args,scenario,policy,repeat)
++                if repeat>=0:report['trials'].append(row);Path(args.output).write_text(json.dumps(report,indent=2))
++                print(json.dumps({k:v for k,v in row.items() if k not in ('records','steps')}),flush=True)
++    llm.exit()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/experiments/summarize_scheduler.py
+@@ -0,0 +1,98 @@
++import json,statistics as st
++from collections import Counter
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'results/scheduler'
++core=json.loads((OUT/'replay-core.json').read_text());extra=json.loads((OUT/'replay-short.json').read_text())
++core['trials']+=extra['trials'];(OUT/'replay.json').write_text(json.dumps(core,indent=2))
++rows=core['trials'];policies=['baseline','fcfs','lpm','cost'];scenarios=['two_hot_groups','short_hot_groups','mixed','overload','cold_only'];summary={}
++for scenario in scenarios:
++    summary[scenario]={}
++    for policy in policies:
++        group=[r for r in rows if r['scenario']==scenario and r['policy']==policy];assert len(group)==4
++        metrics=['elapsed_s','goodput','output_tokens_per_s','offered','accepted','rejected','unfinished','good','peak_live_pages']
++        med={m:st.median(r[m] for r in group) for m in metrics}
++        ranges={m:[min(r[m] for r in group),max(r[m] for r in group)] for m in metrics}
++        cohorts={}
++        for kind in ('hot','cold'):
++            if kind not in group[0]['cohorts']:continue
++            cohorts[kind]={m:st.median(r['cohorts'][kind][m] for r in group) for m in ['offered','rejected','good']}
++            for metric in ('ttft_ms','request_max_itl_ms'):
++                cohorts[kind][metric]={p:st.median(r['cohorts'][kind][metric][p] for r in group) for p in ('50','95','99','100')}
++        routes=Counter();decisions=Counter()
++        for r in group:routes.update(r['routes']);decisions.update(r['scheduler_metrics'])
++        summary[scenario][policy]=dict(median=med,ranges=ranges,cohorts=cohorts,routes=dict(routes),decisions=dict(decisions))
++validation=json.loads((OUT/'gpu-validation.json').read_text());assert validation['passed']
++quality_rows=[r for item in validation['permutation'] for r in item['rows']]
++quality=dict(rows=len(quality_rows),max_relative_l2=max(r['relative_l2'] for r in quality_rows),max_kl=max(r['kl'] for r in quality_rows))
++off=json.loads((OUT/'replay-attention-off.json').read_text())
++attention_off={}
++for scenario in ('two_hot_groups','short_hot_groups'):
++    attention_off[scenario]={}
++    for policy in ('fcfs','cost'):
++        group=[r for r in off['trials'] if r['scenario']==scenario and r['policy']==policy]
++        assert len(group)==4 and all(r['routes'].get('shared',0)==0 for r in group)
++        attention_off[scenario][policy]=dict(throughput=st.median(r['output_tokens_per_s'] for r in group),
++            shared_steps=0,group_choices=sum(r['scheduler_metrics'].get('cost_group_selected',0) for r in group))
++result=dict(config=core['config'],scenarios=summary,quality=quality,attention_off=attention_off);(OUT/'summary.json').write_text(json.dumps(result,indent=2))
++lines=['# 共享感知调度：实现、在线回放与边界','',
++'已完成可切换的 baseline / 公平 FCFS / 前缀优先 LPM / 成本调度，接入会话 COW 和已有共享注意力。默认策略仍为 baseline；新策略需显式启用。',
++'', '## 实现范围','',
++'- Prefill/Decode 阶段服务机会保护、超时 Decode 补充服务、连续 Decode 次数上限、等待请求的到达顺序保护。',
++'- 有界候选的物理前缀分组；一个 engine step 执行一个选定组。原有 ordinary/shared CUDA Graph 保留。',
++'- 离线 decode 成本表和有限在线 EWMA 更新；按 tokens/ms 比较拆组与整批，保留 5% 选择余量，未知形状回退公平 FCFS。',
++'- 活跃请求上限和 RequestQueueFull 背压；bulk fork 在引用获取前原子拒绝。',
++'- Prefill 使用固定上限 1024 token；尚未实现可靠的上下文相关 Prefill 时间模型、多组融合 kernel、嵌套前缀最优搜索或硬 SLO 保证。',
++'', '## 实验协议','',
++'RTX 4090、Qwen3-0.6B FP16、CUDA Graph。所有策略 attention=auto，队列上限 96（包含 2 个暂停父会话的场景，最多接纳 94 个客户端请求）。每场景每策略预热一次，正式运行 4 次轮转顺序，共 80 次正式回放。',
++'',
++'输入为自然语言格式的合成设计文档；不是生产对话数据集。父会话在计时外准备；客户端 fork/冷请求按预定到达时刻注入。TTFT 从预定到达时刻计，包含等待引擎当前 step 完成的时间。使用实际采样并固定输出长度。',
++'',
++'goodput 门槛在运行前固定为 TTFT ≤ 500 ms 且请求内最大 ITL ≤ 75 ms。分子为满足两项的完成请求数，分母为该有限请求队列全部处理完成的时间；拒绝与超时均不计成功。下面为四次回放的中位数，范围和逐请求数据保存在 JSON。此处不是长时间稳态容量或生产 P99 认证。',
++'', '场景定义：',
++'- two_hot_groups：两个 4223-token 父会话，交错到达 64 个分支，各输出 64 token。',
++'- short_hot_groups：相同分支结构，父会话缩短至 1151 token，验证不值得拆组时的选择。',
++'- mixed：64 个长上下文热点分支，加 16 个独立 4096-token 冷请求，间隔 20 ms 到达，各输出 8 token。',
++'- overload：64 个热点分支，加 96 个冷请求，间隔 5 ms 到达；测量相同队列上限下的显式拒绝。',
++'- cold_only：32 个独立 1024-token 请求，间隔 10 ms，各输出 32 token。',
++'', '## 主结果','',
++'| 场景 | 策略 | 总吞吐 output tok/s | 达标请求 goodput req/s | 达标 / offered | 拒绝 |',
++'|---|---|---:|---:|---:|---:|']
++for scenario in scenarios:
++    for policy in policies:
++        m=summary[scenario][policy]['median']
++        lines.append(f'| {scenario} | {policy} | {m["output_tokens_per_s"]:.1f} | {m["goodput"]:.2f} | {m["good"]:g} / {m["offered"]:g} | {m["rejected"]:g} |')
++lines += ['', '另补充 16 次关闭共享注意力的 FCFS/cost 对照；合计 96 次正式回放。', '', '## 关闭共享注意力的消融', '', '| 场景 | FCFS tok/s | cost tok/s | cost 拆组选中次数 |', '|---|---:|---:|---:|']
++for scenario,d in attention_off.items():
++    lines.append(f'| {scenario} | {d["fcfs"]["throughput"]:.1f} | {d["cost"]["throughput"]:.1f} | {d["cost"]["group_choices"]} |')
++lines += ['', '两组均未执行共享注意力；成本策略根据当前路径的实测时间保留整批。']
++lines += ['', '“达标请求数”的 .5 来自四次计数的中位数，不代表存在半个请求。',
++'', '## 冷热公平性的代价','',
++'| 场景 | 策略 | 热 TTFT p95 ms | 热请求 max-ITL 的 p95 ms | 冷 TTFT p95 ms | 冷请求 max-ITL 的 p95 ms |',
++'|---|---|---:|---:|---:|---:|']
++for scenario in ('mixed','overload'):
++    for policy in policies:
++        c=summary[scenario][policy]['cohorts'];h,k=c['hot'],c['cold']
++        lines.append(f'| {scenario} | {policy} | {h["ttft_ms"]["95"]:.1f} | {h["request_max_itl_ms"]["95"]:.1f} | {k["ttft_ms"]["95"]:.1f} | {k["request_max_itl_ms"]["95"]:.1f} |')
++long=summary['two_hot_groups'];short=summary['short_hot_groups'];mixed=summary['mixed']
++gain=(long['cost']['median']['output_tokens_per_s']/long['fcfs']['median']['output_tokens_per_s']-1)*100
++lpm_loss=(short['lpm']['median']['output_tokens_per_s']/short['fcfs']['median']['output_tokens_per_s']-1)*100
++cost_delta=(short['cost']['median']['output_tokens_per_s']/short['fcfs']['median']['output_tokens_per_s']-1)*100
++raw_loss=(mixed['cost']['median']['output_tokens_per_s']/mixed['baseline']['median']['output_tokens_per_s']-1)*100
++lines += ['', '## 如何解释收益','',
++f'- 长上下文双组：成本调度相对公平 FCFS 吞吐变化 {gain:+.2f}%，共享路径实际执行。简单前缀优先也能获益，成本策略并不在所有场景优于 LPM。',
++f'- 短上下文双组：简单前缀优先相对公平 FCFS 吞吐变化 {lpm_loss:+.2f}%；成本策略变化 {cost_delta:+.2f}%。校准表指出两次 32 请求共享执行的总成本高于一次普通 64 请求执行，成本策略因此保留整批。',
++f'- 混合负载：原优先 Prefill 的基线在固定双 SLO 下 goodput 为 {mixed["baseline"]["median"]["goodput"]:.2f} req/s；成本策略为 {mixed["cost"]["median"]["goodput"]:.2f} req/s，但原始输出吞吐变化 {raw_loss:+.2f}%。不能将延迟保护写成无代价的吞吐提升。',
++'- 冷请求不会因持续偏好共享组而完全失去服务机会，但高到达率下仍有较长 TTFT，当前机制不能保证全部请求满足 100 ms 等待目标或 500 ms TTFT。队列上限也不是 SLO 感知准入控制。',
++'- 过载实验各策略接纳/拒绝数一致，goodput 改善不是通过额外拒绝冷请求得到。热点和冷请求的未达标比例均应保留。',
++'', '## 正确性与回归','',
++f'- 调度重排验证共 {quality["rows"]} 个请求/token 对齐点；最大相对 L2 {quality["max_relative_l2"]:.6f}，最大 KL {quality["max_kl"]:.6f}，均通过原定 L2 < .005、KL < .001 门槛。验证使用固定请求历史，按请求 ID 与生成位置对齐，不按批次位置比较。',
++'- CPU 测试覆盖阶段交替、超过单批上限的 Decode 轮转、成本选择、超时覆盖和背压。GPU 混合 Prefill/Decode 与 bulk-fork 拒绝后的引用不变测试通过。',
++'- 既有会话 COW GPU 测试通过；37 个分页算子 case 和 8 次动态 Graph replay 回归通过。回放全部完成已接纳请求，最终 KV 引用归零。',
++'', '## 保留的诊断与下一步','',
++'- 初始 ms/token 自适应 chunk 将固定执行开销误算为线性成本，导致 mixed 冷请求延迟接近 20 秒；该方案已撤下，原日志与中间数据保留为 replay-adaptive-diagnostic。',
++'- 第二轮发现一次 Decode 不足以服务所有活跃请求时过早插入 Prefill，现已补充 overdue Decode 服务；诊断保留为 replay-fixed-v1。',
++'- 下一步应校准带固定开销、已缓存上下文和 batch 结构的 Prefill 成本模型，改善当前吞吐/冷 TTFT 代价；然后做更长时间、真实会话轨迹与不同 SLO 下的验证。',
++'- 缓存 LRU/成本淘汰、更大模型、BF16 共享引擎路径、GPU/CPU 分层仍未在本阶段实现。',
++'', '实现与参数见 [SCHEDULER.md](SCHEDULER.md)。最终原始回放为 `results/scheduler/replay.json`，汇总为 `summary.json`；GPU 成本表为 `cost-profile.json`。','']
++(ROOT/'docs/SCHEDULER_REPORT.md').write_text('\n'.join(lines))
++print(json.dumps(dict(quality=quality,long_vs_fcfs_pct=gain,short_lpm_vs_fcfs_pct=lpm_loss,short_cost_vs_fcfs_pct=cost_delta,mixed_raw_throughput_change_pct=raw_loss),indent=2))
+--- a/nanovllm/config.py
++++ b/nanovllm/config.py
+@@ -15,12 +15,26 @@
+     shared_attention_backend: str = "off"
+     shared_min_batch: int = 32
+     shared_min_prefix: int = 1024
++    schedule_policy: str = "baseline"
++    schedule_prefill_chunk: int = 1024
++    schedule_decode_interval_ms: float = 25.0
++    schedule_wait_ms: float = 100.0
++    schedule_max_decode_steps: int = 4
++    schedule_candidate_limit: int = 512
++    schedule_max_groups: int = 4
++    schedule_queue_limit: int = 0
++    schedule_cost_profile: str = ""
+     hf_config: AutoConfig | None = None
+     eos: int = -1
+     kvcache_block_size: int = 256
+     num_kvcache_blocks: int = -1
+ 
+     def __post_init__(self):
++        assert self.schedule_policy in ('baseline','fcfs','lpm','cost')
++        assert self.schedule_prefill_chunk > 0
++        assert self.schedule_decode_interval_ms > 0 and self.schedule_wait_ms > 0
++        assert self.schedule_max_decode_steps > 0 and self.schedule_candidate_limit > 0
++        assert self.schedule_max_groups > 0 and self.schedule_queue_limit >= 0
+         assert self.shared_attention_backend in ("off", "auto", "force")
+         assert self.shared_min_batch >= 1 and self.shared_min_prefix >= 0
+         assert os.path.isdir(self.model)
+--- a/nanovllm/engine/llm_engine.py
++++ b/nanovllm/engine/llm_engine.py
+@@ -32,6 +32,8 @@
+         self.tokenizer = AutoTokenizer.from_pretrained(config.model, use_fast=True)
+         config.eos = self.tokenizer.eos_token_id
+         self.scheduler = Scheduler(config)
++        self.scheduler.shared_capable = self.model_runner.shared_supported and (
++            config.shared_attention_backend!='auto' or self.model_runner.shared_auto_calibrated)
+         self.config = config
+         self._in_step = False
+         self.scheduler.block_manager.copy_blocks = self.model_runner.copy_kv_blocks
+@@ -126,9 +128,10 @@
+             seq = Sequence(tokens, sampling_params)
+             seq.save_session_id = session_id
+             targets.append(seq)
++        self.scheduler.check_admission(len(targets))
+         self.scheduler.block_manager.clone_many(source, targets, cache_mode)
+         for seq in targets:
+-            self.scheduler.requests[seq.seq_id] = seq
++            self.scheduler.register(seq)
+             if len(seq) - seq.num_cached_tokens == 1:
+                 seq.status = SequenceStatus.RUNNING
+                 seq.is_prefill = False
+@@ -159,6 +162,7 @@
+         if self._in_step:
+             raise RuntimeError('reentrant step')
+         self._in_step = True
++        step_started = perf_counter()
+         try:
+             try:
+                 seqs, is_prefill = self.scheduler.schedule()
+@@ -180,6 +184,7 @@
+                     self.scheduler._remove_queues(seq)
+                     self.scheduler.preempt(seq)
+                 raise
++            self.scheduler.record_execution(seqs, is_prefill, (perf_counter()-step_started)*1000)
+             self.scheduler.postprocess(seqs, token_ids, is_prefill)
+             outputs = [(seq.seq_id, seq.completion_token_ids) for seq in seqs if seq.is_finished]
+             return outputs, num_tokens
+--- /dev/null
++++ b/nanovllm/engine/schedule_cost.py
+@@ -0,0 +1,57 @@
++"""Small measured lookup table; no uncalibrated extrapolation across routes."""
++import json
++import math
++from pathlib import Path
++from nanovllm.engine.shared_plan import select_shared_plan
++
++
++class ScheduleCost:
++    def __init__(self, config):
++        self.rows = []
++        self.prefill_unit = None
++        if config.schedule_cost_profile:
++            profile = json.loads(Path(config.schedule_cost_profile).read_text())
++            if profile['model'] != config.model or profile['eager'] != config.enforce_eager:
++                raise ValueError('scheduler cost profile model/execution mode mismatch')
++            self.rows = profile['decode']
++
++    @staticmethod
++    def features(seqs, config, capable):
++        common = select_shared_plan(seqs, config.kvcache_block_size, 'force').prefix_blocks
++        selected = select_shared_plan(seqs, config.kvcache_block_size, config.shared_attention_backend,
++                                      config.shared_min_batch, config.shared_min_prefix, capable,
++                                      not config.enforce_eager).enabled
++        return dict(batch=len(seqs), context=sum(len(s) for s in seqs)/len(seqs),
++                    common=bool(common), shared=selected, prefix_tokens=common*config.kvcache_block_size)
++
++    def estimate(self, features):
++        rows = [r for r in self.rows if r['common']==features['common'] and r['shared']==features['shared']]
++        if not rows:
++            return None
++        def distance(r):
++            return abs(math.log2(r['batch']/features['batch'])) + abs(math.log2(r['context']/features['context']))
++        row = min(rows,key=distance)
++        # Stay within calibrated shape neighborhood; otherwise use fair FCFS.
++        if distance(row) > .6:
++            return None
++        return row['ms']
++
++    def observe(self, features, ms):
++        match = next((r for r in self.rows if r['batch']==features['batch']
++                      and r['common']==features['common'] and r['shared']==features['shared']
++                      and abs(math.log2(r['context']/features['context'])) < .15), None)
++        if match is not None:
++            match['ms'] = .9*match['ms']+.1*ms
++        elif len(self.rows)<128:
++            self.rows.append(dict(features,ms=ms))
++
++    def prefill_budget(self, config):
++        # Fixed launch/model costs make ms/token inversion unsafe. Until an
++        # affine prefill model is calibrated, retain a bounded token chunk.
++        return config.schedule_prefill_chunk
++
++    def observe_prefill(self, tokens, context, ms):
++        # Conservative recent cost per query token; includes context attention and
++        # metadata. No assertion of a hard time bound for a non-preemptible kernel.
++        unit=ms/max(tokens,1)
++        self.prefill_unit=unit if self.prefill_unit is None else .8*self.prefill_unit+.2*unit
+--- a/nanovllm/engine/scheduler.py
++++ b/nanovllm/engine/scheduler.py
+@@ -1,13 +1,27 @@
+-from collections import deque
++from collections import deque, Counter
++from time import perf_counter
++
++from nanovllm.engine.schedule_cost import ScheduleCost
+ 
+ from nanovllm.config import Config
+ from nanovllm.engine.sequence import Sequence, SequenceStatus
+ from nanovllm.engine.block_manager import BlockManager, CacheCapacityError
+ 
+ 
++class RequestQueueFull(RuntimeError):
++    pass
++
++
+ class Scheduler:
+ 
+     def __init__(self, config: Config):
++        self.config = config
++        self.clock = perf_counter
++        self.cost = ScheduleCost(config)
++        self.shared_capable = False
++        self.metrics = Counter()
++        self.last_phase = None
++        self.decode_streak = 0
+         self.max_num_seqs = config.max_num_seqs
+         self.max_num_batched_tokens = config.max_num_batched_tokens
+         self.eos = config.eos
+@@ -21,7 +35,21 @@
+     def is_finished(self):
+         return not self.waiting and not self.running
+ 
++    def check_admission(self, count=1):
++        limit = self.config.schedule_queue_limit
++        if limit and len(self.requests)+count > limit:
++            self.metrics['rejected_requests'] += count
++            raise RequestQueueFull('active request limit reached; retry with backpressure')
++
++    def register(self, seq):
++        now = self.clock()
++        seq.scheduler_arrival = now
++        seq.scheduler_service = now
++        self.requests[seq.seq_id] = seq
++
+     def add(self, seq: Sequence):
++        self.check_admission()
++        self.register(seq)
+         self.requests[seq.seq_id] = seq
+         self.waiting.append(seq)
+ 
+@@ -50,6 +78,7 @@
+         if seq.status != SequenceStatus.PAUSED:
+             raise ValueError('request is not paused')
+         seq.status = SequenceStatus.RUNNING
++        seq.scheduler_service = self.clock()
+         self.running.append(seq)
+ 
+     def save_session(self, request_id, session_id):
+@@ -66,14 +95,98 @@
+         self.block_manager.release(previous)
+         return True
+ 
++    def _age(self, seq, now):
++        return (now-getattr(seq,'scheduler_service',now))*1000
++
++    def _phase(self, now):
++        if not self.running: return 'prefill'
++        if not self.waiting: return 'decode'
++        if self.last_phase == 'prefill':
++            self.metrics['phase_decode_guard'] += 1
++            return 'decode'
++        if self.decode_streak >= self.config.schedule_max_decode_steps:
++            self.metrics['phase_wait_guard'] += 1
++            return 'prefill'
++        decode_due = max(self._age(s,now) for s in self.running) >= self.config.schedule_decode_interval_ms
++        wait_due = max((now-getattr(s,'scheduler_arrival',now))*1000 for s in self.waiting) >= self.config.schedule_wait_ms
++        if decode_due:
++            self.metrics['phase_decode_due'] += 1
++            return 'decode'
++        if wait_due:
++            self.metrics['phase_wait_guard'] += 1
++            return 'prefill'
++        return 'decode' if decode_due else 'prefill'
++
++    def _order_waiting(self, now):
++        if not self.waiting: return
++        oldest = min(self.waiting,key=lambda s:getattr(s,'scheduler_arrival',now))
++        chosen = oldest
++        if (self.config.schedule_policy in ('lpm','cost') and
++                (now-getattr(oldest,'scheduler_arrival',now))*1000 < self.config.schedule_wait_ms):
++            candidates=list(self.waiting)[:min(16,self.config.schedule_candidate_limit)]
++            def hit(s):
++                return s.num_cached_tokens if s.block_table else max(0,self.block_manager.can_allocate(s))*self.block_size
++            chosen=max(candidates,key=hit)
++        self.waiting.remove(chosen); self.waiting.appendleft(chosen)
++
++    def _order_decode(self, now):
++        queue=list(self.running)
++        fair=sorted(queue,key=lambda s:getattr(s,'scheduler_service',now))
++        base=fair[:self.max_num_seqs]; chosen=base
++        policy=self.config.schedule_policy
++        if policy in ('lpm','cost') and self._age(fair[0],now) < self.config.schedule_decode_interval_ms:
++            groups={}; width=max(1,self.config.shared_min_prefix//self.block_size)
++            for seq in fair[:self.config.schedule_candidate_limit]:
++                if seq.num_cached_tokens < width*self.block_size: continue
++                key=tuple(seq.block_table[:width])
++                if key not in groups and len(groups)>=self.config.schedule_max_groups: continue
++                groups.setdefault(key,[]).append(seq)
++            candidates=[g[:self.max_num_seqs] for g in groups.values() if len(g)>=self.config.shared_min_batch]
++            if policy=='lpm' and candidates:
++                chosen=max(candidates,key=lambda g:self.cost.features(g,self.config,self.shared_capable)['prefix_tokens']*len(g))
++            elif policy=='cost':
++                base_ms=self.cost.estimate(self.cost.features(base,self.config,self.shared_capable))
++                best_rate=len(base)/base_ms if base_ms else None
++                for group in candidates:
++                    ms=self.cost.estimate(self.cost.features(group,self.config,self.shared_capable))
++                    if ms is None or best_rate is None: continue
++                    selected={s.seq_id for s in group}
++                    deferred=[s for s in fair if s.seq_id not in selected]
++                    if deferred and max(self._age(s,now) for s in deferred)+ms >= self.config.schedule_decode_interval_ms:
++                        continue
++                    if len(group)/ms > best_rate*1.05:
++                        chosen=group; best_rate=len(group)/ms
++                if chosen is not base: self.metrics['cost_group_selected'] += 1
++                else: self.metrics['cost_fcfs_selected'] += 1
++        elif policy in ('lpm','cost'):
++            self.metrics['decode_age_guard'] += 1
++        selected={s.seq_id for s in chosen}
++        # Restrict this step to the chosen group; leave others for fair rotation.
++        self._decode_limit=len(chosen)
++        self.running=deque(chosen+[s for s in fair if s.seq_id not in selected])
++
+     def schedule(self) -> tuple[list[Sequence], bool]:
++        fair=self.config.schedule_policy!='baseline'
++        now=self.clock()
++        phase=self._phase(now) if fair else 'prefill'
++        if fair:
++            self._order_waiting(now)
++        self._step_budget=min(self.max_num_batched_tokens,self.cost.prefill_budget(self.config)) if fair else self.max_num_batched_tokens
++        if phase=='prefill':
++            result=self._prefill()
++            if result: return result, True
++        if self.running:
++            if fair: self._order_decode(self.clock())
++            return self._decode(fair),False
++        raise CacheCapacityError('no runnable request fits; release retained cache or increase capacity')
++
++    def _prefill(self):
+         scheduled_seqs = []
+         num_batched_tokens = 0
+-
+         # prefill
+         while self.waiting and len(scheduled_seqs) < self.max_num_seqs:
+             seq = self.waiting[0]
+-            remaining = self.max_num_batched_tokens - num_batched_tokens
++            remaining = self._step_budget - num_batched_tokens
+             if remaining == 0:
+                 break
+             if not seq.block_table:
+@@ -99,11 +212,12 @@
+                 self.running.append(seq)
+             scheduled_seqs.append(seq)
+ 
+-        if scheduled_seqs:
+-            return scheduled_seqs, True
+-
+-        # decode
+-        while self.running and len(scheduled_seqs) < self.max_num_seqs:
++        return scheduled_seqs
++
++    def _decode(self, fair):
++        scheduled_seqs=[]
++        limit=self._decode_limit if fair else self.max_num_seqs
++        while self.running and len(scheduled_seqs) < limit:
+             seq = self.running.popleft()
+             while not self.block_manager.can_append(seq):
+                 if self.running:
+@@ -125,8 +239,11 @@
+                 scheduled_seqs.append(seq)
+         if not scheduled_seqs:
+             raise CacheCapacityError("no runnable request fits; close sessions, cancel requests, or increase KV capacity")
+-        self.running.extendleft(reversed(scheduled_seqs))
+-        return scheduled_seqs, False
++        if fair:
++            self.running.extend(scheduled_seqs)
++        else:
++            self.running.extendleft(reversed(scheduled_seqs))
++        return scheduled_seqs
+ 
+     def preempt(self, seq: Sequence):
+         seq.status = SequenceStatus.WAITING
+@@ -135,8 +252,21 @@
+         self.block_manager.deallocate(seq)
+         self.waiting.appendleft(seq)
+ 
++    def record_execution(self, seqs, is_prefill, elapsed_ms):
++        if self.config.schedule_policy=='baseline': return
++        self.last_phase='prefill' if is_prefill else 'decode'
++        self.decode_streak=0 if is_prefill else self.decode_streak+1
++        self.metrics[self.last_phase+'_steps'] += 1
++        if is_prefill:
++            self.cost.observe_prefill(sum(s.num_scheduled_tokens for s in seqs),max(len(s) for s in seqs),elapsed_ms)
++        else:
++            features=self.cost.features(seqs,self.config,self.shared_capable)
++            self.cost.observe(features,elapsed_ms)
++
+     def postprocess(self, seqs: list[Sequence], token_ids: list[int], is_prefill: bool):
++        now=self.clock()
+         for seq, token_id in zip(seqs, token_ids):
++            seq.scheduler_service=now
+             self.block_manager.hash_blocks(seq)
+             seq.num_cached_tokens += seq.num_scheduled_tokens
+             seq.num_scheduled_tokens = 0
+--- /dev/null
++++ b/tests/validate_scheduler.py
+@@ -0,0 +1,60 @@
++import json
++from types import SimpleNamespace
++from nanovllm.engine.scheduler import Scheduler,RequestQueueFull
++from nanovllm.engine.sequence import Sequence,SequenceStatus
++from nanovllm.sampling_params import SamplingParams
++
++
++def config(policy='fcfs',**kw):
++    d=dict(model='test',max_num_seqs=4,max_num_batched_tokens=64,eos=-1,kvcache_block_size=4,
++           num_kvcache_blocks=64,schedule_policy=policy,schedule_cost_profile='',enforce_eager=False,
++           schedule_prefill_chunk=4,schedule_prefill_target_ms=8,schedule_decode_interval_ms=25,
++           schedule_wait_ms=100,schedule_max_decode_steps=4,schedule_candidate_limit=64,schedule_max_groups=4,
++           schedule_queue_limit=0,shared_min_prefix=4,shared_min_batch=2,shared_attention_backend='auto')
++    d.update(kw);return SimpleNamespace(**d)
++
++
++def main():
++    Sequence.block_size=4; time=[0.]; sc=Scheduler(config());sc.clock=lambda:time[0]
++    def step():
++        seqs,prefill=sc.schedule();time[0]+=.01
++        sc.record_execution(seqs,prefill,10)
++        sc.postprocess(seqs,[10]*len(seqs),prefill);sc.block_manager.assert_invariants()
++        return [s.seq_id for s in seqs],prefill
++    hot=Sequence([1,2,3,4],SamplingParams(max_tokens=100,ignore_eos=True));sc.add(hot);step()
++    cold=Sequence(list(range(24)),SamplingParams(max_tokens=2,ignore_eos=True));sc.add(cold)
++    phases=[]
++    for _ in range(16):
++        if sc.is_finished():break
++        ids,p=step();phases.append(p)
++    assert all(not(a and b) for a,b in zip(phases,phases[1:])),phases
++    assert cold.is_finished and hot.num_completion_tokens>5
++    for rid in list(sc.requests):sc.cancel(rid)
++    sc.block_manager.assert_invariants();assert sc.block_manager.stats()['live_pages']==0
++    # Fair rotation across more runnable requests than the batch limit.
++    sc=Scheduler(config(max_num_seqs=2));sc.clock=lambda:time[0]
++    children=[]
++    for i in range(5):
++        seq=Sequence([i],SamplingParams(max_tokens=8));sc.add(seq);sc.waiting.remove(seq)
++        sc.block_manager.allocate(seq,0);seq.status=SequenceStatus.RUNNING;sc.running.append(seq);children.append(seq)
++    seen=set()
++    for _ in range(3):
++        seqs,p=sc.schedule();seen.update(s.seq_id for s in seqs);time[0]+=.001
++        sc.record_execution(seqs,p,1);sc.postprocess(seqs,[10]*len(seqs),p)
++    assert len(seen)==5
++    # Cost selects a profitable group, then honors an overdue outsider.
++    sc=Scheduler(config('cost'));sc.clock=lambda:time[0];sc.shared_capable=True
++    for i,page in enumerate([0,1,0,1]):
++        seq=Sequence([1]*5);seq.block_table=[page,2+i];seq.num_cached_tokens=4
++        sc.register(seq);sc.running.append(seq)
++    sc.cost.rows=[dict(batch=4,context=5,common=False,shared=False,ms=10),
++                  dict(batch=2,context=5,common=True,shared=True,ms=3)]
++    sc._order_decode(time[0]);assert sc._decode_limit==2
++    time[0]+=.03;sc._order_decode(time[0]);assert sc._decode_limit==4
++    sc=Scheduler(config(schedule_queue_limit=1));sc.add(Sequence([1]))
++    try:sc.add(Sequence([2]));assert False
++    except RequestQueueFull:pass
++    assert len(sc.requests)==1
++    print(json.dumps(dict(passed=True,phase_sequence=phases,rotation=True,cost_group=True,deadline_override=True,admission=True)))
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tests/validate_scheduler_gpu.py
+@@ -0,0 +1,71 @@
++"""Check reordered per-request outputs against fixed histories and exercise chunk fairness."""
++import argparse,json,random
++from pathlib import Path
++import torch
++from nanovllm import LLM,SamplingParams
++from nanovllm.engine.scheduler import Scheduler,RequestQueueFull
++from nanovllm.utils.context import reset_context,get_context
++
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--model',required=True);ap.add_argument('--profile',required=True);ap.add_argument('--output',required=True);args=ap.parse_args()
++    llm=LLM(args.model,max_num_seqs=64,max_model_len=8192,max_num_batched_tokens=16384,
++            gpu_memory_utilization=.65,shared_attention_backend='auto',schedule_cost_profile=args.profile)
++    reference={};report=[];runner=llm.model_runner
++    # A constant scheduler clock isolates grouping/permutation from GPU verification
++    # overhead. Real clock deadlines are exercised by the separate serving replay.
++    for policy in ('baseline','fcfs','lpm','cost'):
++        llm.config.schedule_policy=policy;sc=Scheduler(llm.config);sc.shared_capable=True
++        sc.block_manager.copy_blocks=runner.copy_kv_blocks;llm.scheduler=sc
++        llm.config.schedule_policy='baseline'
++        parents=[]
++        for group in range(2):
++            rng=random.Random(91+group)
++            parents.append(llm.add_request([rng.randrange(100,10000) for _ in range(4223)],SamplingParams(max_tokens=64,ignore_eos=True)))
++        llm.step()
++        for rid in parents:llm.pause_request(rid)
++        llm.config.schedule_policy=policy
++        clock=[0.];sc.clock=lambda:clock[0]
++        children=[]
++        for i in range(64):children.append(llm.fork_request(parents[i%2],SamplingParams(max_tokens=4,ignore_eos=True),next_token_id=700+i))
++        indexes={rid:i for i,rid in enumerate(children)};rows=[];runner.attention_route_counts.clear()
++        while not llm.is_finished():
++            seqs,prefill=sc.schedule();assert not prefill
++            ids,pos=runner.prepare_decode(seqs);logits=runner.run_model(ids,pos,False).float()
++            selected=get_context().shared_enabled
++            for j,seq in enumerate(seqs):
++                key=(indexes[seq.seq_id],seq.num_completion_tokens)
++                got=logits[j]
++                if policy=='baseline':reference[key]=got.cpu()
++                ref=reference[key].to(got.device);rel=((got-ref).norm()/ref.norm()).item()
++                kl=(ref.softmax(-1)*(ref.log_softmax(-1)-got.log_softmax(-1))).sum().clamp_min(0).item()
++                assert rel<.005 and kl<.001,(policy,key,rel,kl)
++                rows.append(dict(request=key[0],token=key[1],relative_l2=rel,kl=kl,shared=selected))
++            sc.record_execution(seqs,False,8.)
++            sc.postprocess(seqs,[900+indexes[s.seq_id]+s.num_completion_tokens for s in seqs],False)
++            reset_context();sc.block_manager.assert_invariants()
++        assert len(rows)==256 and len({(r['request'],r['token']) for r in rows})==256
++        for rid in parents:llm.cancel_request(rid)
++        assert sc.block_manager.stats()['live_pages']==0
++        routes=dict(runner.attention_route_counts)
++        if policy in ('lpm','cost'):assert routes.get('shared',0)>0,routes
++        report.append(dict(policy=policy,routes=routes,rows=rows))
++        print(policy,'PASS',routes,flush=True)
++    # Real chunked prefill mixed with decode plus admission rollback.
++    llm.config.schedule_policy='cost';llm.config.schedule_queue_limit=4
++    sc=Scheduler(llm.config);sc.shared_capable=True;sc.block_manager.copy_blocks=runner.copy_kv_blocks;llm.scheduler=sc
++    hot=llm.add_request([101]*1151,SamplingParams(max_tokens=16,ignore_eos=True))
++    while sc.requests[hot].num_cached_tokens!=len(sc.requests[hot])-1:llm.step()
++    cold=llm.add_request([102]*4096,SamplingParams(max_tokens=4,ignore_eos=True))
++    llm.save_session(hot,'retained');before=sc.block_manager.stats()['references']
++    try:llm.fork_requests(hot,3);assert False
++    except RequestQueueFull:pass
++    assert sc.block_manager.stats()['references']==before
++    phases=[]
++    while not llm.is_finished():
++        done,work=llm.step();phases.append(work>0);sc.block_manager.assert_invariants()
++    llm.close_session('retained');assert sc.block_manager.stats()['live_pages']==0
++    assert any(phases) and any(not p for p in phases)
++    Path(args.output).write_text(json.dumps(dict(passed=True,permutation=report,mixed_phases=phases,admission_rollback=True),indent=2));llm.exit()
++
++if __name__=='__main__':main()

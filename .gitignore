@@ -193,3 +193,10 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# Local models, upstream comparison checkout, and publication credentials
+models/
+vendor/
+*.safetensors
+*.pt
+*.pth
+!results/**/*.log

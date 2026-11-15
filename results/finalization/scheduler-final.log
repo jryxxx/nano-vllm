@@ -1,0 +1,4 @@
+baseline PASS {'no_common_prefix': 4}
+fcfs PASS {'no_common_prefix': 4}
+lpm PASS {'shared': 8}
+cost PASS {'shared': 8}

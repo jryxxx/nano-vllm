@@ -1,0 +1,1 @@
+{"passed": true, "cases": [{"dtype": "torch.float16", "bitwise": true, "padding_untouched": true, "source_unchanged": true}, {"dtype": "torch.bfloat16", "bitwise": true, "padding_untouched": true, "source_unchanged": true}]}

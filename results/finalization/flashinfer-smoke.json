@@ -1,0 +1,156 @@
+{
+  "flashinfer_version": "0.2.5",
+  "note": "Complete attention paths including merge; fixed metadata planning excluded and reported separately; contiguous shared prefix; correctness checks first four queries against FP32.",
+  "rows": [
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "flash_attention",
+      "graph": false,
+      "relative_l2": 0.00027313767350278795,
+      "gpu_us": 31.855359077453613,
+      "samples": [
+        {
+          "gpu_us": 31.887359619140625,
+          "wall_us": 32.43950195610523
+        },
+        {
+          "gpu_us": 31.855359077453613,
+          "wall_us": 32.010870054364204
+        },
+        {
+          "gpu_us": 31.814401149749756,
+          "wall_us": 31.96124918758869
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    },
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "flash_attention",
+      "graph": true,
+      "relative_l2": 0.00027313767350278795,
+      "gpu_us": 33.78175973892212,
+      "samples": [
+        {
+          "gpu_us": 33.97631883621216,
+          "wall_us": 34.342147409915924
+        },
+        {
+          "gpu_us": 33.78175973892212,
+          "wall_us": 33.94588828086853
+        },
+        {
+          "gpu_us": 33.75103950500488,
+          "wall_us": 33.903373405337334
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    },
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "custom_shared",
+      "graph": false,
+      "relative_l2": 0.00028538054903037846,
+      "gpu_us": 84.17632102966309,
+      "samples": [
+        {
+          "gpu_us": 84.8799991607666,
+          "wall_us": 85.27218364179134
+        },
+        {
+          "gpu_us": 84.17632102966309,
+          "wall_us": 84.37578566372395
+        },
+        {
+          "gpu_us": 84.15231704711914,
+          "wall_us": 84.32784117758274
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    },
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "custom_shared",
+      "graph": true,
+      "relative_l2": 0.00028538054903037846,
+      "gpu_us": 45.496320724487305,
+      "samples": [
+        {
+          "gpu_us": 45.75967788696289,
+          "wall_us": 46.152230352163315
+        },
+        {
+          "gpu_us": 45.493760108947754,
+          "wall_us": 45.66347226500511
+        },
+        {
+          "gpu_us": 45.496320724487305,
+          "wall_us": 45.65800540149212
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    },
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "flashinfer_cascade",
+      "graph": false,
+      "relative_l2": 0.00038053086609579623,
+      "gpu_us": 202.59008407592773,
+      "samples": [
+        {
+          "gpu_us": 211.18976593017578,
+          "wall_us": 212.09257654845715
+        },
+        {
+          "gpu_us": 202.59008407592773,
+          "wall_us": 203.1222265213728
+        },
+        {
+          "gpu_us": 166.0927963256836,
+          "wall_us": 166.5318477898836
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    },
+    {
+      "batch": 8,
+      "prefix": 1024,
+      "suffix": 128,
+      "heads": 16,
+      "backend": "flashinfer_cascade",
+      "graph": true,
+      "relative_l2": 0.00038053086609579623,
+      "gpu_us": 17.108479738235474,
+      "samples": [
+        {
+          "gpu_us": 17.436800003051758,
+          "wall_us": 17.87859946489334
+        },
+        {
+          "gpu_us": 17.108479738235474,
+          "wall_us": 17.324555665254593
+        },
+        {
+          "gpu_us": 17.0905601978302,
+          "wall_us": 17.276834696531296
+        }
+      ],
+      "flashinfer_planning_ms": 16122.594257816672
+    }
+  ]
+}

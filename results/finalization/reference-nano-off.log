@@ -1,0 +1,8 @@
+WARMUP nano-off shared -1 2800.77
+TRIAL nano-off shared 0 5835.65
+TRIAL nano-off shared 1 5841.85
+TRIAL nano-off shared 2 5861.07
+WARMUP nano-off no_shared -1 2296.67
+TRIAL nano-off no_shared 0 2302.48
+TRIAL nano-off no_shared 1 2304.88
+TRIAL nano-off no_shared 2 2301.95

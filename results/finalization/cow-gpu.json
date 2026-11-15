@@ -1,0 +1,89 @@
+{
+  "passed": true,
+  "backend": "auto",
+  "eager": false,
+  "cases": [
+    {
+      "cached": 255,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0015075717819854617
+    },
+    {
+      "cached": 256,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0013960849028080702
+    },
+    {
+      "cached": 257,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0009651723084971309
+    },
+    {
+      "cached": 1024,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0012918252032250166
+    },
+    {
+      "cached": 1151,
+      "extension": 0,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.0009309808374382555
+    },
+    {
+      "cached": 255,
+      "extension": 3,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.002176410984247923
+    },
+    {
+      "cached": 1151,
+      "extension": 300,
+      "steps": 4,
+      "cow_copy_max_abs": 0.0,
+      "snapshot_bitwise_unchanged": true,
+      "fresh_recompute_relative_l2": 0.001162820728495717
+    },
+    {
+      "shared_cow_batch": 32,
+      "relative_l2": 0.0010716994293034077
+    }
+  ],
+  "lifecycle": true,
+  "copy_bitwise": true,
+  "failure_rollback": true,
+  "pressure_recovery": true,
+  "final_stats": {
+    "cow_pages": 45,
+    "copy_pages": 43,
+    "copied_tokens": 15446,
+    "peak_live_pages": 37,
+    "evictions": 0,
+    "reused_tokens": 0,
+    "admitted_tokens": 16740,
+    "policy_seconds": 0.0,
+    "live_pages": 0,
+    "free_pages": 400,
+    "references": 0,
+    "owners": 0,
+    "shared_pages": 0,
+    "cached_free_pages": 69,
+    "logical_nodes": 31,
+    "policy": "fifo"
+  }
+}

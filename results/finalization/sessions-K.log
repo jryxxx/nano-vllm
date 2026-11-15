@@ -1,0 +1,8 @@
+WARMUP K shared -1 974.66 64
+TRIAL K shared 0 3372.77 96
+TRIAL K shared 1 3348.3 96
+TRIAL K shared 2 3313.08 96
+WARMUP K no_shared -1 565.47 56
+TRIAL K no_shared 0 562.41 56
+TRIAL K no_shared 1 565.2 56
+TRIAL K no_shared 2 572.27 56

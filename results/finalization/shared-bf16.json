@@ -1,0 +1,91 @@
+{
+  "backend": "auto",
+  "mode": "graph",
+  "decode_steps": [
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 22,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 11,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    }
+  ],
+  "route_counts": {
+    "unsupported": 9
+  },
+  "note": "Same model and teacher-forced history; original and shared attention compared before each step commits."
+}

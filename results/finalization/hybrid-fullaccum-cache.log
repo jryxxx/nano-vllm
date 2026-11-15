@@ -1,0 +1,6 @@
+VALIDATED oracle
+VALIDATED previous_fifo
+VALIDATED fifo
+VALIDATED lru
+VALIDATED leaf_lru
+VALIDATED cost

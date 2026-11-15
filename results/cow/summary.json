@@ -1,0 +1,451 @@
+{
+  "config": {
+    "dtype": "torch.float16",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "pool_pages": 515,
+    "bytes_per_token": 114688,
+    "block_size": 256,
+    "backend": "off",
+    "outputs": 32,
+    "repeats": 3
+  },
+  "scenarios": [
+    {
+      "cached": 256,
+      "branches": 1,
+      "medians": {
+        "copy": {
+          "fork_ms": 0.2771597355604172,
+          "fork_to_first_ms": 3.016385715454817,
+          "total_ms": 83.22166884317994,
+          "tokens_per_s": 384.51524037927794,
+          "peak_live_pages": 3,
+          "copy_bytes": 29360128
+        },
+        "cow": {
+          "fork_ms": 0.05428306758403778,
+          "fork_to_first_ms": 2.7901693247258663,
+          "total_ms": 82.64937112107873,
+          "tokens_per_s": 387.17777964845016,
+          "peak_live_pages": 2,
+          "copy_bytes": 0
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            2.9288390651345253,
+            3.094704821705818
+          ],
+          "total_ms": [
+            82.8190571628511,
+            83.27812980860472
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            2.727158833295107,
+            2.801327034831047
+          ],
+          "total_ms": [
+            82.37546123564243,
+            83.17013597115874
+          ]
+        }
+      },
+      "throughput_gain_pct": 0.6924405041906612,
+      "page_reduction_pct": 33.333333333333336,
+      "copy_reduction_pct": 100.0
+    },
+    {
+      "cached": 256,
+      "branches": 8,
+      "medians": {
+        "copy": {
+          "fork_ms": 0.867895781993866,
+          "fork_to_first_ms": 3.9723110385239124,
+          "total_ms": 92.84114884212613,
+          "tokens_per_s": 2757.398020088281,
+          "peak_live_pages": 17,
+          "copy_bytes": 234881024
+        },
+        "cow": {
+          "fork_ms": 0.283688772469759,
+          "fork_to_first_ms": 3.3013070933520794,
+          "total_ms": 90.82973608747125,
+          "tokens_per_s": 2818.460242507649,
+          "peak_live_pages": 9,
+          "copy_bytes": 0
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            3.8271010853350163,
+            3.9786798879504204
+          ],
+          "total_ms": [
+            91.79289918392897,
+            93.05751789361238
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            3.291937056928873,
+            3.3066249452531338
+          ],
+          "total_ms": [
+            90.15487413853407,
+            90.88278887793422
+          ]
+        }
+      },
+      "throughput_gain_pct": 2.21448706260452,
+      "page_reduction_pct": 47.05882352941176,
+      "copy_reduction_pct": 100.0
+    },
+    {
+      "cached": 256,
+      "branches": 16,
+      "medians": {
+        "copy": {
+          "fork_ms": 1.513483002781868,
+          "fork_to_first_ms": 5.0957100465893745,
+          "total_ms": 109.02649071067572,
+          "tokens_per_s": 4696.106392699528,
+          "peak_live_pages": 33,
+          "copy_bytes": 469762048
+        },
+        "cow": {
+          "fork_ms": 0.5197362042963505,
+          "fork_to_first_ms": 3.8101542741060257,
+          "total_ms": 98.44796406105161,
+          "tokens_per_s": 5200.716996874489,
+          "peak_live_pages": 17,
+          "copy_bytes": 0
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            5.025890190154314,
+            5.097169894725084
+          ],
+          "total_ms": [
+            108.08744514361024,
+            109.14183501154184
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            3.8033551536500454,
+            3.8102827966213226
+          ],
+          "total_ms": [
+            98.16663712263107,
+            98.65110786631703
+          ]
+        }
+      },
+      "throughput_gain_pct": 10.745297529021446,
+      "page_reduction_pct": 48.484848484848484,
+      "copy_reduction_pct": 100.0
+    },
+    {
+      "cached": 1151,
+      "branches": 1,
+      "medians": {
+        "copy": {
+          "fork_ms": 0.5768169648945332,
+          "fork_to_first_ms": 3.396643791347742,
+          "total_ms": 85.13459423556924,
+          "tokens_per_s": 375.87540396863017,
+          "peak_live_pages": 10,
+          "copy_bytes": 132005888
+        },
+        "cow": {
+          "fork_ms": 0.1457398757338524,
+          "fork_to_first_ms": 3.148778807371855,
+          "total_ms": 84.81654990464449,
+          "tokens_per_s": 377.2848581553505,
+          "peak_live_pages": 6,
+          "copy_bytes": 14565376
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            3.285839222371578,
+            3.435178194195032
+          ],
+          "total_ms": [
+            84.86384293064475,
+            85.25859611108899
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            3.129563294351101,
+            3.149579744786024
+          ],
+          "total_ms": [
+            84.7158539108932,
+            84.86002404242754
+          ]
+        }
+      },
+      "throughput_gain_pct": 0.374979094625183,
+      "page_reduction_pct": 40.0,
+      "copy_reduction_pct": 88.96611642050391
+    },
+    {
+      "cached": 1151,
+      "branches": 8,
+      "medians": {
+        "copy": {
+          "fork_ms": 3.567810170352459,
+          "fork_to_first_ms": 7.420578971505165,
+          "total_ms": 123.53322096168995,
+          "tokens_per_s": 2072.3170496735497,
+          "peak_live_pages": 45,
+          "copy_bytes": 1056047104
+        },
+        "cow": {
+          "fork_ms": 0.9467438794672489,
+          "fork_to_first_ms": 5.958246998488903,
+          "total_ms": 116.63988512009382,
+          "tokens_per_s": 2194.7895416428037,
+          "peak_live_pages": 13,
+          "copy_bytes": 116523008
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            7.293346803635359,
+            7.4782720766961575
+          ],
+          "total_ms": [
+            123.32275183871388,
+            123.9148979075253
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            5.628965329378843,
+            5.989854224026203
+          ],
+          "total_ms": [
+            115.21803215146065,
+            116.64638295769691
+          ]
+        }
+      },
+      "throughput_gain_pct": 5.909930239127603,
+      "page_reduction_pct": 71.11111111111111,
+      "copy_reduction_pct": 88.96611642050391
+    },
+    {
+      "cached": 1151,
+      "branches": 16,
+      "medians": {
+        "copy": {
+          "fork_ms": 6.931680720299482,
+          "fork_to_first_ms": 12.10349379107356,
+          "total_ms": 170.71133386343718,
+          "tokens_per_s": 2999.2150398729896,
+          "peak_live_pages": 85,
+          "copy_bytes": 2112094208
+        },
+        "cow": {
+          "fork_ms": 1.8621538765728474,
+          "fork_to_first_ms": 8.510056883096695,
+          "total_ms": 130.1108319312334,
+          "tokens_per_s": 3935.1066502334247,
+          "peak_live_pages": 21,
+          "copy_bytes": 233046016
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            12.037080246955156,
+            12.131066992878914
+          ],
+          "total_ms": [
+            170.50523590296507,
+            170.79790076240897
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            8.508454542607069,
+            8.525734767317772
+          ],
+          "total_ms": [
+            129.88423509523273,
+            130.1193810068071
+          ]
+        }
+      },
+      "throughput_gain_pct": 31.204551788326174,
+      "page_reduction_pct": 75.29411764705883,
+      "copy_reduction_pct": 88.96611642050391
+    },
+    {
+      "cached": 4223,
+      "branches": 1,
+      "medians": {
+        "copy": {
+          "fork_ms": 1.6940589994192123,
+          "fork_to_first_ms": 4.896811209619045,
+          "total_ms": 100.05784733220935,
+          "tokens_per_s": 319.8149955570648,
+          "peak_live_pages": 34,
+          "copy_bytes": 484327424
+        },
+        "cow": {
+          "fork_ms": 0.4336489364504814,
+          "fork_to_first_ms": 3.8478029891848564,
+          "total_ms": 99.29993795230985,
+          "tokens_per_s": 322.255991895669,
+          "peak_live_pages": 18,
+          "copy_bytes": 14565376
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            4.806365352123976,
+            4.923978820443153
+          ],
+          "total_ms": [
+            99.97042827308178,
+            100.32999096438289
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            3.710281103849411,
+            3.8487520068883896
+          ],
+          "total_ms": [
+            98.6522869206965,
+            99.38139608129859
+          ]
+        }
+      },
+      "throughput_gain_pct": 0.7632526218329438,
+      "page_reduction_pct": 47.05882352941176,
+      "copy_reduction_pct": 96.99265924698082
+    },
+    {
+      "cached": 4223,
+      "branches": 8,
+      "medians": {
+        "copy": {
+          "fork_ms": 12.598159722983837,
+          "fork_to_first_ms": 19.86891683191061,
+          "total_ms": 247.83618468791246,
+          "tokens_per_s": 1032.9403687454592,
+          "peak_live_pages": 153,
+          "copy_bytes": 3874619392
+        },
+        "cow": {
+          "fork_ms": 3.281033132225275,
+          "fork_to_first_ms": 9.586865082383156,
+          "total_ms": 168.58696611598134,
+          "tokens_per_s": 1518.5041044269215,
+          "peak_live_pages": 25,
+          "copy_bytes": 116523008
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            19.761061761528254,
+            20.448358729481697
+          ],
+          "total_ms": [
+            247.4087318405509,
+            250.20760390907526
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            9.568450041115284,
+            9.62190330028534
+          ],
+          "total_ms": [
+            168.39260328561068,
+            168.71017822995782
+          ]
+        }
+      },
+      "throughput_gain_pct": 47.007915497696715,
+      "page_reduction_pct": 83.66013071895425,
+      "copy_reduction_pct": 96.99265924698082
+    },
+    {
+      "cached": 4223,
+      "branches": 16,
+      "medians": {
+        "copy": {
+          "fork_ms": 24.896920192986727,
+          "fork_to_first_ms": 36.678054835647345,
+          "total_ms": 410.31766775995493,
+          "tokens_per_s": 1247.8136824942462,
+          "peak_live_pages": 289,
+          "copy_bytes": 7749238784
+        },
+        "cow": {
+          "fork_ms": 6.480713374912739,
+          "fork_to_first_ms": 16.36965200304985,
+          "total_ms": 253.9014290086925,
+          "tokens_per_s": 2016.530596141195,
+          "peak_live_pages": 33,
+          "copy_bytes": 233046016
+        }
+      },
+      "ranges": {
+        "copy": {
+          "fork_to_first_ms": [
+            36.67193790897727,
+            36.715548019856215
+          ],
+          "total_ms": [
+            410.19579907879233,
+            410.34965263679624
+          ]
+        },
+        "cow": {
+          "fork_to_first_ms": [
+            16.03540498763323,
+            16.376724001020193
+          ],
+          "total_ms": [
+            253.2770112156868,
+            254.02576103806496
+          ]
+        }
+      },
+      "throughput_gain_pct": 61.605103745165366,
+      "page_reduction_pct": 88.58131487889274,
+      "copy_reduction_pct": 96.99265924698082
+    }
+  ],
+  "ordinary": [
+    {
+      "scenario": "shared_short",
+      "before": 5694.194645072593,
+      "after": 5682.136453456639,
+      "change_pct": -0.21176289831237316
+    },
+    {
+      "scenario": "no_shared",
+      "before": 2597.3723013738518,
+      "after": 2593.9372764041827,
+      "change_pct": -0.13225000389247565
+    }
+  ]
+}

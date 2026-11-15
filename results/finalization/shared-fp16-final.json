@@ -1,0 +1,92 @@
+{
+  "backend": "auto",
+  "mode": "graph",
+  "decode_steps": [
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 4.027409522677772e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.04296875,
+      "relative_l2": 0.001568500534631312,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 5.8693687606137246e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.046875,
+      "relative_l2": 0.0017362310318276286,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 0.00010317064879927784,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.04296875,
+      "relative_l2": 0.0016512058209627867,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 6.326823495328426e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.046875,
+      "relative_l2": 0.001641014707274735,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 4.5822132960893214e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.0625,
+      "relative_l2": 0.0019810697995126247,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 2.8222166292835027e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.03125,
+      "relative_l2": 0.001696447841823101,
+      "argmax_agreement": 0.9696969985961914
+    },
+    {
+      "batch": 33,
+      "shared": true,
+      "max_kl": 3.296816430520266e-05,
+      "prefix": 1024,
+      "max_abs_logit_error": 0.03125,
+      "relative_l2": 0.0018439287086948752,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 22,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    },
+    {
+      "batch": 11,
+      "shared": false,
+      "max_kl": 0.0,
+      "prefix": 0,
+      "max_abs_logit_error": 0.0,
+      "relative_l2": 0.0,
+      "argmax_agreement": 1.0
+    }
+  ],
+  "route_counts": {
+    "shared": 7,
+    "small_batch": 2
+  },
+  "note": "Same model and teacher-forced history; original and shared attention compared before each step commits."
+}
