@@ -111,5 +111,3 @@ VLLM_USE_V1=0 VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1 \
 - 270 次 CPU 缓存逐位检查，覆盖真实复制后失败、传输中取消和回滚；D2H/Decode 时间线有实际重叠。
 - 原始 JSON 含请求 token 时间、重复次数、路由/资源统计；CSV、PNG/SVG、固定版本参考、失败候选记录全部保留。
 - 输入是固定种子 shape 压测、程序生成技术文本及 teacher-forced 会话响应，不是真实用户生产对话；详见[数据说明](results/README.md)。
-
-GPU 硬件 counters 不可用，不报告 HBM/L2/occupancy 实测。当前为单 GPU、单线程 step 边界 API；CPU 缓存不迁移保存或活跃会话。多 GPU、MoE、KV 量化、LoRA、推测解码和多层前缀树 kernel 不在范围内。
